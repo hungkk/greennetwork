@@ -19,7 +19,6 @@ type
     Label6: TLabel;
     Image1: TImage;
     procedure Button1Click(Sender: TObject);
-    procedure FormShow(Sender: TObject);
   private
     { Private declarations }
   public
@@ -36,12 +35,6 @@ implementation
 procedure TAboutForm.Button1Click(Sender: TObject);
 begin
 close;
-end;
-
-procedure TAboutForm.FormShow(Sender: TObject);
-begin
-   AboutForm.AlphaBlendValue := 230 {Уровень прозрачности};
-   AboutForm.AlphaBlend := True;
 end;
 
 end.

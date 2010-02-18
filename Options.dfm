@@ -1,5 +1,5 @@
 object OptionsForm: TOptionsForm
-  Left = 481
+  Left = 562
   Top = 255
   BorderStyle = bsDialog
   Caption = 'Options'
@@ -37,26 +37,36 @@ object OptionsForm: TOptionsForm
       Align = alLeft
       ShowRoot = False
       Indent = 19
+      RowSelect = True
       TabOrder = 0
+      OnChange = JvPageListTreeView1Change
       Items.Data = {
-        05000000230000000000000000000000FFFFFFFFFFFFFFFF0000000000000000
-        0A4275646479206C6973742A0000000000000000000000FFFFFFFFFFFFFFFF01
-        00000000000000114661766F7269746573207365727665727329000000000000
-        0000000000FFFFFFFFFFFFFFFF02000000000000001047656E6572616C207365
-        7474696E6773240000000000000000000000FFFFFFFFFFFFFFFF030000000000
-        00000B4A6F696E20736572766572270000000000000000000000FFFFFFFFFFFF
-        FFFF04000000000000000E47616D655370792066696C746572}
-      Items.Links = {050000000000000000000000000000000000000000000000}
+        05000000230000000000000000000000FFFFFFFFFFFFFFFF0000000003000000
+        0A4275646479206C697374210000000000000000000000FFFFFFFFFFFFFFFF00
+        00000000000000085072656669786573260000000000000000000000FFFFFFFF
+        FFFFFFFF00000000000000000D506C6179657273206E616D6573220000000000
+        000000000000FFFFFFFFFFFFFFFF000000000000000009436C616E2074616773
+        2A0000000000000000000000FFFFFFFFFFFFFFFF010000000000000011466176
+        6F72697465732073657276657273290000000000000000000000FFFFFFFFFFFF
+        FFFF02000000020000001047656E6572616C2073657474696E67731F00000000
+        00000000000000FFFFFFFFFFFFFFFF020000000000000006456E67696E651F00
+        00000000000000000000FFFFFFFFFFFFFFFF0200000000000000065669737561
+        6C240000000000000000000000FFFFFFFFFFFFFFFF03000000000000000B4A6F
+        696E20736572766572270000000000000000000000FFFFFFFFFFFFFFFF040000
+        00000000000E47616D655370792066696C746572}
+      Items.Links = {
+        0A00000000000000000000000000000000000000010000000200000002000000
+        020000000300000004000000}
     end
     object JvPageList1: TJvPageList
       Left = 148
       Top = 1
       Width = 476
       Height = 359
-      ActivePage = JvStandardPage1
+      ActivePage = JvGeneralPage
       PropagateEnable = False
       Align = alClient
-      object JvMatesPage1: TJvStandardPage
+      object JvMatesPage: TJvStandardPage
         Left = 0
         Top = 0
         Width = 476
@@ -496,6 +506,7 @@ object OptionsForm: TOptionsForm
               end
               object NxCheckBoxColumn4: TNxCheckBoxColumn
                 Alignment = taCenter
+                DefaultWidth = 128
                 Font.Charset = DEFAULT_CHARSET
                 Font.Color = clWindowText
                 Font.Height = -11
@@ -505,6 +516,7 @@ object OptionsForm: TOptionsForm
                 Options = [coCanClick, coCanInput, coCanSort, coEditing, coPublicUsing]
                 Position = 4
                 SortType = stBoolean
+                Width = 128
               end
             end
             object RadioGroupClanTag: TRadioGroup
@@ -525,7 +537,7 @@ object OptionsForm: TOptionsForm
             object CheckBoxClanTagCaseSens: TCheckBox
               Left = 10
               Top = 59
-              Width = 97
+              Width = 335
               Height = 17
               Caption = 'Case sensetive'
               TabOrder = 2
@@ -570,7 +582,7 @@ object OptionsForm: TOptionsForm
           end
         end
       end
-      object JvServersPage2: TJvStandardPage
+      object JvServersPage: TJvStandardPage
         Left = 0
         Top = 0
         Width = 476
@@ -578,24 +590,26 @@ object OptionsForm: TOptionsForm
         object Label3: TLabel
           Left = 8
           Top = 48
-          Width = 413
-          Height = 26
+          Width = 457
+          Height = 41
+          AutoSize = False
           Caption = 
             '*Note: In order to get valid server details you must enter Query' +
             'Port instead of GamePort,'#13#10'by default GamePort is 16567 and Quer' +
             'yPort is 29900.'
+          WordWrap = True
         end
         object Label6: TLabel
-          Left = 8
-          Top = 96
+          Left = 16
+          Top = 101
           Width = 36
           Height = 13
           Caption = 'Servers'
           Font.Charset = DEFAULT_CHARSET
-          Font.Color = clNavy
+          Font.Color = clBlack
           Font.Height = -11
           Font.Name = 'MS Sans Serif'
-          Font.Style = [fsUnderline]
+          Font.Style = []
           ParentFont = False
         end
         object JvGradientHeaderPanel1: TJvGradientHeaderPanel
@@ -617,9 +631,9 @@ object OptionsForm: TOptionsForm
           TabOrder = 0
         end
         object ServersListBox: TListBox
-          Left = 8
+          Left = 16
           Top = 120
-          Width = 460
+          Width = 441
           Height = 185
           ItemHeight = 13
           MultiSelect = True
@@ -627,23 +641,23 @@ object OptionsForm: TOptionsForm
           TabOrder = 1
         end
         object ServerEdit: TEdit
-          Left = 8
+          Left = 16
           Top = 320
-          Width = 377
+          Width = 337
           Height = 21
           TabOrder = 2
         end
         object AddServerButton: TButton
-          Left = 392
+          Left = 368
           Top = 320
-          Width = 75
+          Width = 91
           Height = 25
           Caption = 'Add'
           TabOrder = 3
           OnClick = AddServerButtonClick
         end
       end
-      object JvGeneralPage1: TJvStandardPage
+      object JvGeneralPage: TJvStandardPage
         Left = 0
         Top = 0
         Width = 476
@@ -666,160 +680,249 @@ object OptionsForm: TOptionsForm
           DoubleBuffered = False
           TabOrder = 0
         end
-        object NxPanel2: TNxPanel
-          Left = 58
-          Top = 48
-          Width = 360
-          Height = 281
-          AdaptiveColors = False
-          Color = clBtnFace
-          ColorScheme = csSilver
-          UseDockManager = False
-          InnerMargins.Left = 0
-          InnerMargins.Top = 0
-          InnerMargins.Bottom = 0
-          InnerMargins.Right = 0
-          ParentBackground = False
-          ParentColor = False
+        object NxPageControl2: TNxPageControl
+          Left = 0
+          Top = 30
+          Width = 476
+          Height = 329
+          ActivePage = EngineNxTabSheet
+          ActivePageIndex = 0
+          Align = alClient
           TabOrder = 1
-          object Label14: TLabel
-            Left = 16
-            Top = 144
-            Width = 94
-            Height = 13
-            Caption = 'Highlight mates with'
+          OnClick = BuddyListWorks
+          BackgroundColor = 14540253
+          BackgroundKind = bkSolid
+          Margin = 0
+          Options = [pgBoldActiveTab]
+          Spacing = 0
+          TabHeight = 17
+          TabStyle = tsClassic
+          object EngineNxTabSheet: TNxTabSheet
+            Caption = 'Engine'
+            PageIndex = 0
+            TabFont.Charset = DEFAULT_CHARSET
+            TabFont.Color = clWindowText
+            TabFont.Height = -11
+            TabFont.Name = 'MS Sans Serif'
+            TabFont.Style = []
+            OnShow = EngineNxTabSheetShow
+            object Label4: TLabel
+              Left = 52
+              Top = 23
+              Width = 39
+              Height = 13
+              Caption = 'Threads'
+            end
+            object Label5: TLabel
+              Left = 52
+              Top = 55
+              Width = 64
+              Height = 13
+              Caption = 'Timeout (sec)'
+            end
+            object Label1: TLabel
+              Left = 52
+              Top = 87
+              Width = 169
+              Height = 13
+              Caption = 'Retry count on update server failure'
+            end
+            object Label16: TLabel
+              Left = 52
+              Top = 117
+              Width = 128
+              Height = 13
+              Caption = 'On action "Join server" do:'
+            end
+            object Label20: TLabel
+              Left = 52
+              Top = 149
+              Width = 114
+              Height = 13
+              Caption = 'On application starts do:'
+            end
+            object TrackBar1: TTrackBar
+              Left = 134
+              Top = 23
+              Width = 225
+              Height = 25
+              Max = 200
+              Min = 1
+              PageSize = 1
+              Frequency = 10
+              Position = 10
+              TabOrder = 0
+              ThumbLength = 15
+              OnChange = TrackBar1Change
+            end
+            object threads: TSpinEdit
+              Left = 366
+              Top = 23
+              Width = 57
+              Height = 22
+              MaxValue = 200
+              MinValue = 1
+              TabOrder = 1
+              Value = 10
+              OnChange = threadsChange
+            end
+            object TimeOutSpin: TSpinEdit
+              Left = 366
+              Top = 55
+              Width = 57
+              Height = 22
+              MaxValue = 20
+              MinValue = 1
+              TabOrder = 2
+              Value = 10
+              OnChange = TimeOutSpinChange
+            end
+            object TrackBar2: TTrackBar
+              Left = 134
+              Top = 55
+              Width = 225
+              Height = 25
+              Max = 20
+              Min = 1
+              PageSize = 1
+              Position = 10
+              TabOrder = 3
+              ThumbLength = 15
+              OnChange = TrackBar2Change
+            end
+            object updRetrySpin: TSpinEdit
+              Left = 366
+              Top = 87
+              Width = 57
+              Height = 22
+              MaxValue = 20
+              MinValue = 0
+              TabOrder = 4
+              Value = 0
+              OnChange = TimeOutSpinChange
+            end
+            object JoinserverComboBoxActions: TComboBox
+              Left = 248
+              Top = 117
+              Width = 175
+              Height = 21
+              Style = csDropDownList
+              ItemHeight = 13
+              ItemIndex = 2
+              TabOrder = 5
+              Text = 'Minimize application'
+              Items.Strings = (
+                '(Nothing)'
+                'Terminate application'
+                'Minimize application'
+                'Minimize application to try')
+            end
+            object StartAppComboBoxActions: TComboBox
+              Left = 248
+              Top = 149
+              Width = 175
+              Height = 21
+              Style = csDropDownList
+              ItemHeight = 13
+              TabOrder = 6
+              Items.Strings = (
+                '(Nothing)'
+                'Update Favorites'
+                'Update GameSpy'
+                'Update PlayersOnline')
+            end
           end
-          object Label15: TLabel
-            Left = 16
-            Top = 176
-            Width = 153
-            Height = 13
-            Caption = 'Highlight servers with mates with'
-          end
-          object Label4: TLabel
-            Left = 16
-            Top = 48
-            Width = 39
-            Height = 13
-            Caption = 'Threads'
-          end
-          object Label5: TLabel
-            Left = 16
-            Top = 80
-            Width = 38
-            Height = 13
-            Caption = 'Timeout'
-          end
-          object Label7: TLabel
-            Left = 304
-            Top = 80
-            Width = 40
-            Height = 13
-            Caption = 'seconds'
-          end
-          object Label1: TLabel
-            Left = 16
-            Top = 208
-            Width = 169
-            Height = 13
-            Caption = 'Retry count on update server failure'
-          end
-          object MatesColorPicker: TNxColorPicker
-            Left = 184
-            Top = 144
-            Width = 105
-            Height = 21
-            TabOrder = 0
-            Text = '#FFFFFF'
-            ShowPreview = True
-            Options = [coColorsButton, coNoneButton]
-            HideFocus = False
-            SelectedColor = clWhite
-            WebColorFormat = True
-          end
-          object ServersColorPicker: TNxColorPicker
-            Left = 184
-            Top = 176
-            Width = 105
-            Height = 21
-            TabOrder = 1
-            Text = '#FFFFFF'
-            ShowPreview = True
-            Options = [coColorsButton, coNoneButton]
-            HideFocus = False
-            SelectedColor = clWhite
-            WebColorFormat = True
-          end
-          object TerminateOnJoinCheckBox: TCheckBox
-            Left = 15
-            Top = 112
-            Width = 257
-            Height = 17
-            Alignment = taLeftJustify
-            BiDiMode = bdLeftToRight
-            Caption = 'Terminate application on "Join server" action'
-            ParentBiDiMode = False
-            TabOrder = 2
-          end
-          object threads: TSpinEdit
-            Left = 232
-            Top = 48
-            Width = 57
-            Height = 22
-            MaxValue = 200
-            MinValue = 1
-            TabOrder = 3
-            Value = 10
-            OnChange = threadsChange
-          end
-          object TimeOutSpin: TSpinEdit
-            Left = 232
-            Top = 80
-            Width = 57
-            Height = 22
-            MaxValue = 20
-            MinValue = 1
-            TabOrder = 4
-            Value = 10
-            OnChange = TimeOutSpinChange
-          end
-          object TrackBar1: TTrackBar
-            Left = 72
-            Top = 48
-            Width = 150
-            Height = 25
-            Max = 200
-            Min = 1
-            PageSize = 1
-            Frequency = 10
-            Position = 10
-            TabOrder = 5
-            ThumbLength = 15
-            OnChange = TrackBar1Change
-          end
-          object TrackBar2: TTrackBar
-            Left = 72
-            Top = 80
-            Width = 150
-            Height = 25
-            Max = 20
-            Min = 1
-            PageSize = 1
-            Position = 10
-            TabOrder = 6
-            ThumbLength = 15
-            OnChange = TrackBar2Change
-          end
-          object updRetrySpin: TSpinEdit
-            Left = 232
-            Top = 208
-            Width = 57
-            Height = 22
-            MaxValue = 20
-            MinValue = 0
-            TabOrder = 7
-            Value = 0
-            OnChange = TimeOutSpinChange
+          object VisualNxTabSheet: TNxTabSheet
+            Caption = 'Visual'
+            PageIndex = 1
+            TabFont.Charset = DEFAULT_CHARSET
+            TabFont.Color = clWindowText
+            TabFont.Height = -11
+            TabFont.Name = 'MS Sans Serif'
+            TabFont.Style = []
+            object Label14: TLabel
+              Left = 65
+              Top = 23
+              Width = 72
+              Height = 13
+              Caption = 'Highlight mates'
+            end
+            object Label2: TLabel
+              Left = 65
+              Top = 87
+              Width = 74
+              Height = 13
+              Caption = 'Application skin'
+            end
+            object Label15: TLabel
+              Left = 65
+              Top = 55
+              Width = 126
+              Height = 13
+              Caption = 'Highlight server with mates'
+            end
+            object Label7: TLabel
+              Left = 65
+              Top = 119
+              Width = 48
+              Height = 13
+              Caption = 'Language'
+            end
+            object SkinCb: TComboBox
+              Left = 300
+              Top = 87
+              Width = 110
+              Height = 21
+              Style = csDropDownList
+              ItemHeight = 13
+              ItemIndex = 0
+              TabOrder = 0
+              Text = 'Default'
+              OnChange = SkinCbChange
+              Items.Strings = (
+                'Default'
+                'Luna')
+            end
+            object ServersColorPicker: TNxColorPicker
+              Left = 300
+              Top = 18
+              Width = 110
+              Height = 21
+              TabOrder = 1
+              Text = '#FFFFFF'
+              ShowPreview = True
+              OnChange = ServersColorPickerChange
+              Options = [coColorsButton]
+              HideFocus = False
+              SelectedColor = clWhite
+              WebColorFormat = True
+            end
+            object MatesColorPicker: TNxColorPicker
+              Left = 300
+              Top = 55
+              Width = 110
+              Height = 21
+              TabOrder = 2
+              Text = '#FFFFFF'
+              ShowPreview = True
+              OnChange = MatesColorPickerChange
+              Options = [coColorsButton]
+              HideFocus = False
+              SelectedColor = clWhite
+              WebColorFormat = True
+            end
+            object LangNameComboBox: TComboBox
+              Left = 228
+              Top = 119
+              Width = 182
+              Height = 21
+              Style = csDropDownList
+              ItemHeight = 13
+              TabOrder = 3
+              OnChange = LangNameComboBoxChange
+              Items.Strings = (
+                '(Default)')
+            end
           end
         end
       end
@@ -829,13 +932,15 @@ object OptionsForm: TOptionsForm
         Width = 476
         Height = 359
         object Label13: TLabel
-          Left = 8
-          Top = 48
-          Width = 319
-          Height = 13
+          Left = 9
+          Top = 40
+          Width = 457
+          Height = 25
+          AutoSize = False
           Caption = 
             '*Note: Your password will be stored in settings file without enc' +
             'ription'
+          WordWrap = True
         end
         object JvGradientHeaderPanel4: TJvGradientHeaderPanel
           Left = 0
@@ -856,44 +961,47 @@ object OptionsForm: TOptionsForm
           TabOrder = 0
         end
         object GroupBox2: TGroupBox
-          Left = 10
-          Top = 72
+          Left = 11
+          Top = 64
           Width = 455
-          Height = 97
+          Height = 119
+          BiDiMode = bdLeftToRight
           Caption = 'PR execution'
+          ParentBiDiMode = False
           TabOrder = 1
           object Label11: TLabel
             Left = 16
-            Top = 60
+            Top = 69
             Width = 59
             Height = 13
             Caption = 'Parameters: '
           end
           object Label8: TLabel
             Left = 16
-            Top = 26
-            Width = 56
+            Top = 20
+            Width = 97
             Height = 13
+            AutoSize = False
             Caption = 'pr.exe path:'
           end
           object ExecParamsEdit: TEdit
-            Left = 80
-            Top = 60
-            Width = 361
+            Left = 16
+            Top = 85
+            Width = 425
             Height = 21
             TabOrder = 0
             Text = '+menu 1 +fullscreen 1'
           end
           object PrPAthEdit: TEdit
-            Left = 80
-            Top = 28
-            Width = 281
+            Left = 16
+            Top = 39
+            Width = 345
             Height = 21
             TabOrder = 1
           end
           object Button1: TButton
             Left = 376
-            Top = 24
+            Top = 35
             Width = 65
             Height = 25
             Caption = 'Browse ...'
@@ -902,8 +1010,8 @@ object OptionsForm: TOptionsForm
           end
         end
         object GroupBox1: TGroupBox
-          Left = 9
-          Top = 184
+          Left = 10
+          Top = 192
           Width = 456
           Height = 153
           Caption = 'Online accounts'
@@ -916,23 +1024,23 @@ object OptionsForm: TOptionsForm
             Caption = 'Prefix'
           end
           object Label10: TLabel
-            Left = 80
+            Left = 72
             Top = 26
             Width = 58
             Height = 13
             Caption = 'Player name'
           end
           object Label12: TLabel
-            Left = 224
+            Left = 216
             Top = 26
             Width = 46
             Height = 13
             Caption = 'Password'
           end
           object Button3: TButton
-            Left = 376
+            Left = 368
             Top = 48
-            Width = 67
+            Width = 75
             Height = 25
             Caption = 'Add'
             TabOrder = 4
@@ -949,7 +1057,7 @@ object OptionsForm: TOptionsForm
           object ColumnListBox1: TColumnListBox
             Left = 16
             Top = 80
-            Width = 345
+            Width = 337
             Height = 57
             Columns = <
               item
@@ -1001,7 +1109,7 @@ object OptionsForm: TOptionsForm
             Version = '1.2.2.1'
           end
           object PlayerNameEdit: TEdit
-            Left = 80
+            Left = 72
             Top = 48
             Width = 137
             Height = 21
@@ -1009,16 +1117,16 @@ object OptionsForm: TOptionsForm
             TabOrder = 1
           end
           object PasswordEdit: TEdit
-            Left = 224
+            Left = 216
             Top = 48
             Width = 137
             Height = 21
             TabOrder = 2
           end
           object Button4: TButton
-            Left = 376
+            Left = 368
             Top = 80
-            Width = 67
+            Width = 75
             Height = 25
             Caption = 'Delete'
             TabOrder = 5
@@ -1026,12 +1134,12 @@ object OptionsForm: TOptionsForm
           end
         end
       end
-      object JvStandardPage1: TJvStandardPage
+      object JvGameSpyPage: TJvStandardPage
         Left = 0
         Top = 0
         Width = 476
         Height = 359
-        Caption = 'JvStandardPage1'
+        Caption = 'JvGameSpyPage'
         object JvGradientHeaderPanel5: TJvGradientHeaderPanel
           Left = 0
           Top = 0
@@ -1051,18 +1159,19 @@ object OptionsForm: TOptionsForm
           TabOrder = 0
         end
         object customfiltercb: TCheckBox
-          Left = 145
-          Top = 64
-          Width = 169
+          Left = 121
+          Top = 47
+          Width = 233
           Height = 17
+          Alignment = taLeftJustify
           Caption = 'Use custom filter'
           TabOrder = 1
         end
         object FilterListBox: TCheckListBox
-          Left = 145
-          Top = 88
-          Width = 185
-          Height = 217
+          Left = 119
+          Top = 71
+          Width = 239
+          Height = 241
           ItemHeight = 13
           Items.Strings = (
             'map size 64'
@@ -1073,6 +1182,8 @@ object OptionsForm: TOptionsForm
             'gpm_skirmish'
             'gmp_cnc'
             'gpm_training'
+            'gmp_coop'
+            'gmp_vehicles'
             'punkbuster'
             'populated'
             'voip'

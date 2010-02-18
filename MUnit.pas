@@ -2,9 +2,9 @@ unit MUnit;
 
 interface
 
-uses  Options, Menus, ShellApi, ColListb, Forms, ShlObj, ActiveX,
+uses  Options, Menus, ShellApi, ColListb, Forms, ShlObj, 
       BF2ServerInfo, Clipbrd, ComCtrls, StdCtrls, Graphics, cStrings, Unit1,
-      Windows, Messages, SysUtils, Variants, Classes, TB2Item, GeoIP;
+      Windows, Messages, SysUtils, Variants, Classes, TB2Item, GeoIP, LanguageUnit;
 
  const
    gALL = 0;
@@ -18,10 +18,16 @@ uses  Options, Menus, ShellApi, ColListb, Forms, ShlObj, ActiveX,
    inName = 2;
    inPrefix = 1;
 
+       PLAYER_REAL = 0;
+       PLAYER_BOT  = 1;
+       PLAYER_UNKNOWN = -1;
+
 type
   TCompareBy = (fpPrefix, fpName, fpClantag, fpAll);
 
 
+function GetDefLangFile:string;
+procedure ExtractRes(OutFile, ResName: string; ResType: PChar );
 
 procedure SaveOptions;
 procedure LoadOptions(InxType: Integer = gALL);
@@ -50,7 +56,7 @@ procedure UpdateJoinServerList( Item: TMenuItem; Action: integer  ); overload;
 procedure UpdateJoinServerList( item: TTBCustomItem ); overload;
 
 
-procedure JoinToServer(ServerIP, GamePort: string; AccountIndex: integer);
+procedure JoinToServer(ServerIP, GamePort, ServerPassword: string; AccountIndex: integer);
 
 function RunDosAndWait(const CommandLine: AnsiString; var OutSrings: AnsiString): boolean;
 //procedure LoadGameSpyServers(var List: TStringList);
@@ -66,7 +72,8 @@ function GetMatesCountHTML(Item: TBF2ServerInfoItem ): string;
 function GetMateIndex(SrcName: String; CompareParam: TCompareBy; const cTAGindex : Integer = 10 ): Integer;
 function GetMatesCount(Item: TBF2ServerInfoItem):Integer;
 function isMate(Name: String):Integer;
-
+function isBot(P: TPlayerInfo ):Integer;
+function GetPOImageIndex(Index: integer): Integer;
 
 procedure eAddPrefix(PrefixName: String);
 procedure eAddPName(PName: String);
@@ -83,10 +90,37 @@ Function Dos2Win(CmdLine:String; var OutText: String): boolean;
 
 function HasInvalidChars(S: string):Boolean;
 
+procedure UpdateDetailedInfo( RV: TRichEdit; Item: TBF2ServerInfoItem; const NameColor: integer = clNavy; ValueColor: integer = clBlack);
+procedure LoadLanguageFilesList(LLFL: TStrings);
+
 
 implementation
 
 uses KOLTrans{, GeoIP};
+
+
+function GetDefLangFile:string;
+var Path: string;
+begin
+   Path := ExtractFilePath(Application.ExeName)+'Lang';
+   Windows.CreateDirectory( PAnsiChar(Path), nil);
+   ExtractRes( Path + '\Default.lng', 'DEFLANG' ,'DAT' );
+   Result:= Path + '\Default.lng';
+end;
+
+procedure ExtractRes(OutFile, ResName: string; ResType: PChar );
+var
+  tmpStream: TResourceStream;
+begin
+  tmpStream := TResourceStream.Create( HInstance, ResName, ResType );
+  try
+    tmpStream.SaveToFile( OutFile );
+  finally
+    tmpStream.Free;
+  end;
+end;
+
+
 
 
 procedure LoadGeoIPdbFromRes(GIP: TGeoIP);
@@ -109,6 +143,28 @@ begin
 
 
 //
+end;
+
+
+function GetPOImageIndex(Index: integer): Integer;
+begin
+   case Index of
+    0 : Result:= 2;
+    1 : Result:= 1;
+    2 : Result:= 0
+   end;
+end;
+
+
+
+// 1 - Bot  ; 0 - Player ; -1 unknown
+function isBot(P: TPlayerInfo ):Integer;
+begin
+ if P.Team <> '' then
+ begin
+   if ((P.Pid = '0') and (P.Ping = '0')) then Result:= PLAYER_BOT else Result:= PLAYER_REAL;
+ end else
+  Result:= PLAYER_UNKNOWN;
 end;
 
 // 0 -NonMate ; 1 - mate ; 2 - Bolded mAmte
@@ -295,10 +351,14 @@ begin
      {General settings}
      jvpnflstrg1.WriteInteger('THREADS', threads.Value );
      jvpnflstrg1.WriteInteger('TIMEOUT', TimeOutSpin.value);
-     jvpnflstrg1.WriteBoolean('TERMAPP', TerminateOnJoinCheckBox.Checked);
+   //  jvpnflstrg1.WriteBoolean('TERMAPP', TerminateOnJoinCheckBox.Checked);
      jvpnflstrg1.WriteInteger('HIGHPLAYER', MatesColorPicker.SelectedColor );
      jvpnflstrg1.WriteInteger('HIGHSERVER', ServersColorPicker.SelectedColor);
      jvpnflstrg1.WriteInteger('FRETRYCNT', updRetrySpin.value);
+     jvpnflstrg1.WriteInteger('SKIN', SkinCb.ItemIndex);
+     jvpnflstrg1.WriteInteger('ONJOIN', JoinserverComboBoxActions.ItemIndex);
+     jvpnflstrg1.WriteInteger('ONSTARTAPP', StartAppComboBoxActions.ItemIndex);
+     jvpnflstrg1.WriteString('LANGNAME', LangNameComboBox.text);
 
      //jvpnflstrg1.WriteBoolean('HIDEUNA', HideInactiveCheckBox.Checked);
      {Filter}
@@ -318,11 +378,14 @@ begin
      jvpnflstrg1.WriteBoolean('gpm_skirmish',   FilterListBox.Checked[5]);
      jvpnflstrg1.WriteBoolean('gpm_training',   FilterListBox.Checked[6]);
 
-     jvpnflstrg1.WriteBoolean('PB_ON',          FilterListBox.Checked[7]);
-     jvpnflstrg1.WriteBoolean('POPULATED',      FilterListBox.Checked[8]);
-     jvpnflstrg1.WriteBoolean('VOIP_ON',        FilterListBox.Checked[9]);
-     jvpnflstrg1.WriteBoolean('NOTFULL',        FilterListBox.Checked[10]);
-     jvpnflstrg1.WriteBoolean('PASSWORD',       FilterListBox.Checked[11]);
+     jvpnflstrg1.ReadBoolean('gmp_coop',        FilterListBox.Checked[7]);
+     jvpnflstrg1.ReadBoolean('gmp_vehicles',    FilterListBox.Checked[8]);
+
+     jvpnflstrg1.WriteBoolean('PB_ON',          FilterListBox.Checked[9]);
+     jvpnflstrg1.WriteBoolean('POPULATED',      FilterListBox.Checked[10]);
+     jvpnflstrg1.WriteBoolean('VOIP_ON',        FilterListBox.Checked[11]);
+     jvpnflstrg1.WriteBoolean('NOTFULL',        FilterListBox.Checked[12]);
+     jvpnflstrg1.WriteBoolean('PASSWORD',       FilterListBox.Checked[13]);
 
 
      {Accounts}
@@ -348,7 +411,7 @@ begin
 end;
 //-----------------------
 procedure LoadOptions(InxType: Integer = gALL);
-var Path: string;
+var Path: string; Strs: TStringList;
 begin
   Path:= ExtractFilePath(Application.ExeName);
 
@@ -356,6 +419,15 @@ begin
 
   with OptionsForm do
   begin
+
+       {LANGUAGE
+       Strs:= TStringList.Create;
+       LangNameComboBox.Clear;
+       LangNameComboBox.Items.Add('default');
+       LoadLanguageFilesList(Strs);
+       LangNameComboBox.Items.AddStrings(Strs);
+       Strs.Free;
+               }
 
      {Mates}
      if FileExists(  Path + PREFIX_FILE  ) then
@@ -373,10 +445,30 @@ begin
      {General settings}
      threads.Value                    := jvpnflstrg1.ReadInteger('THREADS',    10);
      TimeOutSpin.value                := jvpnflstrg1.ReadInteger('TIMEOUT',    1);
-     TerminateOnJoinCheckBox.Checked  := jvpnflstrg1.ReadBoolean('TERMAPP',    False );
+    // TerminateOnJoinCheckBox.Checked  := jvpnflstrg1.ReadBoolean('TERMAPP',    False );
      MatesColorPicker.SelectedColor   := jvpnflstrg1.ReadInteger('HIGHPLAYER', 65484 );
      ServersColorPicker.SelectedColor := jvpnflstrg1.ReadInteger('HIGHSERVER', 10092492);
      updRetrySpin.value               := jvpnflstrg1.ReadInteger('FRETRYCNT', 0);
+
+     SkinCb.ItemIndex                 := jvpnflstrg1.ReadInteger('SKIN', 0);
+     Form1.SkinData1.Active:= jvpnflstrg1.ReadInteger('SKIN', 0) = 1;
+
+     JoinserverComboBoxActions.ItemIndex := jvpnflstrg1.ReadInteger('ONJOIN', 2);
+     StartAppComboBoxActions.ItemIndex   := jvpnflstrg1.ReadInteger('ONSTARTAPP', 0);
+
+     with  LangNameComboBox do
+     begin
+       Items.Clear;
+       Items.Add('Default');
+
+       LoadLanguageFilesList( Items );
+       ItemIndex := Items.IndexOf( jvpnflstrg1.ReadString('LANGNAME', '') );
+       if ItemIndex = -1 then ItemIndex:= 0;
+
+
+       ReadLng(Path + 'Lang\' + Text );
+     end;
+
      {Filter}
      customfiltercb.Checked := jvpnflstrg1.ReadBoolean('CUSTFILTER', False);
 
@@ -393,12 +485,14 @@ begin
     FilterListBox.Checked[4]:=  jvpnflstrg1.ReadBoolean('gpm_cq',         True);
     FilterListBox.Checked[5]:=  jvpnflstrg1.ReadBoolean('gpm_skirmish',   True);
     FilterListBox.Checked[6]:=  jvpnflstrg1.ReadBoolean('gpm_training',   False);
+    FilterListBox.Checked[7]:=  jvpnflstrg1.ReadBoolean('gmp_coop',       True);
+    FilterListBox.Checked[8]:=  jvpnflstrg1.ReadBoolean('gmp_vehicles',   True);
 
-    FilterListBox.Checked[7]:=  jvpnflstrg1.ReadBoolean('PB_ON',       True   );
-    FilterListBox.Checked[8]:=  jvpnflstrg1.ReadBoolean('POPULATED',   True   );
-    FilterListBox.Checked[9]:=  jvpnflstrg1.ReadBoolean('VOIP_ON',     True   );
-    FilterListBox.Checked[10]:= jvpnflstrg1.ReadBoolean('NOTFULL',     False   );
-    FilterListBox.Checked[11]:= jvpnflstrg1.ReadBoolean('PASSWORD',    False   );
+    FilterListBox.Checked[9]:=   jvpnflstrg1.ReadBoolean('PB_ON',       True   );
+    FilterListBox.Checked[10]:=  jvpnflstrg1.ReadBoolean('POPULATED',   True   );
+    FilterListBox.Checked[11]:=  jvpnflstrg1.ReadBoolean('VOIP_ON',     True   );
+    FilterListBox.Checked[12]:=  jvpnflstrg1.ReadBoolean('NOTFULL',     False   );
+    FilterListBox.Checked[13]:=  jvpnflstrg1.ReadBoolean('PASSWORD',    False   );
 
 
 
@@ -441,6 +535,13 @@ begin
           TBShowServers.Items[2].Checked:= jvpnflstrg1.ReadBoolean('VS2', True);
           TBShowServers.Items[3].Checked:= jvpnflstrg1.ReadBoolean('VS3', True);
           TBShowServers.Items[4].Checked:= jvpnflstrg1.ReadBoolean('VS4', True);
+
+          TBShowPlayersOnline.Items[0].Checked:= jvpnflstrg1.ReadBoolean('PO0', True);
+          TBShowPlayersOnline.Items[1].Checked:= jvpnflstrg1.ReadBoolean('PO1', True);
+          TBShowPlayersOnline.Items[2].Checked:= jvpnflstrg1.ReadBoolean('PO2', True);
+          TBShowPlayersOnline.Items[3].Checked:= jvpnflstrg1.ReadBoolean('PO3', True);
+
+
 
 
             TBItemToolBar.Checked   := OptionsForm.jvpnflstrg1.ReadBoolean('TBAR', True);
@@ -622,7 +723,7 @@ begin
 
 end;
 
-procedure JoinToServer(ServerIP, GamePort: string; AccountIndex: integer);
+procedure JoinToServer(ServerIP, GamePort, ServerPassword: string; AccountIndex: integer);
 var s, brPath : string;
 begin
 
@@ -636,13 +737,23 @@ begin
        ' +playerName '    +  ColumnListBox1.ColumnItems[AccountIndex,1] +
        ' +playerPassword '+  ColumnListBox1.ColumnItems[AccountIndex,2];
 
+   if Length(ServerPassword) > 0 then s:= s + ' +password ' + ServerPassword;
+
    brPath := PrPAthEdit.Text;
 
    WriteCustomPrefix(ColumnListBox1.ColumnItems[AccountIndex,0]);
  end;
  
  ShellExecute(0,'open', pChar(brPath), pChar(s), NIL, SW_SHOWNORMAL);
- if OptionsForm.TerminateOnJoinCheckBox.Checked then Application.Terminate else Application.Minimize;
+
+ case OptionsForm.JoinserverComboBoxActions.ItemIndex of
+  0 : Exit;
+  1 : Application.Terminate;
+  2 : Application.Minimize;
+  3 : Form1.JvTrayIcon1.HideApplication;
+ end;
+
+ //if OptionsForm.TerminateOnJoinCheckBox.Checked then Application.Terminate else Application.Minimize;
                                                                    //  JvTrayIcon1.HideApplication;
 end;
 
@@ -827,13 +938,16 @@ function GameSpyFilterQueryStr(inx: integer):string;
 
 function GetGameTypes( gt: array of boolean): string;
 const
- CONST_COUNT = 4;
+ CONST_COUNT = 6;
  const_value : array [0..CONST_COUNT] of string = (
 'gametype not like ''%gpm_insurgency%''',
 'gametype not like ''%gpm_cq%''',
 'gametype not like ''%gpm_skirmish%''',
 'gametype not like ''%gpm_cnc%''',
-'gametype not like ''%gpm_training%''');
+'gametype not like ''%gpm_training%''',
+'gametype not like ''%gmp_coop%''',
+'gametype not like ''%gmp_vehicles'''
+);
 
  var i, cnt, cnt2 : Integer;
 begin
@@ -986,30 +1100,32 @@ begin
              if Str <> '' then Result:=  Str + ' and ';
 
              Str := '';
-             SetLength(Bools, 5);
+             SetLength(Bools, 7);
              Bools[0] := FilterListBox.Checked[3];
              Bools[1] := FilterListBox.Checked[4];
              Bools[2] := FilterListBox.Checked[5];
              Bools[3] := FilterListBox.Checked[6];
              Bools[4] := FilterListBox.Checked[7];
+             Bools[5] := FilterListBox.Checked[8];
+             Bools[6] := FilterListBox.Checked[9];
              Str := Str + GetGameTypes(Bools);
              if Str <> '' then Result:= Result + Str + ' and ';
 
              {+++++++++++++++++++++}
 
-             if FilterListBox.Checked[8] then
+             if FilterListBox.Checked[10] then
              Result:= Result + 'bf2_anticheat = 1' + ' and ';
 
-             if FilterListBox.Checked[9] then
+             if FilterListBox.Checked[11] then
              Result:= Result + 'numplayers > 0' + ' and ';
 
-             if FilterListBox.Checked[10] then
+             if FilterListBox.Checked[12] then
              Result:= Result + 'bf2_voip = 1' + ' and ';
 
-             if FilterListBox.Checked[11] then
+             if FilterListBox.Checked[13] then
              Result:= Result + 'numplayers < maxplayers' + ' and ';
 
-             if FilterListBox.Checked[12] then
+             if FilterListBox.Checked[14] then
              Result:= Result + 'password = 0' + ' and ';
 
 
@@ -1272,6 +1388,98 @@ Function Msg(zMsg: string; zCpt: integer; zBtn: integer):Longint;
 begin
  // Msg := messagebox(0,pchar(zMsg),pchar(captconst[zCpt]),(zCpt*16) or zBtn or MB_TOPMOST);
 end;
+
+
+
+
+procedure UpdateDetailedInfo( RV: TRichEdit; Item: TBF2ServerInfoItem; const NameColor: integer = clNavy; ValueColor: integer = clBlack);
+begin
+ RV.Clear;
+
+ if Item.ErrorCode <= -1 then  Exit;
+
+ with Item do
+ begin
+   //  RichEditAddColored(RV, 'ApproxPing: ' , IntToStr(ApproxPing)          , NameColor, ValueColor );
+     RichEditAddColored(RV, 'ip:queryport: ' , ServerIP +':'+ ServerQueryPort  , NameColor, ValueColor );
+     RichEditAddColored(RV, 'hostname: ' , hostname              , NameColor, ValueColor );
+     RichEditAddColored(RV, 'gamename: ' , gamename              , NameColor, ValueColor );
+     RichEditAddColored(RV, 'gamever: '  , gamever               , NameColor, ValueColor);
+     RichEditAddColored(RV, 'mapname: '  , mapname               , NameColor, ValueColor);
+     RichEditAddColored(RV, 'gametype: ' , gametype              , NameColor, ValueColor);
+     RichEditAddColored(RV, 'gamevariant: ' , gamevariant        , NameColor, ValueColor);
+     RichEditAddColored(RV, 'numplayers: '  , numplayers         , NameColor, ValueColor);
+     RichEditAddColored(RV, 'maxplayers: '  , maxplayers         , NameColor, ValueColor);
+     RichEditAddColored(RV, 'gamemode: '  , gamemode             , NameColor, ValueColor);
+     RichEditAddColored(RV, 'password: '  , password             , NameColor, ValueColor);
+     RichEditAddColored(RV, 'timelimit: ' , timelimit            , NameColor, ValueColor);
+     RichEditAddColored(RV, 'roundtime: ' , roundtime            , NameColor, ValueColor);
+     RichEditAddColored(RV, 'hostport: '  , hostport             , NameColor, ValueColor);
+     RichEditAddColored(RV, 'bf2_dedicated: '   ,   bf2_dedicated, NameColor, ValueColor );
+     RichEditAddColored(RV, 'bf2_ranked: '      ,   bf2_ranked   , NameColor, ValueColor );
+     RichEditAddColored(RV, 'bf2_anticheat: '   ,   bf2_anticheat, NameColor, ValueColor );
+     RichEditAddColored(RV, 'bf2_os: '          ,   bf2_os       , NameColor, ValueColor );
+     RichEditAddColored(RV, 'bf2_autorec: '     ,   bf2_autorec  , NameColor, ValueColor );
+     RichEditAddColored(RV, 'bf2_d_idx: '       ,   bf2_d_idx    , NameColor, ValueColor  );
+     RichEditAddColored(RV, 'bf2_d_dl: '        ,   bf2_d_dl     , NameColor, ValueColor  );
+     RichEditAddColored(RV, 'bf2_voip: '        ,   bf2_voip     , NameColor, ValueColor  );
+     RichEditAddColored(RV, 'bf2_autobalanced: ',  bf2_autobalanced  , NameColor, ValueColor );
+     RichEditAddColored(RV, 'bf2_friendlyfire: ',  bf2_friendlyfire  , NameColor, ValueColor );
+     RichEditAddColored(RV, 'bf2_tkmode: '      ,   bf2_tkmode       , NameColor, ValueColor );
+     RichEditAddColored(RV, 'bf2_startdelay: '  ,   bf2_startdelay   , NameColor, ValueColor );
+     RichEditAddColored(RV, 'bf2_spawntime: '   ,   bf2_spawntime    , NameColor, ValueColor);
+     RichEditAddColored(RV, 'bf2_sponsortext: ' ,   bf2_sponsortext  , NameColor, ValueColor);
+     RichEditAddColored(RV, 'bf2_sponsorlogo_url: '   ,   bf2_sponsorlogo_url  , NameColor, ValueColor);
+     RichEditAddColored(RV, 'bf2_communitylogo_url: ' ,  bf2_communitylogo_url , NameColor, ValueColor);
+     RichEditAddColored(RV, 'bf2_scorelimit: '    ,   bf2_scorelimit   , NameColor, ValueColor );
+     RichEditAddColored(RV, 'bf2_ticketratio: '   ,   bf2_ticketratio  , NameColor, ValueColor );
+     RichEditAddColored(RV, 'bf2_teamratio: '     ,   bf2_teamratio    , NameColor, ValueColor );
+     RichEditAddColored(RV, 'bf2_team1: '         ,   bf2_team1        , NameColor, ValueColor );
+     RichEditAddColored(RV, 'bf2_team2: '         ,   bf2_team2        , NameColor, ValueColor );
+     RichEditAddColored(RV, 'bf2_bots: '          ,   bf2_bots         , NameColor, ValueColor );
+     RichEditAddColored(RV, 'bf2_pure: '          ,   bf2_pure         , NameColor, ValueColor );
+     RichEditAddColored(RV, 'bf2_mapsize: '       ,   bf2_mapsize      , NameColor, ValueColor );
+     RichEditAddColored(RV, 'bf2_globalunlocks: ' ,   bf2_globalunlocks , NameColor, ValueColor);
+     RichEditAddColored(RV, 'bf2_fps: '           ,   bf2_fps           , NameColor, ValueColor);
+     RichEditAddColored(RV, 'bf2_plasma: '        ,   bf2_plasma        , NameColor, ValueColor);
+     RichEditAddColored(RV, 'bf2_reservedslots: ' ,   bf2_reservedslots , NameColor, ValueColor);
+     RichEditAddColored(RV, 'bf2_coopbotratio: '  ,   bf2_coopbotratio  , NameColor, ValueColor);
+     RichEditAddColored(RV, 'bf2_coopbotcount: '  ,   bf2_coopbotcount  , NameColor, ValueColor);
+     RichEditAddColored(RV, 'bf2_coopbotdiff: '   ,   bf2_coopbotdiff   , NameColor, ValueColor);
+     RichEditAddColored(RV, 'bf2_novehicles: '    ,   bf2_novehicles    , NameColor, ValueColor);
+
+     RV.SelStart := 0;
+     SendMessage(RV.handle, EM_SCROLLCARET,0,0);
+ end;
+
+end;
+
+
+procedure LoadLanguageFilesList(LLFL: TStrings);
+var
+  FindHandle:THandle;
+  SearchRec:TWIN32FindData;
+  Path : string;
+begin
+
+   Path:= ExtractFilePath(Application.ExeName) + 'Lang\';
+
+   try
+    FindHandle := FindFirstFile( pchar(Path+'*.ini'), SearchRec);
+    if FindHandle <> INVALID_HANDLE_VALUE then
+    repeat
+     // if SearchRec.cFileName <> '.' or
+      if SearchRec.dwFileAttributes <> faDirectory then
+      LLFL.Add( SearchRec.cFileName );
+    until FindNextFile(FindHandle,SearchRec)=false;
+    finally
+     Windows.FindClose(FindHandle);
+    end;
+
+end;
+
+
+
 
 
 end.

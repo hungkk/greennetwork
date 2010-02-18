@@ -33,14 +33,14 @@ uses
   CheckLst,
   TntDialogs,
 
-  NxPropertyItemClasses,
-  NxPropertyItems,
+  
+  
   NxScrollControl,
   NxEdit,
 
   NxPageControl,
-  NxInspector,
-  NxCollection,
+  
+  
 
   
   NxColumnClasses,
@@ -56,14 +56,14 @@ type
     JvPageListTreeView1: TJvPageListTreeView;
     Panel1: TPanel;
     Splitter1: TSplitter;
-    JvMatesPage1: TJvStandardPage;
-    JvServersPage2: TJvStandardPage;
+    JvMatesPage: TJvStandardPage;
+    JvServersPage: TJvStandardPage;
     SaveOptionsButton: TButton;
     JvGradientHeaderPanel1: TJvGradientHeaderPanel;
     JvGradientHeaderPanel2: TJvGradientHeaderPanel;
     Label3: TLabel;
     Button2: TButton;
-    JvGeneralPage1: TJvStandardPage;
+    JvGeneralPage: TJvStandardPage;
     JvGradientHeaderPanel3: TJvGradientHeaderPanel;
     threads: TSpinEdit;
     Label4: TLabel;
@@ -77,7 +77,6 @@ type
     Copy3: TMenuItem;
     Delete3: TMenuItem;
     N3: TMenuItem;
-    Label7: TLabel;
     JvJoinServerPage: TJvStandardPage;
     JvGradientHeaderPanel4: TJvGradientHeaderPanel;
     GroupBox2: TGroupBox;
@@ -98,17 +97,15 @@ type
     PasswordEdit: TEdit;
     Label12: TLabel;
     Button4: TButton;
-    TerminateOnJoinCheckBox: TCheckBox;
     MatesColorPicker: TNxColorPicker;
     ServersColorPicker: TNxColorPicker;
     TrackBar1: TTrackBar;
     TrackBar2: TTrackBar;
     Label14: TLabel;
     Label15: TLabel;
-    JvStandardPage1: TJvStandardPage;
+    JvGameSpyPage: TJvStandardPage;
     JvGradientHeaderPanel5: TJvGradientHeaderPanel;
     NxPageControl1: TNxPageControl;
-    NxPanel2: TNxPanel;
     customfiltercb: TCheckBox;
     FilterListBox: TCheckListBox;
     TntOpenDialog1: TTntOpenDialog;
@@ -148,6 +145,17 @@ type
     Button20: TButton;
     Label1: TLabel;
     updRetrySpin: TSpinEdit;
+    Label2: TLabel;
+    SkinCb: TComboBox;
+    NxPageControl2: TNxPageControl;
+    EngineNxTabSheet: TNxTabSheet;
+    VisualNxTabSheet: TNxTabSheet;
+    JoinserverComboBoxActions: TComboBox;
+    Label16: TLabel;
+    StartAppComboBoxActions: TComboBox;
+    Label20: TLabel;
+    Label7: TLabel;
+    LangNameComboBox: TComboBox;
     procedure SaveOptionsButtonClick(Sender: TObject);
     procedure AddServerButtonClick(Sender: TObject);
     procedure PopUpAction(Sender:  TObject);
@@ -163,6 +171,12 @@ type
     
     //-
     procedure BuddyListWorks(Sender: TObject);
+    procedure SkinCbChange(Sender: TObject);
+    procedure MatesColorPickerChange(Sender: TObject);
+    procedure ServersColorPickerChange(Sender: TObject);
+    procedure EngineNxTabSheetShow(Sender: TObject);
+    procedure LangNameComboBoxChange(Sender: TObject);
+    procedure JvPageListTreeView1Change(Sender: TObject; Node: TTreeNode);
   private
     { Private declarations }
   public
@@ -175,7 +189,7 @@ var
 
 implementation
 
-uses MUnit, Unit1, UnitGrid;
+uses MUnit, Unit1, UnitGrid, LanguageUnit;
 
 {$R *.dfm}
 
@@ -296,7 +310,7 @@ begin
 
             if HasInvalidChars(EditPrefix.Text) then
             begin
-              MessageBox(0, 'Chars (  \ " ~ ,  ) and spaces inside name or prefix are not allowed!', 'Error: invalid character found', (16*1) or  MB_OK or MB_TOPMOST );
+              MessageBox(0, PChar(GetWORD(128)), PChar(GetWORD(129)) {'Chars (  \ " ~ ,  ) and spaces inside name or prefix are not allowed!', 'Error: invalid character found'}, (16*1) or  MB_OK or MB_TOPMOST );
               Exit;
             end;
 
@@ -321,7 +335,7 @@ begin
 
             if HasInvalidChars(EditPname.Text) then
             begin
-              MessageBox(0, 'Chars (  \ " ~ ,  ) and spaces inside name or prefix are not allowed!', 'Error: invalid character found', (16*1) or  MB_OK or MB_TOPMOST );
+              MessageBox(0, PChar(GetWORD(128)), PChar(GetWORD(129)) {'Chars (  \ " ~ ,  ) and spaces inside name or prefix are not allowed!', 'Error: invalid character found'}, (16*1) or  MB_OK or MB_TOPMOST );
               Exit;
             end;
 
@@ -345,7 +359,7 @@ begin
 
             if HasInvalidChars(EditClanTag.Text) then
             begin
-              MessageBox(0, 'Chars (  \ " ~ ,  ) and spaces inside name or prefix are not allowed!', 'Error: invalid character found', (16*1) or  MB_OK or MB_TOPMOST );
+              MessageBox(0, PChar(GetWORD(128)), PChar(GetWORD(129)) {'Chars (  \ " ~ ,  ) and spaces inside name or prefix are not allowed!', 'Error: invalid character found'}, (16*1) or  MB_OK or MB_TOPMOST );
               Exit;
             end;
 
@@ -384,7 +398,40 @@ end;
 
 
 
+procedure TOptionsForm.SkinCbChange(Sender: TObject);
+begin
+   Form1.SkinData1.Active := SkinCb.ItemIndex = 1;
+end;
 
+procedure TOptionsForm.MatesColorPickerChange(Sender: TObject);
+begin
+  if MatesColorPicker.SelectedColor = clNone then MatesColorPicker.SelectedColor:= clWhite;
+end;
 
+procedure TOptionsForm.ServersColorPickerChange(Sender: TObject);
+begin
+  if ServersColorPicker.SelectedColor = clNone then ServersColorPicker.SelectedColor:= clWhite;
+end;
+
+procedure TOptionsForm.EngineNxTabSheetShow(Sender: TObject);
+begin
+   if not OptionsForm.Visible then Exit;
+   OptionsForm.TrackBar2.SetFocus;
+   OptionsForm.TrackBar1.SetFocus;
+end;
+
+procedure TOptionsForm.LangNameComboBoxChange(Sender: TObject);
+begin
+ ReadLng( ExtractFilePath(Application.ExeName) + 'Lang\' + LangNameComboBox.Text) ;
+end;
+
+procedure TOptionsForm.JvPageListTreeView1Change(Sender: TObject;
+  Node: TTreeNode);
+begin
+     case Node.Parent.Index of
+      0: NxPageControl1.ActivePageIndex:= Node.Index;
+      2: NxPageControl2.ActivePageIndex:= Node.Index;
+     end;
+end;
 
 end.

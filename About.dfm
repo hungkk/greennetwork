@@ -1,6 +1,6 @@
 object AboutForm: TAboutForm
-  Left = 455
-  Top = 284
+  Left = 453
+  Top = 240
   BorderStyle = bsDialog
   Caption = 'Peace'
   ClientHeight = 267
@@ -13,7 +13,6 @@ object AboutForm: TAboutForm
   Font.Style = []
   OldCreateOrder = False
   Position = poDesktopCenter
-  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object Bevel1: TBevel
@@ -40,7 +39,7 @@ object AboutForm: TAboutForm
     Top = 16
     Width = 293
     Height = 13
-    Caption = 'Project Reality -  Green Network v1.0 (build# 0025)'
+    Caption = 'Project Reality -  Green Network v1.0 (build# 0028)'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11

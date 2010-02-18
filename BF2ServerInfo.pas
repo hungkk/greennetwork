@@ -1,6 +1,6 @@
 {
 
-    BattleField 2 Server Info Library v 0.4.1
+    BattleField 2 Server Info Library v 0.4.3
 
     http:// blogspot.com
 
@@ -80,6 +80,8 @@ interface
        FRcvdBytes     : ByteArray;
        FErrorCode     : Integer;
 
+       
+
        FQueryString   : String;
        FValidateStr   : String;
        //battlefield2.ms14.gamespy.com
@@ -118,6 +120,8 @@ interface
      FTag       : Integer;
      FRetry     : Integer;
 
+     FSendTime, FRecvdTime : Integer;
+
      procedure RefreshTable;
   protected
      procedure Execute; override;
@@ -125,21 +129,25 @@ interface
      procedure BF2WSocketSessionConnected( Sender  : TObject; ErrCode : WORD);
      procedure BF2WSocketChangeState(Sender: TObject; OldState,  NewState: TSocketState);
      procedure ThStop;
-     
+
      procedure TimerEvent(Sender : TObject);
   public
 
-     property  WSocket   : TWSocket  read FBF2WSocket;
+     property  WSocket    : TWSocket  read FBF2WSocket;
 
-     property  DeadID    : integer   read FDeadID;
-     property  LastError: integer   read FErrorCode;
-     property  RcvdBytes: ByteArray read FRcvdBytes;
-     property  Timeout  : Int64     read FTimeOut write FTimeOut;
+     property  DeadID     : integer   read FDeadID;
+     property  LastError  : integer   read FErrorCode;
+     property  RcvdBytes  : ByteArray read FRcvdBytes;
+     property  Timeout    : Int64     read FTimeOut write FTimeOut;
      property  RetryCount : Integer read FRetry write FRetry;
 
-     property  ServerIP  : String  read FServerIP;
-     property  QueryPort : String  read FServerPort;
-     Property  Tag       : Integer read FTag;
+     property  ServerIP   : String  read FServerIP;
+     property  QueryPort  : String  read FServerPort;
+     Property  Tag        : Integer read FTag;
+
+
+     property  StartQTime : Integer read FSendTime;
+     property  EndQTime   : Integer read FRecvdTime;
 
      constructor Create(const sAddr: string; sPort: string; ThID: Integer);
      destructor  Destroy; override;
@@ -236,6 +244,8 @@ interface
     FTotalPlayersCount     : Integer;      // Alive players and Bots
 
     FPing                  : Integer;
+    FApproxPing            : Integer;
+
   //  function GetPlayerInfo(Index: Integer) : TPlayerInfo;
 
  public
@@ -297,7 +307,8 @@ interface
     property     TotalPlayersCount     : Integer read FTotalPlayersCount;
 
     property     Ping                  : Integer read FPing write FPing;
-
+    property     ApproxPing            : Integer read FApproxPing write FApproxPing;
+                 //Approximate
 
 
 
@@ -313,8 +324,8 @@ interface
    function GetListItem(Index : Integer) : TBF2ServerInfoItem;
  public
    Constructor Create(ItemClass: TCollectionItemClass);
-   function   AddServerInfo(const RcvdBytes: array of byte; IP, Qport: string): TBF2ServerInfoItem ;
-   function   UpdateServerInfo(const RcvdBytes: array of byte; IP, Qport: string; Index: Integer): TBF2ServerInfoItem ;
+   Function AddServerInfo(const RcvdBytes: array of byte; IP, Qport: string; StartQTime, EndQTime : integer): TBF2ServerInfoItem ;
+   Function UpdateServerInfo(const RcvdBytes: array of byte; IP, Qport: string; Index: Integer; StartQTime, EndQTime : integer): TBF2ServerInfoItem ;
 
    Property  AnItems[Index : Integer] : TBF2ServerInfoItem read GetListItem; default;
  end;
@@ -685,7 +696,7 @@ begin
     if Status <> 0 then
  //      { Success }
               FRTT :=  FPing.Reply.RTT
-              else FRTT := 999;
+              else FRTT := 9999;
 
 
        //   Form1.Memo1.Lines.Add( FPing.ErrorString + ' ' + IntToStr(   Status ) );  }
@@ -929,6 +940,10 @@ end;
     FreeOnTerminate := True;
     FServerIP       := sAddr;
     FServerPort     := sPort;
+
+    FRecvdTime      := 0;
+    FSendTime       := 0;
+    
    // FTimeOut        := MMSEC;
 
       with FBF2WSocket do
@@ -976,13 +991,17 @@ end;
  begin
    inherited Destroy;
    //SetLength(FRcvdBytes,0);
+    FreeAndNil(FBF2WSocket);
  end;
 
  procedure TBF2WSockThread.ThStop;
  begin
+   
    FreeAndNil(FTimer);
-   FreeAndNil(FBF2WSocket);
+  //DEbug- FreeAndNil(FBF2WSocket);
   // if WaitForSingleObject(Handle, 100) = WAIT_TIMEOUT then
+ // FreeAndNil(FBF2WSocket);
+
    Terminate;
  end;
 
@@ -1014,6 +1033,8 @@ end;
     end;
    
      FTimer.Enabled := True;
+     FSendTime := Windows.GetTickCount;
+
 
     while not Terminated and Assigned(FBF2WSocket) do
       FBF2WSocket.ProcessMessages;
@@ -1031,6 +1052,9 @@ end;
        SetLength(Buf, FBF2WSocket.RcvdCount );
        Len := (Sender as TWSocket).Receive(Buf, Length(Buf));
        if Len <= 0 then Exit;
+
+       if FRecvdTime = 0 then FRecvdTime := Windows.GetTickCount;
+
         AppendByteArray(FRcvdBytes, Buf);
         SLen:= Length(FRcvdBytes);
       If
@@ -1095,7 +1119,7 @@ Begin
 End;
 
 
-Function TBF2ServerSList.UpdateServerInfo(const RcvdBytes: array of byte; IP, Qport: string; Index: Integer): TBF2ServerInfoItem ;
+Function TBF2ServerSList.UpdateServerInfo(const RcvdBytes: array of byte; IP, Qport: string; Index: Integer; StartQTime, EndQTime : integer): TBF2ServerInfoItem ;
 var BF2SInf : TBF2ServerInfo;   i: Integer;
 begin
 
@@ -1167,6 +1191,8 @@ begin
        FServerIP                     := IP;
        FServerQueryPort              := QPort;
 
+       FApproxPing                   := EndQTime - StartQTime;
+
        if BF2SInf.FTotalPlayersCount > 0 then
        for i:=0 to FTotalPlayersCount-1 do
        FBF2PlayersList[i] := FBF2Players[i];
@@ -1194,7 +1220,7 @@ end;
 
 
 
-Function TBF2ServerSList.AddServerInfo(const RcvdBytes: array of byte; IP, Qport: string): TBF2ServerInfoItem ;
+Function TBF2ServerSList.AddServerInfo(const RcvdBytes: array of byte; IP, Qport: string; StartQTime, EndQTime : integer): TBF2ServerInfoItem ;
 var BF2SInf : TBF2ServerInfo;   i: Integer;
 begin
 
@@ -1267,9 +1293,11 @@ begin
 
        Result.FTotalPlayersCount     := BF2SInf.TotalPlayersCount;
        Result.FRealPlayersCount      := BF2SInf.RealPlayersCount;
-       Result.FPing                  := 0;  
-       FServerIP              := IP;
-       FServerQueryPort       := QPort;
+       Result.FPing                  := 0;
+       FServerIP                     := IP;
+       FServerQueryPort              := QPort;
+
+       FApproxPing                   := EndQTime - StartQTime - 10;
 
        if BF2SInf.FTotalPlayersCount > 0 then
        for i:=0 to FTotalPlayersCount-1 do

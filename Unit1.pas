@@ -1,6 +1,6 @@
 unit Unit1;
 
-//Aluigi   Alexeis     Дойчлан дойчланд убер алес
+//   Дойчлан дойчланд убер алес
 
 interface
 
@@ -43,11 +43,17 @@ uses
   TB2Item,
   TB2Dock,
   TB2Toolbar,
-  se_pngimagelist, Spin, Dialogs, Math;
+  Spin, Dialogs, Math, PngImageList, OverbyteIcsWndControl,
+  OverbyteIcsHttpProt;
 
 {$I defs.inc}
 
-  const BuildNo = 23;
+  const
+        BuildDate = '2010.03.20';
+        VerNo     = '1.0.29';
+        VERCOMP   = 1029;
+
+
 
         {NEW$}
         S_GAME_SPY  = 2;
@@ -59,6 +65,7 @@ uses
         P_MATES       = 1;
 
 
+        SERVERS_POPUP       = 98;
         ONLINEPLAYERS_POPUP = 99;
         PLAYERSINFO_POPUP   = 44;
 
@@ -89,6 +96,9 @@ uses
         EXPORT_MATES     = 21;
 
         VIEW_PLAYERSONLINE = 22;
+
+        COPY_NOTE = 23;
+
 
 type
 
@@ -121,8 +131,6 @@ type
     ImageList2: TImageList;
     MatestGrid: TNextGrid;
     NxIncrementColumn3: TNxIncrementColumn;
-    NxTextColumn8: TNxTextColumn;
-    NxTextColumn9: TNxTextColumn;
     NxNumberColumn10: TNxNumberColumn;
     NxNumberColumn11: TNxNumberColumn;
     NxNumberColumn12: TNxNumberColumn;
@@ -135,8 +143,6 @@ type
     ProgressBar1: TProgressBar;
     PlayersGrid: TNextGrid;
     NxIncrementColumn2: TNxIncrementColumn;
-    NxTextColumn5: TNxTextColumn;
-    NxTextColumn6: TNxTextColumn;
     NxNumberColumn3: TNxNumberColumn;
     NxNumberColumn4: TNxNumberColumn;
     NxNumberColumn5: TNxNumberColumn;
@@ -168,8 +174,6 @@ type
     NxTextColumn22: TNxTextColumn;
     NxTextColumn23: TNxTextColumn;
     NxNumberColumn19: TNxNumberColumn;
-    NxTextColumn24: TNxTextColumn;
-    NxTextColumn25: TNxTextColumn;
     NxImageColumn2: TNxCheckBoxColumn;
     NxImageColumn8: TNxCheckBoxColumn;
     NxImageColumn12: TNxCheckBoxColumn;
@@ -300,7 +304,6 @@ type
     TBItem25: TTBItem;
     TBSeparatorItem30: TTBSeparatorItem;
     TBItem26: TTBItem;
-    sePngImageList1: TsePngImageList;
     TBControlItem9: TTBControlItem;
     Label4: TLabel;
     FilterPingEdit: TSpinEdit;
@@ -312,11 +315,6 @@ type
     TBSeparatorItem31: TTBSeparatorItem;
     TBSeparatorItem32: TTBSeparatorItem;
     ExportDialog: TSaveDialog;
-    sePngImageList2: TsePngImageList;
-    sePngImageList3: TsePngImageList;
-    NxNumberColumn15: TNxTextColumn;
-    NxNumberColumn2: TNxTextColumn;
-    NxNumberColumn18: TNxTextColumn;
     NxNumberColumn17: TNxTextColumn;
     NxNumberColumn9: TNxTextColumn;
     NxTextColumn13: TNxTextColumn;
@@ -336,6 +334,42 @@ type
     TBSeparatorItem34: TTBSeparatorItem;
     Panel1: TPanel;
     TBControlItem19: TTBControlItem;
+    TBItem29: TTBItem;
+    NxImageColumn11: TNxImageColumn;
+    NxTextColumn26: TNxTextColumn;
+    NxImageColumn14: TNxImageColumn;
+    NxTextColumn27: TNxTextColumn;
+    PngImageList1: TPngImageList;
+    NxNumberColumn2: TNxHtmlColumn;
+    NxNumberColumn15: TNxHtmlColumn;
+    NxTextColumn6: TNxHtmlColumn;
+    NxTextColumn5: TNxHtmlColumn;
+    NxTextColumn8: TNxHtmlColumn;
+    NxTextColumn9: TNxHtmlColumn;
+    NxNumberColumn23: TNxNumberColumn;
+    NxNumberColumn24: TNxNumberColumn;
+    NxTextColumn24: TNxHtmlColumn;
+    NxTextColumn25: TNxHtmlColumn;
+    NxTextColumn28: TNxTextColumn;
+    NxTextColumn29: TNxTextColumn;
+    NxTextColumn30: TNxTextColumn;
+    CopyPlayerNote: TTBItem;
+    OPCopyPlayerNote: TTBItem;
+    NxNumberColumn21: TNxTextColumn;
+    NxNumberColumn18: TNxHtmlColumn;
+    ToolbarImageList: TPngImageList;
+    TBSeparatorItem36: TTBSeparatorItem;
+    TBClickUpdate: TTBItem;
+    TBItem42: TTBItem;
+    TBItem43: TTBItem;
+    TBItem44: TTBItem;
+    TBItem45: TTBItem;
+    Png16ImgList: TPngImageList;
+    CopyServerNote: TTBItem;
+    TBSeparatorItem37: TTBSeparatorItem;
+    NxNumberColumn20: TNxNumberColumn;
+    NxNumberColumn22: TNxNumberColumn;
+    TBItem30: TTBItem;
     procedure FormShow(Sender: TObject);
     procedure GlobalServersGridCompare(Sender: TObject; Cell1,
       Cell2: TCell; var Compare: Integer);
@@ -394,6 +428,12 @@ type
     procedure Label8Click(Sender: TObject);
     procedure Label9Click(Sender: TObject);
     procedure Label10Click(Sender: TObject);
+    procedure GridCellFormating(Sender: TObject; ACol,
+      ARow: Integer; var TextColor: TColor; var FontStyle: TFontStyles;
+      CellState: TCellState);
+    procedure TBClickUpdateClick(Sender: TObject);
+    procedure ClickUpdate(Sender: TObject);
+    procedure PlayersGridSelectCell(Sender: TObject; ACol, ARow: Integer);
 
   private
     
@@ -430,7 +470,7 @@ type
     function ShowRow(const item: TBF2ServerInfoItem; ShowFull, ShowUNA, ShowWOP, ShowWOM, ShowPW : boolean; ServerName, MapName : string; ServerPing, PlayersCount : integer ): boolean;
     Function SetRowVisibility(const item: TBF2ServerInfoItem) : boolean;
 
-    function SetPORowVisibility(Index: integer): Boolean;
+    function SetPORowVisibility(Index: Integer; param: integer = 0): Boolean;
     procedure GridShowHideRowsPO(NG: TNextGrid);
 
     {Вычисляет колл-во качественных серверов и общее число игроков}
@@ -438,7 +478,8 @@ type
 
     procedure SearchCollection;
     procedure GlobalResetLastPlayerSearchIndex;
-
+    procedure GetUpdates(var DLink: String);
+    procedure AutoCheckForUPD;
     { Public declarations }
   end;
 
@@ -460,13 +501,16 @@ var
 
   LastSearchNamePos, LastLookIn, LastGridIndex : Integer;
   LastTxt : string;
+  FHttpCli    : THttpCli;
+    mHandle: THandle;    // Mutexhandle
+  //FHttpCliBool: Boolean;
   
 
 
 
 implementation
 
-uses MUnit, UnitGrid, Options, About, ServerPassUnit, LanguageUnit;
+uses MUnit, UnitGrid, Options, About, ServerPassUnit, LanguageUnit, MatesUnit, NativeXml, cDateTime;
 
 {$R *.dfm}
 {$R 7ip.res}
@@ -566,8 +610,16 @@ begin
                             PlayersGrid.ClearRows;
                             ServerInfoRich.Clear;
 
-                            if OptionsForm.ServersListBox.Items.Count > 0 then
-                            StarMultiThreading(OptionsForm.ServersListBox.Items, S_FAVORITES);
+
+                            if OptionsForm.NextGridFavServers.RowCount > 0 then
+                            begin
+                             TempGameSpySrvList.Clear;
+                             for iIndex:= 0 to OptionsForm.NextGridFavServers.RowCount-1 do
+                              TempGameSpySrvList.Add(OptionsForm.NextGridFavServers.Cells[1, iIndex]);
+
+                              StarMultiThreading(TempGameSpySrvList, S_FAVORITES);
+                            end;
+
                         end;
 
 
@@ -611,19 +663,33 @@ begin
        ADDTOFAV :      begin    {2}
                               if (GetGrid(ActGridIndex).RowCount <= 0) or (GetGrid(ActGridIndex).SelectedRow <= -1) or (ActGridIndex = S_FAVORITES) then Exit;
                               Str:= GetBF2List(ActGridIndex).AnItems[GetGrid(ActGridIndex).Cell[14, GetGrid(ActGridIndex).SelectedRow ].AsInteger].ServerIP + ':' + GetBF2List(ActGridIndex).AnItems[GetGrid(ActGridIndex).Cell[14, GetGrid(ActGridIndex).SelectedRow ].AsInteger].ServerQueryPort;
-                              if (OptionsForm.ServersListBox.Items.IndexOf( Trim(Str) ) <> -1)  or  (Trim(Str) = '') then Exit;
-                              OptionsForm.ServersListBox.Items.Add( Trim(Str) );
-                              OptionsForm.ServersListBox.Items.SaveToFile('servers.txt');
+
+
+                             with OptionsForm do
+                             begin
+                                 if (GridCOLStrExists(NextGridFavServers, Trim(Str), 1, False) > -1) or (Trim(Str) = '') then Exit;
+
+                                NextGridFavServers.AddRow();
+                                NextGridFavServers.Cells[1, NextGridFavServers.RowCount-1] := Str;
+                                NextGridFavServers.SaveToTextFile(SERVERS_FILE, ',', #19);
+                             end;
+               
                        end;
 
        REMOVEFROFAV  : begin   {2}
-                              if (GetGrid(ActGridIndex).RowCount <= 0) or (GetGrid(ActGridIndex).SelectedRow <= -1) or (ActGridIndex <> S_FAVORITES) then Exit;
+                              if (GetGrid(ActGridIndex).RowCount <= 0) or (GetGrid(ActGridIndex).SelectedRow <= -1) {or (ActGridIndex <> S_FAVORITES)} then Exit;
 
-                              Str:= PRFavorites.AnItems[GetGrid(ActGridIndex).Cell[14, GetGrid(ActGridIndex).SelectedRow ].AsInteger].ServerIP + ':' + PRFavorites.AnItems[GetGrid(ActGridIndex).Cell[14, GetGrid(ActGridIndex).SelectedRow ].AsInteger].ServerQueryPort;
-                              if (OptionsForm.ServersListBox.Items.IndexOf( Trim(Str) ) = -1)  or  (Trim(Str) = '') then Exit;
+                              Str:= {PRFavorites}GetBF2List(ActGridIndex).AnItems[GetGrid(ActGridIndex).Cell[14, GetGrid(ActGridIndex).SelectedRow ].AsInteger].ServerIP + ':' + GetBF2List(ActGridIndex){PRFavorites}.AnItems[GetGrid(ActGridIndex).Cell[14, GetGrid(ActGridIndex).SelectedRow ].AsInteger].ServerQueryPort;
 
-                              OptionsForm.ServersListBox.Items.Delete( OptionsForm.ServersListBox.Items.IndexOf( Trim(Str) ));
-                              OptionsForm.ServersListBox.Items.SaveToFile('servers.txt');
+                              with OptionsForm do
+                              begin
+                                 iIndex:= GridCOLStrExists(NextGridFavServers, Trim(Str), 1, False);
+                                 if ( iIndex = -1) or (Trim(Str) = '') then Exit;
+                                 NextGridFavServers.DeleteRow(iIndex);
+                                 NextGridFavServers.SaveToTextFile(SERVERS_FILE, ',', #19);
+
+
+                              end;
                        end;
 
        ADDPREFIX :    begin      {2}
@@ -699,10 +765,15 @@ begin
 
        COPYNAME : begin  {2}
 
+                     {Анаколуф}
+
                     case (Sender as TComponent).GetParentComponent.Tag of
 
-                    PLAYERSINFO_POPUP     : str:=  GridCopyTwoColsFromSelRow( GetPInfoGrid(NxPageControl2.activePageindex)  );
-                    ONLINEPLAYERS_POPUP   : str:=  GridCopyTwoColsFromSelRow(GetGrid(ActGridIndex));
+                      PLAYERSINFO_POPUP     : Str:= GetBF2List(ActGridIndex).AnItems[GetGrid(ActGridIndex).Cell[14, GetGrid(ActGridIndex).SelectedRow ].AsInteger].
+                                                  BF2Player[GetPInfoGrid(NxPageControl2.activePageindex).Cell[12, GetPInfoGrid(NxPageControl2.activePageindex).SelectedRow].AsInteger].Name;
+                                              //OLD ONE str:=  GridCopyTwoColsFromSelRow( GetPInfoGrid(NxPageControl2.activePageindex)  );
+                      ONLINEPLAYERS_POPUP   : str:= GetBF2List(ActGridIndex).AnItems[GetGrid(ActGridIndex).Cell[14, GetGrid(ActGridIndex).SelectedRow ].AsInteger].
+                                                  BF2Player[GetEntryValueI( GetGrid(ActGridIndex).Cells[C_PO_CMD, GetGrid(ActGridIndex).SelectedRow], Entry_PLAYERINDEX, '/'){GetGrid(ActGridIndex).Cell[C_PO_CMD, GetGrid(ActGridIndex).SelectedRow].asInteger}].Name;     //str:=  GridCopyTwoColsFromSelRow(GetGrid(ActGridIndex));
                     end;
 
                     if Str <> '' then Str:= Trim(Str);
@@ -715,6 +786,9 @@ begin
                  end;
 
        iABOUT   : begin
+
+                   AboutForm.UPDPanel.Visible := False;
+                   AboutForm.UPDPanel.top := 500;
                    AboutForm.ShowModal;
                  end;
 
@@ -764,6 +838,19 @@ begin
        EXPORT_MATES     :   if ExportDialog.Execute then
                             SaveToHtml(MatestGrid, ExportDialog.FileName, [hsSaveHeaders, hsSaveHeaders, hsCreateStyleSheet, hsAllRows]  );
 
+
+      COPY_NOTE :   begin
+
+                       case (Sender as TComponent).GetParentComponent.Tag of
+                        PLAYERSINFO_POPUP    : str:=  GridCopyColFromSelRow( GetPInfoGrid(NxPageControl2.activePageindex), 11  );
+                        ONLINEPLAYERS_POPUP,
+                        SERVERS_POPUP        : str:=  GridCopyColFromSelRow(GetGrid(ActGridIndex), C_NOTE);
+                       end;
+
+                      if Str <> '' then Str:= Trim(Str);
+                      SendToClipBrd(str);
+
+                    end;
     end;
 
 
@@ -773,8 +860,12 @@ end;
 
 {On Popup }
 procedure TForm1.OnPopup(Sender: TObject);
-var inx : Integer;
+var inx, P,N : Integer;
 begin
+
+
+    TBItem7.Enabled := NxPageControl1.ActivePageIndex <> 2;
+    TBItem4.Enabled := NxPageControl1.ActivePageIndex <> 0;
 
    inx:=  Succ(NxPageControl1.ActivePageindex);// + 1;
 
@@ -786,85 +877,137 @@ begin
 
   case inx of
        S_GAME_SPY  :  begin
-                        Add2fav.Enabled  := (GetGrid(inx).RowCount > 0) and (GetGrid(inx).SelectedRow > -1 );
-                        Add2Fav2.Enabled  := (GetGrid(inx).RowCount > 0) and (GetGrid(inx).SelectedRow > -1 );
+                        With GetGrid(inx) do
+                        begin
 
-                        Rem4Fav.Enabled         := False;
-                        Rem4Fav2.Enabled        := False;
+                          Add2fav.Enabled   := (RowCount > 0) and (SelectedRow > -1 ) and (Cell[H_HIGHLIGHT, SelectedRow ].AsInteger <> 1  );
+                          Add2Fav2.Enabled  := Add2fav.Enabled;
+                          TBItem4.Enabled   := Add2fav.Enabled;
+
+
+                          Rem4Fav.Enabled    := (RowCount > 0) and (SelectedRow > -1 ) and (Cell[H_HIGHLIGHT, SelectedRow ].AsInteger = 1  );
+                          Rem4Fav2.Enabled   := Rem4Fav.Enabled;
+                          TBItem5.Enabled    := Rem4Fav.Enabled;
+
+                          TBItem7.Enabled:= (RowCount > 0) and (SelectedRow > -1 );
+
+                          {Copy Server note}
+                         CopyServerNote.Enabled   := (RowCount > 0) and (SelectedRow > -1 ) and (Trim(Cells[C_NOTE, SelectedRow]) > '');
+
+
+                        end;
                       end;
 
        S_FAVORITES :  begin
-                        Rem4Fav.Enabled   := (GetGrid(inx).RowCount > 0) and (GetGrid(inx).SelectedRow > -1 );
-                        Rem4Fav2.Enabled  := (GetGrid(inx).RowCount > 0) and (GetGrid(inx).SelectedRow > -1 );
-                        Add2Fav2.Enabled  := False;
-                        Add2fav.Enabled   := False;
-                      {  Addservertofavorites1.Enabled := False;
-                        Removefromfavorites1.Enabled := (GetGrid(inx).RowCount > 0) and (GetGrid(inx).SelectedRow > -1 );
 
-                        Addservertofavorites2.Enabled := False;
-                        Delete1.Enabled   := (GetGrid(inx).RowCount > 0) and (GetGrid(inx).SelectedRow > -1 );
-                       }
+                        With GetGrid(inx) do
+                        begin
+                         Rem4Fav.Enabled   := (RowCount > 0) and (SelectedRow > -1 );
+                         
+                         Rem4Fav2.Enabled  := Rem4Fav.Enabled;
+                         TBItem5.Enabled   := Rem4Fav.Enabled;
+
+                         Add2Fav2.Enabled  := False;
+                         Add2fav.Enabled   := False;
+
+                         TBItem7.Enabled:= (RowCount > 0) and (SelectedRow > -1 );
+                         {Copy Server note}
+                         CopyServerNote.Enabled   := (RowCount > 0) and (SelectedRow > -1 ) and (Trim(Cells[C_NOTE, SelectedRow]) > '');
+
+                        end;
 
                       end;
 
 
        S_PRPONLINE  : begin
+                         with  GetGrid(inx) do
+                         begin
 
-                        TBItemAddToFav3.Enabled     := (GetGrid(inx).RowCount > 0) and (GetGrid(inx).SelectedRow > -1 );
-                        TBItemOPCopyPlayers.Enabled := (GetGrid(inx).RowCount > 0) and (GetGrid(inx).SelectedRow > -1 ) and (GetGrid(inx).Cells[2, GetGrid(inx).SelectedRow] <> '');
-                        TBItemOPAddPrefix.Enabled   := (GetGrid(inx).RowCount > 0) and (GetGrid(inx).SelectedRow > -1 ) and (GetGrid(inx).Cells[1, GetGrid(inx).SelectedRow] <> '');
-                        TBItemOPAddname.Enabled     := TBItemOPCopyPlayers.Enabled;
-                        TBItemOPremPrefix.Enabled   := TBItemOPAddPrefix.Enabled;
-                        TBItemOPRemname.Enabled     := TBItemOPCopyPlayers.Enabled;
+                          {Add Server to favorites}
+                           TBItemAddToFav3.Enabled     := (RowCount > 0) and (SelectedRow > -1 ) and (GetEntryValueI(  Cells[C_PO_CMD,  SelectedRow], Entry_FAVINDEX , '/'){Cell[H_HIGHLIGHT, SelectedRow ].AsInteger} <> 1  );//(RowCount > 0) and (SelectedRow > -1 );
 
-                        Rem4Fav2.Enabled  := (GetGrid(inx).RowCount > 0) and (GetGrid(inx).SelectedRow > -1 );
-                        Add2Fav2.Enabled  := (GetGrid(inx).RowCount > 0) and (GetGrid(inx).SelectedRow > -1 );
+                           TBItemOPCopyPlayers.Enabled := (RowCount > 0) and (SelectedRow > -1 ) and (Cells[2, SelectedRow] <> '');
 
+                           P := PrefixInMates( Cells[1, SelectedRow] );
+                           N := NameInMates(  Cells[2, SelectedRow] );
+
+
+                          {Add names}
+                          TBItemOPAddname.Enabled   := N = 0;
+                          {PRefix}
+                          TBItemOPAddPrefix.Enabled := P = 0;
+
+                          TBItemOPremPrefix.Enabled := P > 0;
+                          TBItemOPRemname.Enabled   := N > 0;
+
+
+                       //   TBItemOPAddPrefix.Enabled   := (RowCount > 0) and (SelectedRow > -1 ) and (Cells[1, GetGrid(inx).SelectedRow] <> '');
+                       //   TBItemOPAddname.Enabled     := TBItemOPCopyPlayers.Enabled;
+                        //  TBItemOPremPrefix.Enabled   := TBItemOPAddPrefix.Enabled;
+                        //  TBItemOPRemname.Enabled     := TBItemOPCopyPlayers.Enabled;
+
+
+
+
+                          OPCopyPlayerNote.Enabled   := (RowCount > 0) and (SelectedRow > -1 ) and (Trim(Cells[C_NOTE, SelectedRow]) > '');
+
+
+
+
+                          Rem4Fav2.Enabled  := (RowCount > 0) and (SelectedRow > -1 ) and ( {Cell[H_HIGHLIGHT, SelectedRow ].AsInteger} GetEntryValueI(  Cells[C_PO_CMD,  SelectedRow], Entry_FAVINDEX , '/') = 1  );
+                          TBItem29.Enabled  := Rem4Fav2.Enabled;
+                          TBItem5.Enabled   := Rem4Fav2.Enabled;
+
+                          Add2Fav2.Enabled  := TBItemAddToFav3.Enabled; //(RowCount > 0) and (SelectedRow > -1 ) and (Cell[H_HIGHLIGHT, SelectedRow ].AsInteger <> 1  );
+                          TBItem4.Enabled   := TBItemAddToFav3.Enabled;
+
+
+                        end;
                       end;
 
 
 
 
   end;
-     
+
 end;
 
 
 procedure TForm1.TBPopupPlayersPopup(Sender: TObject);
-var DefBool : boolean;
 begin
-
-
-            CopyPlayer.Enabled := False;
+            CopyPlayer.Enabled       := False;
             Addprefix2buddy.Enabled  := False;
             addname2buddy.Enabled    := False;
-            remprefix.Enabled  := False;
-            remname.Enabled    := False;
+            remprefix.Enabled        := False;
+            remname.Enabled          := False;
 
-     case NxPageControl2.ActivePageIndex of
-      0 : begin
+        With  GetPInfoGrid(NxPageControl2.ActivePageIndex) do
+        begin
+            CopyPlayer.Enabled :=(RowCount > 0) and (SelectedRow > -1);
 
-            DefBool := (PlayersGrid.RowCount > 0) and (PlayersGrid.SelectedRow > -1);
-            if not DefBool then Exit;
-            Addprefix2buddy.Enabled  := PlayersGrid.Cells[1, PlayersGrid.SelectedRow] <> '';
-            remprefix.Enabled  := PlayersGrid.Cells[1, PlayersGrid.SelectedRow] <> '';
-          end;
+            {Prefix}
+            Addprefix2buddy.Enabled := (Cells[1, SelectedRow] <> '') and
+            not (  Trunc(Cell[9, SelectedRow].AsFloat) in [3,2,6]);
 
-      1 : begin
-             DefBool := (MatestGrid.RowCount > 0) and (MatestGrid.SelectedRow > -1);
-             if not DefBool then Exit;
-             Addprefix2buddy.Enabled  := MatestGrid.Cells[1, MatestGrid.SelectedRow] <> '';
-             remprefix.Enabled  := MatestGrid.Cells[1, MatestGrid.SelectedRow] <> '';
-          end;
+            {RemPrefix}
+            remprefix.Enabled       :=   (Cells[1, SelectedRow] <> '') and
+             ( Trunc(Cell[9, SelectedRow].AsFloat) in [3,2,6]);
 
-     end;
+            {Add name}
+            addname2buddy.Enabled   :=   (Cells[2, SelectedRow] <> '') and
+            not (  Trunc(Cell[9, SelectedRow].AsFloat) in [1,3]);
 
-                   CopyPlayer.Enabled := DefBool;
-                   addname2buddy.Enabled    := DefBool;
-                //   remprefix.Enabled  := DefBool;
-                   remname.Enabled    := DefBool;
+            {Remove name}
+            remname.Enabled         :=  (Cells[2, SelectedRow] <> '') and
+                (  Trunc(Cell[9, SelectedRow].AsFloat) in [1,3]);
 
-end;
+
+            {CopyNote}
+            CopyPlayerNote.Enabled :=(RowCount > 0) and (SelectedRow > -1) and (Trim(Cells[11, SelectedRow]) > '');
+
+        end;
+
+end;             
 
 
 
@@ -874,6 +1017,43 @@ procedure TForm1.GlobalServersGridCompare(Sender: TObject; Cell1,
 begin
 
  case Cell1.ColumnIndex of
+
+         {
+ 5: begin
+      {
+       if Cell1.AsInteger > Cell2.AsInteger then Compare := 1;
+       if Cell1.AsInteger < Cell2.AsInteger then Compare := -1;
+
+       if Cell1.AsInteger = Cell2.AsInteger then
+       begin    }
+       //  Cell2.RowIndex
+           {  case CompareValue(GetEntryValueI( (Sender as TNextGrid).cells[C_PO_CMD, Cell1.RowIndex], Entry_MATEINDEX, '/' ), GetEntryValueI( (Sender as TNextGrid).cells[C_PO_CMD, Cell2.RowIndex], Entry_MATEINDEX, '/' ) ) of
+              LessThanValue    : Compare := -1;//ShowMessage('A < C');
+              EqualsValue      : Compare := 0;// ShowMessage('A = C');
+              GreaterThanValue : Compare := 1;//ShowMessage('A > C');
+             end;    }
+       //  GetEntryValueI( (Sender as TNextGrid).cells[C_PO_CMD, Cell2.RowIndex], Entry_MATEINDEX, '/' )
+
+      //   Form1.MEmo1.Lines.Add('2 '+ IntToStr(GetEntryValueI( (Sender as TNextGrid).cells[C_PO_CMD, Cell2.RowIndex], Entry_MATEINDEX, '/' )) );
+      //   Form1.MEmo1.Lines.Add('1 ' + IntToStr(GetEntryValueI( (Sender as TNextGrid).cells[C_PO_CMD, Cell1.RowIndex], Entry_MATEINDEX, '/' )) );
+
+        //   Compare := CompareValue(GetEntryValueI( (Sender as TNextGrid).cells[C_PO_CMD, Cell1.RowIndex], Entry_MATEINDEX, '/' ), GetEntryValueI( (Sender as TNextGrid).cells[C_PO_CMD, Cell2.RowIndex], Entry_MATEINDEX, '/' ) );
+           // GetEntryValueI
+     {  end;  }
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
 
            { }
  7: begin //Ping
@@ -893,16 +1073,16 @@ begin
     end;
 
  11: begin  // 11 - mates
-      V1:= cStrings.StrBefore( Cell1.AsString, ' ');
-      V2:= cStrings.StrBefore( Cell2.AsString, ' ');
+      V1:= cStrings.StrBefore( Cell1.AsString, ' :');
+      V2:= cStrings.StrBefore( Cell2.AsString, ' :');
       if (V1 <> '') and (V2 <> '') then
       begin
           I1 :=  StrToInt(V1);
           I2 :=  StrToInt(V2);
           if I1 > I2 then Compare:= 1;
+          if I1 = I2 then Compare:= 0;
 
-
-
+                {
           if I1 = I2 then
           begin
              V1 := cStrings.StrAfterRev(Cell1.AsString, '[', False);
@@ -916,8 +1096,11 @@ begin
                I1 :=  StrToInt(  Copy(V1, 0, Length(V1)-1) );
                I2 :=  StrToInt(  Copy(V2, 0, Length(V2)-1) );
                compare:= CompareValue(I1, I2);
+
+              // cStrings.Compa
+
              end;
-          end;
+          end;      }
 
           if I1 < I2 then compare:= -1;
       end
@@ -973,16 +1156,20 @@ begin
 
   GeoIP := TGeoIP.Create;
   LoadGeoIPdbFromRes(GeoIP);
-
- // NxTabSheet5.PageVisible := True;  {EDBUG}
+                                     
+  NxTabSheet5.PageVisible := False;  {EDBUG}
 
 
   LoadOptions;
 
+                  FHttpCli                 := THttpCli.Create(nil);
+                  FHttpCli.RcvdStream      := TMemoryStream.Create;
+                  FHttpCli.MultiThreaded   := True;
+                  FHttpCli.FollowRelocation:= True;
+                  FHttpCli.URL             := 'http://greennetwork.googlecode.com/svn/trunk/updates.xml';
+                  FHttpCli.RequestVer      := '1.0';
 
- // if OptionsForm.jvpnflstrg1.ReadBoolean ( 'FORVAXIMIZED', False) then
- //   Button1.Click;
-  // Form1.WindowState := wsMaximized;
+                  AutoCheckForUPD;
 
 
 end;
@@ -1151,7 +1338,7 @@ begin
      begin     
 
              A := GetBF2List(GridIndexTag).UpdateServerInfo( RcvdBytes, ServerIP, QueryPort, RowItemIndex, StartQTime, EndQTime );
-             GridUpdateServerInfo( GetGrid(GridIndexTag), A, RowItemIndex);
+             GridAddServerInfo( GetGrid(GridIndexTag), A, RowItemIndex);
              if A.ErrorCode > -1 then CreatePingQThread( ServerNo, A.Index , ServerIP );
 
              ActiveThreading := False;
@@ -1263,7 +1450,7 @@ begin
               JvStatusBar1.Panels[1].Text := Format(GetWORD(125), [inx]); //'Can''t connect to GameSpy! (ErrorCode: ' + IntToStr(inx) + ')' ;
               ActiveThreading := False;
             end;
-   -3, -4   : begin
+   -3, -4 : begin
                JvStatusBar1.Panels[1].Text := GetWORD(126);//'Can''t decrypt received data. Try again!';//     //'Access error in module "xdec.exe" (ErrorCode: ' + IntToStr(inx) + ')'  ;
                ActiveThreading := False;
             end;
@@ -1335,6 +1522,9 @@ begin
 
     OptionsForm.jvpnflstrg1.WriteBoolean ( 'FORMAXIMIZED', Form1.WindowState = wsMaximized);
 
+    OptionsForm.jvpnflstrg1.WriteDateTime('LDT', DAte);
+
+
     if Form1.WindowState <> wsMaximized  then
     begin
       OptionsForm.jvpnflstrg1.WriteInteger( 'FORMWIDTH', Form1.Width );
@@ -1353,6 +1543,10 @@ begin
        OptionsForm.jvpnflstrg1.WriteBoolean('PO1', TBShowPlayersOnline.Items[1].Checked);
        OptionsForm.jvpnflstrg1.WriteBoolean('PO2', TBShowPlayersOnline.Items[2].Checked);
        OptionsForm.jvpnflstrg1.WriteBoolean('PO3', TBShowPlayersOnline.Items[3].Checked);
+       OptionsForm.jvpnflstrg1.WriteBoolean('PO4', TBShowPlayersOnline.Items[4].Checked);
+       OptionsForm.jvpnflstrg1.WriteBoolean('PO5', TBShowPlayersOnline.Items[5].Checked);
+       OptionsForm.jvpnflstrg1.WriteBoolean('PO6', TBShowPlayersOnline.Items[6].Checked);
+       OptionsForm.jvpnflstrg1.WriteBoolean('PO7', TBShowPlayersOnline.Items[7].Checked);
 
 
        OptionsForm.jvpnflstrg1.WriteBoolean('TBAR', TBItemToolBar.Checked);
@@ -1370,6 +1564,10 @@ begin
     TempGameSpySrvList.Free;
     GeoIP.Free;
 
+    FHttpCli.Abort;
+    FHttpCli.RcvdStream.Free;
+    FHttpCli.Free;
+
 end;
 
 {
@@ -1378,10 +1576,20 @@ end;
 **********************************************************************************
 }
 
-    function TForm1.SetPORowVisibility(Index: integer): Boolean;
+    function TForm1.SetPORowVisibility(Index: Integer; param: integer = 0): Boolean;
     begin
       with TBShowPlayersOnline do
-       Result:= Items[Index].Checked;
+      begin
+       case Index of
+        0..6, 8 : Result:= Items[Index].Checked;
+        7    : begin
+                  if Items[Index].Checked then Result:= True else
+                   Result:= (param > 0);
+
+               end;
+       end;
+
+      end;
     end;
 
     procedure TForm1.GridShowHideRowsPO(NG: TNextGrid);
@@ -1389,7 +1597,7 @@ end;
     begin
        NG.BeginUpdate;
        for Row:=0 to NG.RowCount-1 do
-        NG.RowVisible[Row] := SetPORowVisibility(NG.cell[5, Row].asInteger); //SetRowVisibility(GetBF2List(NG.tag).AnItems[NG.Cell[H_ITEMID, ROW].asinteger]  );
+        NG.RowVisible[Row] := SetPORowVisibility(NG.cell[5, Row].asInteger, GetEntryValueI( NG.cells[C_PO_CMD, Row], Entry_MATEINDEX, '/' ) ); //SetRowVisibility(GetBF2List(NG.tag).AnItems[NG.Cell[H_ITEMID, ROW].asinteger]  );
        NG.EndUpdate;
 
     end;
@@ -1425,7 +1633,7 @@ end;
 
         if Result and (PlayersCount > 0) then
            result:=  PlayersCount <= item.RealPlayersCount;
-
+                                 
         if Result and (ServerPing > 0) and (item.Ping > 0) then
          if (item.Ping = 9999) then result:= ServerPing >= item.ApproxPing else
            result:=   ServerPing >= item.Ping; {}
@@ -1459,17 +1667,25 @@ end;
 }
 
 procedure TForm1.ComOnGridSelectCell(Sender: TObject; ACol, ARow: Integer);
-var Item: TBF2ServerInfoItem;
+var Item: TBF2ServerInfoItem;   note: string;
 begin
+
+  OnPopup(self);
   if (ACol < 0) or (ARow < 0) then Exit;
-
+                                          
      with (Sender as TNextGrid) do
-     Item := GetBF2List(Tag).AnItems[Cell[H_ITEMID , ARow].AsInteger];
-     {Players and Mates}
-     UpdatePlayersMatesList(PlayersGrid, MatestGrid, item);
+     begin
+      Item := GetBF2List(Tag).AnItems[Cell[H_ITEMID , ARow].AsInteger];
 
-     {Server Info}
-     UpdateDetailedInfo(ServerInfoRich, item );
+
+      {Players and Mates}
+      ProcessPlayers(PlayersGrid, MatestGrid, item);
+
+
+      {Server Info}                          
+      UpdateDetailedInfo(ServerInfoRich, item, clNavy, clBlack);
+
+     end;
 end;
 
 procedure TForm1.GlobalServersGridCellColoring(Sender: TObject; ACol,
@@ -1488,8 +1704,17 @@ procedure TForm1.PlayersGridCellColoring(Sender: TObject; ACol,
   ARow: Integer; var CellColor, GridColor: TColor; CellState: TCellState);
 begin
     if not PlayersGrid.RowExist(AROW) or (PlayersGrid.SelectedRow = ARow) then Exit;
-     if PlayersGrid.Cell[9, ARow].AsInteger in [1,2]  then
-    CellColor:= OptionsForm.MatesColorPicker.SelectedColor;
+  //   if PlayersGrid.Cell[9, ARow].AsInteger in [1,2]  then
+  //  CellColor:= OptionsForm.MatesColorPicker.SelectedColor;
+
+     
+
+     case Trunc(PlayersGrid.Cell[9, ARow].AsFloat) of
+
+      1,2,3,4,5,6  : if (ACol in [1,2])
+                    then CellColor:= OptionsForm.MatesColorPicker.SelectedColor;
+ 
+     end;
 
 end;
 
@@ -1529,10 +1754,15 @@ end;
 
 procedure TForm1.PROnlinePlayersGridCellColoring(Sender: TObject; ACol,
   ARow: Integer; var CellColor, GridColor: TColor; CellState: TCellState);
-begin
-   if not PROnlinePlayersGrid.RowExist(AROW) or (PROnlinePlayersGrid.SelectedRow = ARow) then Exit;
-     if (PROnlinePlayersGrid.Cell[5, ARow].AsInteger < 2) {and (PROnlinePlayersGrid.Cell[5, ARow].AsInteger <> 3)}  and (ACol in [1,2])  then
-    CellColor:= OptionsForm.MatesColorPicker.SelectedColor;
+begin          
+   if not PROnlinePlayersGrid.RowExist(AROW) or (PROnlinePlayersGrid.SelectedRow = ARow){} then Exit;
+    { if (PROnlinePlayersGrid.Cell[5, ARow].AsInteger < 6) } {and (PROnlinePlayersGrid.Cell[5, ARow].AsInteger <> 3)  and (ACol in [1,2])  then
+    CellColor:= OptionsForm.MatesColorPicker.SelectedColor;     }
+
+     if (GetEntryValueI( PROnlinePlayersGrid.Cells[C_PO_CMD, ARow], Entry_MATEINDEX, '/')  > 0) and (ACol in [1,2]) then
+   // if (PROnlinePlayersGrid.Cells[11, ARow]  <> '')  then
+     CellColor:= OptionsForm.MatesColorPicker.SelectedColor;
+     (**)
 end;
 
 procedure TForm1.PROnlinePlayersGridAfterSort(Sender: TObject;
@@ -1545,31 +1775,76 @@ procedure TForm1.PlayersGridCellFormating(Sender: TObject; ACol,
   ARow: Integer; var TextColor: TColor; var FontStyle: TFontStyles;
   CellState: TCellState);
 begin
-     if not PlayersGrid.RowExist(AROW) or (PlayersGrid.SelectedRow = ARow) then Exit;
-     if (PlayersGrid.Cell[9, ARow].AsInteger = 2) and (ACol in [1,2])  then
-      FontStyle := FontStyle + [fsBold];
-     //CellColor:= OptionsForm.MatesColorPicker.SelectedColor;
+     if not PlayersGrid.RowExist(AROW) then Exit;
+
+     case Trunc(PlayersGrid.Cell[9, ARow].AsFloat) of
+
+      //0          :       ;
+      1,2,3,4,6  : if (Frac(PlayersGrid.Cell[9, ARow].AsFloat) > 0) and (ACol in [1,2])
+                    then FontStyle := FontStyle + [fsBold];
+
+
+     end;
+
 end;
 
 procedure TForm1.PROnlinePlayersGridCellFormating(Sender: TObject; ACol,
   ARow: Integer; var TextColor: TColor; var FontStyle: TFontStyles;
   CellState: TCellState);
 begin
-     if not PROnlinePlayersGrid.RowExist(AROW) or (PROnlinePlayersGrid.SelectedRow = ARow) then Exit;
-     if (PROnlinePlayersGrid.Cell[5, ARow].AsInteger = 0) and (ACol in [1,2])  then
+  with (Sender as TNextGrid) do
+  begin
+    if not RowExist(AROW) then Exit;
+    {
+     if (Cell[5, ARow].AsInteger = 0) and (ACol in [1,2])  then
       FontStyle := FontStyle + [fsBold];
+    
+     if  (Cell[H_HIGHLIGHT, ARow].AsInteger = 1) and (ACol in [6])
+     then FontStyle := FontStyle + [fsBold];
+        }
+
+     if  (GetEntryValueI( Cells[C_PO_CMD, ARow] , Entry_FAVINDEX , '/' ) = 1) and (ACol in [6])
+     then FontStyle := FontStyle + [fsBold];
+
+
+  end;
+
 end;
 
 procedure TForm1.MatestGridCellFormating(Sender: TObject; ACol,
   ARow: Integer; var TextColor: TColor; var FontStyle: TFontStyles;
   CellState: TCellState);
 begin
-      if not MatestGrid.RowExist(AROW) or (MatestGrid.SelectedRow = ARow) then Exit;
-      if (MatestGrid.Cell[9, ARow].AsInteger = 2) and (ACol in [1,2])  then
-      FontStyle := FontStyle + [fsBold];
+      if not MatestGrid.RowExist(AROW) {or (MatestGrid.SelectedRow = ARow)} then Exit;
+     // if (MatestGrid.Cell[9, ARow].AsInteger = 2) and (ACol in [1,2])  then
+     // FontStyle := FontStyle + [fsBold];
+
+     case Trunc(PlayersGrid.Cell[9, ARow].AsFloat) of
+      1,2,3,4,6  : if (Frac(PlayersGrid.Cell[9, ARow].AsFloat) > 0) and (ACol in [1,2])
+                    then FontStyle := FontStyle + [fsBold];
+     end;
+
+
+
 end;
 
+procedure TForm1.GridCellFormating(Sender: TObject; ACol,
+  ARow: Integer; var TextColor: TColor; var FontStyle: TFontStyles;
+  CellState: TCellState);
+begin
 
+  with (Sender as TNextGrid) do
+  begin
+    if not RowExist(AROW) then Exit;
+
+    if  (Cell[H_HIGHLIGHT, ARow].AsInteger = 1) and (ACol in [6])
+    then FontStyle := FontStyle + [fsBold];
+
+  end;
+
+  
+
+end;
 
 {
 ********************************************************************
@@ -1613,7 +1888,9 @@ procedure TForm1.SearchCollection;
                   NG.ScrollToRow(i);
                   NxPageControl2.ActivePageIndex := 0;
 
-                  PlayersGrid.SearchNext(2, ExtractName(GetBF2List(NG.Tag).AnItems[NG.Cell[14, i].AsInteger].BF2Player[PlayerIndex].Name), true);
+                //OLD ONE  PlayersGrid.SearchNext(2, ExtractName(GetBF2List(NG.Tag).AnItems[NG.Cell[14, i].AsInteger].BF2Player[PlayerIndex].Name), true);
+                  PlayersGrid.SearchNext(12, IntToStr(PlayerIndex), true);
+
 
                   Result:= PlayerIndex;
                   Exit;
@@ -1886,6 +2163,133 @@ end;
 procedure TForm1.Label10Click(Sender: TObject);
 begin
   RadioButtonPrefix.Checked:= True;
+end;
+
+
+
+procedure TForm1.TBClickUpdateClick(Sender: TObject);
+begin
+    TBClickUpdate.Checked := not TBClickUpdate.Checked;
+end;
+
+procedure TForm1.ClickUpdate(Sender: TObject);
+var CM: TComponent;
+begin
+   if not TBClickUpdate.Checked then Exit;
+   CM := TComponent.Create(self);
+   CM.Tag := UPDATESELECTED;
+   PopupActionsEnt( CM );
+   CM.Free;
+end;
+
+
+{****************************************************************************}
+{****************************************************************************}
+{****************************************************************************}
+{****************************************************************************}
+
+procedure TForm1.AutoCheckForUPD;
+var i: integer; dlink: string;
+begin
+   if not OptionsForm.CheckUpdatescb.Checked then  Exit;
+
+   if DiffDays( OptionsForm.jvpnflstrg1.ReadDateTime('LDT'), DAte) <> 0 then
+   begin
+      GetUpdates(dlink);
+
+      if dlink <> '' then
+      begin
+        with AboutForm do
+        begin
+         UPDPanel.top := 8;
+         UPDPanel.left:= 5;
+         UPDPanel.Visible := true;
+
+         DownLink :=  dlink;
+         Button4.Enabled := True;
+
+         if not Visible then ShowModal;
+        
+        end;
+      end;
+
+
+
+   end;
+
+
+end;
+
+
+
+
+procedure TForm1.GetUpdates(var DLink: String);
+var
+
+  FXmlDoc: TNativeXml;
+  S : string;
+  i : Integer;
+begin
+
+      With AboutForm do
+      begin
+       LogRichEdit.Lines.Clear;
+       LogRichEdit.Lines.Add(GetWORD(160));//('Updates check!');
+       LogRichEdit.Lines.Add(GetWORD(161));//('Connecting ...');  GetWORD
+        FHttpCli.Abort;
+                  try
+                    FHttpCli.Get;
+                  except
+                    LogRichEdit.Lines.Add(GetWORD(162) +{'Error code}': (' + IntToStr(FHttpCli.StatusCode) + ') ' + FHttpCli.ReasonPhrase);
+                    Exit;
+                  end;
+
+                   LogRichEdit.Lines.Clear;
+
+                   FXmlDoc := TNativeXml.Create;
+                   FXmlDoc.LoadFromStream( FHttpCli.RcvdStream );
+                     if  FXmlDoc.Root.Nodes[0].ReadInteger('VERCOMP',0) > VERCOMP then
+                     begin
+                       LogRichEdit.Lines.Add( FXmlDoc.Root.Nodes[0].ReadUnicodeString('title','') );
+                       LogRichEdit.Lines.Add('');
+                       s:= FXmlDoc.Root.Nodes[0].ReadUnicodeString('ainfo','');
+                       S:= StrReplace('||', #13#10, s, False);
+
+                       LogRichEdit.Lines.Add(S);
+
+                       DLink:= FXmlDoc.Root.Nodes[0].ReadUnicodeString('download','');
+
+                     end else
+                      LogRichEdit.Lines.Add(GetWORD(163));
+                  FXmlDoc.Free;
+
+      end;
+
+end;
+
+
+{ 
+initialization
+  mHandle := CreateMutex(nil, True, 'gnetinstanceon');
+ if GetLastError = ERROR_ALREADY_EXISTS then
+  begin
+    ShowMessage('Program is already running!');
+    halt;
+  end; 
+
+finalization
+  if mHandle <> 0 then CloseHandle(mHandle)
+end.
+
+  }
+
+
+
+
+procedure TForm1.PlayersGridSelectCell(Sender: TObject; ACol,
+  ARow: Integer);
+begin
+///
 end;
 
 end.

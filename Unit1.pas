@@ -49,9 +49,9 @@ uses
 {$I defs.inc}
 
   const
-        BuildDate = '2010.03.20';
-        VerNo     = '1.0.29';
-        VERCOMP   = 1029;
+        BuildDate = '2010.03.29';
+        VerNo     = '1.0.30';
+        VERCOMP   = 1030;
 
 
 
@@ -370,6 +370,7 @@ type
     NxNumberColumn20: TNxNumberColumn;
     NxNumberColumn22: TNxNumberColumn;
     TBItem30: TTBItem;
+    TBItem31: TTBItem;
     procedure FormShow(Sender: TObject);
     procedure GlobalServersGridCompare(Sender: TObject; Cell1,
       Cell2: TCell; var Compare: Integer);
@@ -434,6 +435,7 @@ type
     procedure TBClickUpdateClick(Sender: TObject);
     procedure ClickUpdate(Sender: TObject);
     procedure PlayersGridSelectCell(Sender: TObject; ACol, ARow: Integer);
+    procedure TBItem31Click(Sender: TObject);
 
   private
     
@@ -1142,8 +1144,10 @@ var Mema: TmemoryStream;
 begin
  // ReadLng('D:\Programing\LAB\LAB4\PR GreenNetwork\Lang\Russian.ini');
 
-
+   
    Caption:= ' PR - Green Network 1.0';
+
+
 
   {NEW$}
   PRGameSpy          :=   TBF2ServerSList.Create(TBF2ServerInfoItem) ;
@@ -1156,8 +1160,8 @@ begin
 
   GeoIP := TGeoIP.Create;
   LoadGeoIPdbFromRes(GeoIP);
-                                     
-  NxTabSheet5.PageVisible := False;  {EDBUG}
+
+ NxTabSheet5.PageVisible := False;   //{EDBUG}
 
 
   LoadOptions;
@@ -1511,8 +1515,8 @@ end;
 
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
   var path : string;
-begin
-    path :=  ExtractFilePath(Application.ExeName)+'Settings.ini';
+begin                    
+    path :=  ExtractFilePath(ParamStr(0){Application.ExeName})+'Settings.ini';
     GlobalServersGrid.SaveToIni( path, 'FGRID' );
     GameSpyGrid.SaveToIni( path, 'GSGRID');
     PlayersGrid.SaveToIni( path, 'PGRID');
@@ -2290,6 +2294,22 @@ procedure TForm1.PlayersGridSelectCell(Sender: TObject; ACol,
   ARow: Integer);
 begin
 ///
+end;
+
+procedure TForm1.TBItem31Click(Sender: TObject);
+begin
+ NxTabSheet5.PageVisible := TRue;
+        Form1.PROnlinePlayersGrid.Columns.Item[15].Visible := TRue;
+       Form1.GameSpyGrid.Columns.Item[15].Visible := TRue;
+       Form1.GlobalServersGrid.Columns.Item[15].Visible := TRue;
+
+       Form1.PROnlinePlayersGrid.Columns.Item[14].Visible := TRue;
+       Form1.GlobalServersGrid.Columns.Item[14].Visible := TRue;
+       Form1.GameSpyGrid.Columns.Item[14].Visible := TRue;
+       Form1.PlayersGrid.Columns.Item[9].Visible := TRue;
+       Form1.MatestGrid.Columns.Item[9].Visible := TRue;
+       Form1.MatestGrid.Columns.Item[12].Visible := TRue;
+       Form1.PlayersGrid.Columns.Item[12].Visible := TRue;
 end;
 
 end.

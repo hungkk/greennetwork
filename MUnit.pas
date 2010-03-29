@@ -176,22 +176,22 @@ end;
 function AdvCasePos(const F, S: AnsiString; const CaseSensitive: Boolean = False): Integer;
 begin
   if CaseSensitive then
-   AdvCasePos := ALPos( ALLowerCase(F), ALLowerCase(S) ) else
-   AdvCasePos := ALPos( F, S );
+   AdvCasePos := ALPos( F, S ) else
+   AdvCasePos := ALPos(  ALLowerCase(F), ALLowerCase(S) );
 end;
 
 function AdvCasePosEx(const F, S: AnsiString; const CaseSensitive: Boolean = False; Offset: integer = 1):integer;
 begin
   if CaseSensitive then
-     AdvCasePosEx:= ALPosEx( ALLowerCase(F), ALLowerCase(S), Offset ) else
-     AdvCasePosEx:= ALPosEx( F, S, Offset );
+     AdvCasePosEx:= ALPosEx( F, S, Offset ) else
+     AdvCasePosEx:= ALPosEx( ALLowerCase(F), ALLowerCase(S), Offset );
 end;
   
 
 function GetDefLangFile:string;
 var Path: string;
 begin
-   Path := ExtractFilePath(Application.ExeName)+'Lang';
+   Path := ExtractFilePath(ParamStr(0){Application.ExeName})+'Lang';
    Windows.CreateDirectory( PAnsiChar(Path), nil);
    ExtractRes( Path + '\Default.lng', 'DEFLANG' ,'DAT' );
    Result:= Path + '\Default.lng';
@@ -528,7 +528,7 @@ procedure SaveOptions;
 var 
   Path: string;
 begin
-  Path:= ExtractFilePath(Application.ExeName);
+  Path:= ExtractFilePath(ParamStr(0){Application.ExeName});
 
    with OptionsForm do begin
      {Mates}
@@ -609,7 +609,7 @@ end;
 procedure LoadOptions(InxType: Integer = gALL);
 var Path: string; Strs: TStringList;
 begin
-  Path:= ExtractFilePath(Application.ExeName);
+  Path:= ExtractFilePath(ParamStr(0){Application.ExeName});
 
  //{DEBUG}  Form1.NxTabSheet5.TabVisible := False;
 
@@ -696,7 +696,7 @@ begin
 
      {PR Execution}
      OptionsForm.PrPAthEdit.text     := OptionsForm.jvpnflstrg1.ReadString('PRPATH',    GetPRExe );
-     OptionsForm.ExecPAramsEdit.text := OptionsForm.jvpnflstrg1.ReadString('EXECPARAMS', '+menu 1 +fullscreen 1');
+     OptionsForm.ExecPAramsEdit.text := OptionsForm.jvpnflstrg1.ReadString('EXECPARAMS', '+menu 1 +fullscreen 1 +restart1');
 
      {Grids}
      if InxType <> gNoFormNoGrids then
@@ -1397,7 +1397,7 @@ begin
     NextGridPrefix.AddRow();
     NextGridPrefix.Cells[2, NextGridPrefix.RowCount-1] := PrefixName;
     NextGridPrefix.Cell[4, NextGridPrefix.RowCount-1].AsInteger := 6;
-    NextGridPrefix.SaveToTextFile(ExtractFilePath(Application.ExeName)  + PREFIX_FILE,  ',', 'û');
+    NextGridPrefix.SaveToTextFile(ExtractFilePath(ParamStr(0){Application.ExeName})  + PREFIX_FILE,  ',', 'û');
    end;
 end;
 
@@ -1409,7 +1409,7 @@ begin
     NextGridPname.AddRow();
     NextGridPname.Cells[2, NextGridPname.RowCount-1] := PName;
     NextGridPname.Cell[4, NextGridPname.RowCount-1].AsInteger := 6;  
-    NextGridPname.SaveToTextFile(ExtractFilePath(Application.ExeName)  + NAME_FILE,  ',', 'û');
+    NextGridPname.SaveToTextFile(ExtractFilePath(ParamStr(0){Application.ExeName})  + NAME_FILE,  ',', 'û');
    end;
 end;
 
@@ -1421,7 +1421,7 @@ begin
     i:= GetMateIndex(PrefixName, fpPrefix);  if I = -1 then Exit;
     with OptionsForm do begin
       NextGridPrefix.DeleteRow( I );
-      NextGridPrefix.SaveToTextFile(ExtractFilePath(Application.ExeName)  + PREFIX_FILE,  ',', 'û');
+      NextGridPrefix.SaveToTextFile(ExtractFilePath(ParamStr(0){Application.ExeName})  + PREFIX_FILE,  ',', 'û');
     end;
 end;
 
@@ -1432,7 +1432,7 @@ begin
        i:= GetMateIndex(PName, fpName); if i = -1 then Exit;
           with OptionsForm do begin
              NextGridPname.DeleteRow( I );
-             NextGridPname.SaveToTextFile(ExtractFilePath(Application.ExeName)  + NAME_FILE,  ',', 'û');
+             NextGridPname.SaveToTextFile(ExtractFilePath(ParamStr(0){Application.ExeName})  + NAME_FILE,  ',', 'û');
           end;
 end;
 
@@ -1512,13 +1512,13 @@ begin
    if Result > 0 then
    begin
       TmpFile := rnd+'.tmp';
-      GS.SaveToFile( ExtractFilePath(Application.ExeName) + TmpFile );
+      GS.SaveToFile( ExtractFilePath(ParamStr(0){Application.ExeName}) + TmpFile );
 
       Result:= -3; // unnable invoke Doscommand
 
     //DEBUG  Form1.Memo1.lines.add('Val: ' + GS.ValidateStr );
 
-     if  Dos2Win(  ExtractFilePath(Application.ExeName) + 'xdec.exe' +  ' -v "' + GS.ValidateStr + '" -g "Xn221z" -o "' + '~'+TmpFile + '" -L x '+ TmpFile, Str)
+     if  Dos2Win(  ExtractFilePath(ParamStr(0){Application.ExeName}) + 'xdec.exe' +  ' -v "' + GS.ValidateStr + '" -g "Xn221z" -o "' + '~'+TmpFile + '" -L x '+ TmpFile, Str)
        then
        begin
         //DEBUG  Form1.Memo1.Lines.Add( 'Dos2Win = True' );
@@ -1527,7 +1527,7 @@ begin
            if Pos('done', Str) > 0 then
            begin
              List:= TStringList.Create;
-             List.LoadFromFile( ExtractFilePath(Application.ExeName) + '~'+TmpFile );
+             List.LoadFromFile( ExtractFilePath(ParamStr(0){Application.ExeName}) + '~'+TmpFile );
              OutServers := List.Text;
              List.Free;
              if Length(OutServers) > 10 then  Result:= 0 else Result:= 1;  // 0 - Ok  1 - nothing
@@ -1674,7 +1674,7 @@ var
   Path : string;
 begin
 
-   Path:= ExtractFilePath(Application.ExeName) + 'Lang\';
+   Path:= ExtractFilePath(ParamStr(0){Application.ExeName}) + 'Lang\';
 
    try
     FindHandle := FindFirstFile( pchar(Path+'*.ini'), SearchRec);

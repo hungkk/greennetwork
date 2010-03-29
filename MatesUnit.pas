@@ -390,21 +390,22 @@ begin
           if OptionsForm.NextGridClantag.Cell[3, Result].AsInteger in [CTAG_POS_ALL,  CTAG_POS_AFTER] then
           begin
            iPos:= cStrings.PosStrRev(tmpStr , tmpName, 1, OptionsForm.NextGridClantag.Cell[4, Result].AsBoolean ); // =
-           if (iPos > 0) and (iPos = Length(tmpName) - Length(tmpStr)) then Exit else Continue;
+            if (iPos > 0) and (iPos = Length(tmpName) - Length(tmpStr) +1) then Exit else Continue;
           end;
 
          {Inside}
           if OptionsForm.NextGridClantag.Cell[3, Result].AsInteger in [CTAG_POS_ALL, CTAG_POS_INSIDE] then
           begin
             iPos := AdvCasePosEx(tmpStr , tmpName, OptionsForm.NextGridClantag.Cell[4, Result].AsBoolean, 2);
-            if (iPos > 1) and (iPos < Length(tmpName) - Length(tmpStr)) then  Exit else Continue;
+            if (iPos > 1) and (iPos < Length(tmpName) - Length(tmpStr)-1) then  Exit else Continue;
           end;
 
          {Any}
           if OptionsForm.NextGridClantag.Cell[3, Result].AsInteger in [CTAG_POS_ALL, CTAG_POS_ANY ] then
+          begin
             if AdvCasePos( tmpStr , tmpName, OptionsForm.NextGridClantag.Cell[4, Result].AsBoolean ) > 0 then
             Exit else Continue;
-
+          end;
          end;
 
 

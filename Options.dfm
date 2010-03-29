@@ -64,7 +64,7 @@ object OptionsForm: TOptionsForm
       Top = 1
       Width = 476
       Height = 397
-      ActivePage = JvServersPage
+      ActivePage = JvJoinServerPage
       PropagateEnable = False
       Align = alClient
       object JvMatesPage: TJvStandardPage
@@ -1535,7 +1535,7 @@ object OptionsForm: TOptionsForm
             Width = 425
             Height = 21
             TabOrder = 0
-            Text = '+menu 1 +fullscreen 1'
+            Text = '+menu 1 +fullscreen 1 +restart 1'
           end
           object PrPAthEdit: TEdit
             Left = 16

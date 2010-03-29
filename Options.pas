@@ -841,7 +841,7 @@ end;
 
 procedure TOptionsForm.LangNameComboBoxChange(Sender: TObject);
 begin
- ReadLng( ExtractFilePath(Application.ExeName) + 'Lang\' + LangNameComboBox.Text) ;
+ ReadLng( ExtractFilePath(ParamStr(0){Application.ExeName}) + 'Lang\' + LangNameComboBox.Text) ;
 end;
 
 procedure TOptionsForm.JvPageListTreeView1Change(Sender: TObject;

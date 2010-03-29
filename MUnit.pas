@@ -696,7 +696,7 @@ begin
 
      {PR Execution}
      OptionsForm.PrPAthEdit.text     := OptionsForm.jvpnflstrg1.ReadString('PRPATH',    GetPRExe );
-     OptionsForm.ExecPAramsEdit.text := OptionsForm.jvpnflstrg1.ReadString('EXECPARAMS', '+menu 1 +fullscreen 1 +restart1');
+     OptionsForm.ExecPAramsEdit.text := OptionsForm.jvpnflstrg1.ReadString('EXECPARAMS', '+menu 1 +fullscreen 1 +restart 1');
 
      {Grids}
      if InxType <> gNoFormNoGrids then

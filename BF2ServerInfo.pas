@@ -1192,8 +1192,14 @@ begin
        Result.FPing                  := 0;
        FServerIP                     := IP;
        FServerQueryPort              := QPort;
-
+       {
        FApproxPing                   := EndQTime - StartQTime;
+       }
+
+       i := EndQTime - StartQTime - 10;
+       if i < 0 then i:= 0;
+       FApproxPing                   := i;
+
 
        if BF2SInf.FTotalPlayersCount > 0 then
        for i:=0 to FTotalPlayersCount-1 do
@@ -1299,7 +1305,9 @@ begin
        FServerIP                     := IP;
        FServerQueryPort              := QPort;
 
-       FApproxPing                   := EndQTime - StartQTime - 10;
+       i := EndQTime - StartQTime - 10;
+       if i < 0 then i:= 0;
+       FApproxPing                   := i;
 
        if BF2SInf.FTotalPlayersCount > 0 then
        for i:=0 to FTotalPlayersCount-1 do

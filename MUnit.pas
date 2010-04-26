@@ -593,7 +593,7 @@ begin
      jvpnflstrg1.WriteString('PRPATH',     PrPAthEdit.text);
      jvpnflstrg1.WriteString('EXECPARAMS', ExecPAramsEdit.text);
 
-    
+
      {********* EXECUTION ***********}
      {Update }
    //  UpdateJoinServerList(Form1.Joinnow1, 0);
@@ -761,7 +761,8 @@ begin
             NxAutoCompletion1.Strings.CommaText := OptionsForm.jvpnflstrg1.ReadString('MRURECENT', '' );
             SearchComboBox.Items.CommaText := NxAutoCompletion1.Strings.CommaText;
 
-
+            {Update Click}
+            TBClickUpdate.Checked := jvpnflstrg1.ReadBoolean('CLKCUPD', False);
          end;
 
      end;

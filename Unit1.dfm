@@ -1,9 +1,9 @@
 object Form1: TForm1
-  Left = 313
-  Top = 262
+  Left = 285
+  Top = 334
   Width = 894
   Height = 575
-  Caption = ' PR - Green Network (Build# 0029)'
+  Caption = ' PR - Green Network (Build# 0030)'
   Color = clBtnFace
   DefaultMonitor = dmMainForm
   Font.Charset = DEFAULT_CHARSET
@@ -76,6 +76,7 @@ object Form1: TForm1
           PopupMenu = TBPopupPlayers
           TabOrder = 0
           TabStop = True
+          OnAfterSort = GridAfterSort
           OnCellColoring = PlayersGridCellColoring
           OnSelectCell = PlayersGridSelectCell
           OnCellFormating = PlayersGridCellFormating
@@ -350,6 +351,7 @@ object Form1: TForm1
           PopupMenu = TBPopupPlayers
           TabOrder = 0
           TabStop = True
+          OnAfterSort = GridAfterSort
           OnCellFormating = MatestGridCellFormating
           object NxIncrementColumn3: TNxIncrementColumn
             DefaultWidth = 20
@@ -599,8 +601,8 @@ object Form1: TForm1
     Top = 113
     Width = 886
     Height = 208
-    ActivePage = NxTabSheet2
-    ActivePageIndex = 0
+    ActivePage = NxTabSheet6
+    ActivePageIndex = 1
     Align = alClient
     Color = clWhite
     ParentColor = False
@@ -2066,6 +2068,11 @@ object Form1: TForm1
         end
         object TBItem12: TTBItem
           Caption = 'Exit'
+        end
+        object TBItem31: TTBItem
+          Caption = 'Debug'
+          Visible = False
+          OnClick = TBItem31Click
         end
       end
       object TBSeparatorItem9: TTBSeparatorItem

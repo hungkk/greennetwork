@@ -49,9 +49,9 @@ uses
 {$I defs.inc}
 
   const
-        BuildDate = '2010.03.29';
-        VerNo     = '1.0.30';
-        VERCOMP   = 1030;
+        BuildDate = '2010.04.26';
+        VerNo     = '1.0.31';
+        VERCOMP   = 1031;
 
 
 
@@ -436,6 +436,7 @@ type
     procedure ClickUpdate(Sender: TObject);
     procedure PlayersGridSelectCell(Sender: TObject; ACol, ARow: Integer);
     procedure TBItem31Click(Sender: TObject);
+    procedure GridAfterSort(Sender: TObject; ACol: Integer);
 
   private
     
@@ -1420,6 +1421,10 @@ begin
   {Resort }
    asc:= GetGrid(GridIndexTag).SortedColumn.SortKind = skAscending;
    GetGrid(GridIndexTag).SortColumn(GetGrid(GridIndexTag).SortedColumn ,  asc );
+  end else
+  begin
+   if GetGrid(GridIndexTag).SortedColumn = nil then Exit;
+    GetGrid(GridIndexTag).SelectedRow  := GetGrid(GridIndexTag).SelectedRow;
   end;
 
 end;
@@ -1556,6 +1561,8 @@ begin
        OptionsForm.jvpnflstrg1.WriteBoolean('TBAR', TBItemToolBar.Checked);
        OptionsForm.jvpnflstrg1.WriteBoolean('SBAR', TBItemSearchBar.Checked);
        OptionsForm.jvpnflstrg1.WriteBoolean('FBAR', TBItemFilterBar.Checked);
+       {Update Click}
+       OptionsForm.jvpnflstrg1.WriteBoolean('CLKCUPD', TBClickUpdate.Checked);
     end;
 
 
@@ -1671,7 +1678,7 @@ end;
 }
 
 procedure TForm1.ComOnGridSelectCell(Sender: TObject; ACol, ARow: Integer);
-var Item: TBF2ServerInfoItem;   note: string;
+var Item: TBF2ServerInfoItem;   note: string; asc: Boolean;
 begin
 
   OnPopup(self);
@@ -1690,6 +1697,25 @@ begin
       UpdateDetailedInfo(ServerInfoRich, item, clNavy, clBlack);
 
      end;
+
+  {Resort }
+
+   if (PlayersGrid.SortedColumn <> nil) and (PlayersGrid.RowCount > 0) then
+   begin
+   asc:= PlayersGrid.SortedColumn.SortKind = skAscending;
+   PlayersGrid.SortColumn(PlayersGrid.SortedColumn ,  asc );
+   end;
+   
+   if (MatestGrid.SortedColumn <> nil) and (MatestGrid.RowCount > 0) then
+   begin
+    asc:= MatestGrid.SortedColumn.SortKind = skAscending;
+    MatestGrid.SortColumn(MatestGrid.SortedColumn ,  asc );
+   end;
+   
+
+
+
+
 end;
 
 procedure TForm1.GlobalServersGridCellColoring(Sender: TObject; ACol,
@@ -2310,6 +2336,11 @@ begin
        Form1.MatestGrid.Columns.Item[9].Visible := TRue;
        Form1.MatestGrid.Columns.Item[12].Visible := TRue;
        Form1.PlayersGrid.Columns.Item[12].Visible := TRue;
+end;
+
+procedure TForm1.GridAfterSort(Sender: TObject; ACol: Integer);
+begin
+    (Sender as TNextGrid).ScrollToRow(0);
 end;
 
 end.

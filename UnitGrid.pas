@@ -176,7 +176,7 @@ uses MUnit;
          NG.Cells[C_PLAYERS, RowIndex]:=    '';
          NG.Cells[C_MAPNAME, RowIndex]:=    '';
          NG.Cells[C_TYPE,    RowIndex]:=    '';
-
+         NG.Cell[C_MATES,   RowIndex].AsString := '';
 
          NG.RowVisible[RowIndex] := Form1.SetRowVisibility(Item);
          NG.EndUpdate;
@@ -673,6 +673,9 @@ begin
         GridAddPlayerInfoW(MGrid, BF2Player[i], Params, i);
      end;
   end;
+
+ // Sort
+
 
 end;
 

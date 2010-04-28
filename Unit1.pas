@@ -1,5 +1,5 @@
 unit Unit1;
-
+   {$I ImagingOptions.inc}
 //   Дойчлан дойчланд убер алес
 
 interface
@@ -44,16 +44,27 @@ uses
   TB2Dock,
   TB2Toolbar,
   Spin, Dialogs, Math, PngImageList, OverbyteIcsWndControl,
-  OverbyteIcsHttpProt;
+  OverbyteIcsHttpProt,
+
+
+    ImagingTypes,
+  Imaging,
+  ImagingClasses,
+  ImagingComponents,
+  ImagingCanvases,
+  ImagingFormats,
+  ImagingUtility, JvExExtCtrls, JvNetscapeSplitter;
 
 {$I defs.inc}
 
   const
-        BuildDate = '2010.04.26';
-        VerNo     = '1.0.31';
-        VERCOMP   = 1031;
+        BuildDate = '2010.04.28';
+        VerNo     = '1.0.32';
+        VERCOMP   = 1032;
 
-
+        {IMG}
+        FillColor       = ClWhite; //$FFA6FFFF;
+        CheckersDensity = 1;
 
         {NEW$}
         S_GAME_SPY  = 2;
@@ -371,6 +382,10 @@ type
     NxNumberColumn22: TNxNumberColumn;
     TBItem30: TTBItem;
     TBItem31: TTBItem;
+    mapPanel: TPanel;
+    PaintBox: TPaintBox;
+    JvNetscapeSplitter1: TJvNetscapeSplitter;
+    TBItemMapPreview: TTBItem;
     procedure FormShow(Sender: TObject);
     procedure GlobalServersGridCompare(Sender: TObject; Cell1,
       Cell2: TCell; var Compare: Integer);
@@ -437,12 +452,30 @@ type
     procedure PlayersGridSelectCell(Sender: TObject; ACol, ARow: Integer);
     procedure TBItem31Click(Sender: TObject);
     procedure GridAfterSort(Sender: TObject; ACol: Integer);
+    procedure PaintBoxPaint(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure mapPanelResize(Sender: TObject);
+    procedure TBItemMapPreviewClick(Sender: TObject);
 
   private
+    FImage: ImagingClasses.TMultiImage;
+    // Canvas for drawing on loaded images
+    FImageCanvas: ImagingCanvases.TImagingCanvas;
+    // Image background
+    FBack: ImagingClasses.TSingleImage;
+    // Canvas for background image
+    FBackCanvas: ImagingCanvases.TImagingCanvas;
+    // FFileName: string;
+    FLastTime: LongInt;
+    FOriginalFormats: array of TImageFormat;
+    FSupported: Boolean;
     
     { Private declarations }
   public
      GeoIP : TGeoIP;
+     MapsPaths  : TStringList;
+
 
     procedure StarMultiThreading(Slist: TStrings; const GridIndex: Integer = S_GAME_SPY);
     procedure StartSingleThreading(IP: string; Port: string; GridIndex: Integer; ItemIndex: Integer);
@@ -483,6 +516,16 @@ type
     procedure GlobalResetLastPlayerSearchIndex;
     procedure GetUpdates(var DLink: String);
     procedure AutoCheckForUPD;
+
+
+
+
+    procedure FillDefault;
+    procedure SetUnsupported;
+    procedure LoadImage(MFile: String);
+
+
+
     { Public declarations }
   end;
 
@@ -499,6 +542,9 @@ var
   RowItemIndex           : Integer;
   ServerListBuffer       : TStringList;
   TempGameSpySrvList     : TStringList;
+
+  
+
   PRGameSpy, PRFavorites, PRPlayersOnline : TBF2ServerSList;
 
 
@@ -599,6 +645,7 @@ begin
                             MatestGrid.ClearRows;
                             PlayersGrid.ClearRows;
                             ServerInfoRich.Clear;
+                            SetUnsupported;
                             GetGameSpyServers;
 
                         end ;
@@ -612,7 +659,7 @@ begin
                             MatestGrid.ClearRows;
                             PlayersGrid.ClearRows;
                             ServerInfoRich.Clear;
-
+                            SetUnsupported;
 
                             if OptionsForm.NextGridFavServers.RowCount > 0 then
                             begin
@@ -635,7 +682,8 @@ begin
                           MatestGrid.ClearRows;
                           PlayersGrid.ClearRows;
                           ServerInfoRich.Clear;
-
+                          SetUnsupported;
+                          
                           GetPROnlinePlayers;
                         end;
 
@@ -1174,7 +1222,12 @@ begin
                   FHttpCli.URL             := 'http://greennetwork.googlecode.com/svn/trunk/updates.xml';
                   FHttpCli.RequestVer      := '1.0';
 
-                  AutoCheckForUPD;
+  MapsPaths              := TStringList.Create;
+  if OptionsForm.PrPathEdit.text <> '' then
+  BuildModMapsWays( ExtractFilePath( OptionsForm.PrPathEdit.text ),   MapsPaths);
+  
+
+  AutoCheckForUPD;
 
 
 end;
@@ -1563,6 +1616,9 @@ begin
        OptionsForm.jvpnflstrg1.WriteBoolean('FBAR', TBItemFilterBar.Checked);
        {Update Click}
        OptionsForm.jvpnflstrg1.WriteBoolean('CLKCUPD', TBClickUpdate.Checked);
+       {Map preview}
+       OptionsForm.jvpnflstrg1.WriteBoolean('MAPPRV', TBItemMapPreview.Checked);
+
     end;
 
 
@@ -1573,11 +1629,13 @@ begin
     PRPlayersOnline.Destroy;
     ServerListBuffer.Free;
     TempGameSpySrvList.Free;
+    MapsPaths.Free;
     GeoIP.Free;
 
     FHttpCli.Abort;
     FHttpCli.RcvdStream.Free;
     FHttpCli.Free;
+    
 
 end;
 
@@ -1711,7 +1769,10 @@ begin
     asc:= MatestGrid.SortedColumn.SortKind = skAscending;
     MatestGrid.SortColumn(MatestGrid.SortedColumn ,  asc );
    end;
-   
+
+   {Load Map Review}
+  // Edit1.Text :=  GetMapFilePath(Item.mapname, Item.gametype, item.maxplayers);
+   LoadImage( GetMapFilePath(Item.mapname, Item.gametype, item.maxplayers) );
 
 
 
@@ -2341,6 +2402,158 @@ end;
 procedure TForm1.GridAfterSort(Sender: TObject; ACol: Integer);
 begin
     (Sender as TNextGrid).ScrollToRow(0);
+end;
+
+
+{
+********************************************************************
+********************************************************************
+********************************************************************
+********************************************************************
+
+ DDS
+
+********************************************************************
+********************************************************************
+********************************************************************
+********************************************************************
+}
+
+procedure TForm1.LoadImage(MFile: String);
+var
+  I: LongInt;
+ // T: Int64;
+begin
+  try
+    if Imaging.DetermineFileFormat(MFile) <> '' then
+    try
+      // Load all subimages in file
+    //  T := ImagingUtility.GetTimeMicroseconds;
+      FImage.LoadMultiFromFile(MFile);
+
+      if not FImage.AllImagesValid then
+      begin
+        SetUnsupported;
+        Exit;
+      end;
+     {
+      // Store original data formats for later use
+      SetLength(FOriginalFormats, FImage.ImageCount);
+      for I := 0 to FImage.ImageCount - 1 do
+      begin
+        FImage.ActiveImage := I;
+        FOriginalFormats[I] := FImage.Format;
+        // Convert image to 32bit ARGB format if current format is not supported
+        // by canvas class
+        if not (FImage.Format in TImagingCanvas.GetSupportedFormats) then
+          FImage.Format := ifA8R8G8B8;
+      end;  }
+
+      FImage.ActiveImage := 1;
+      FImage.Format      := ifDefault;
+             
+      // Activate first image and update UI
+      FImage.ActiveImage := 0;
+    //  SetSupported;
+      PaintBox.Repaint;
+    except
+      SetUnsupported;
+      raise;
+    end
+    else
+      SetUnsupported;
+  except
+    SetUnsupported;
+  end;
+end;
+
+procedure TForm1.SetUnsupported;
+//var
+//  X, Y, Step: LongInt;
+begin
+
+  if Assigned(FImage) then
+  begin
+    FImage.CreateFromParams(CheckersDensity, CheckersDensity, ifA8R8G8B8, 1);
+    FImageCanvas.Free;
+    FImageCanvas := FindBestCanvasForImage(FImage).CreateForImage(FImage);
+      {
+    Step := FImage.Width div CheckersDensity;
+    for Y := 0 to CheckersDensity - 1 do
+      for X := 0 to CheckersDensity - 1 do
+      begin
+        FImageCanvas.FillColor32 := IffUnsigned((Odd(X) and not Odd(Y)) or (not Odd(X) and Odd(Y)),
+          pcWhite, pcBlack);
+        FImageCanvas.FillRect(Rect(X * Step, Y * Step, (X + 1) * Step, (Y + 1) * Step));
+      end;  }
+  end;
+  // Paint current image
+  PaintBox.Repaint;
+end;
+
+procedure TForm1.FillDefault;
+begin
+  // Fill background canvas with default color
+  FBackCanvas.FillColor32 := FillColor;
+  FBackCanvas.FillRect(Rect(0, 0, FBack.Width, FBack.Height));
+end;
+
+procedure TForm1.PaintBoxPaint(Sender: TObject);
+var
+  R: TRect;
+  Filter: TResizeFilter;
+begin
+  // Fill background with default color
+  //FillDefault;
+    FBackCanvas.FillColor32 := FillColor;
+    FBackCanvas.FillRect(Rect(0, 0, FBack.Width, FBack.Height));
+
+  // Determine which stretching filter to use
+{  if FSupported and CheckFilter.Checked then
+    Filter := rfBicubic
+  else        }
+    Filter := rfNearest;
+  // Scale image to fit the paint box
+  R := ImagingUtility.ScaleRectToRect(FImage.BoundsRect, PaintBox.ClientRect);
+  // Create canvas for current image frame
+  FImageCanvas.Free;
+  FImageCanvas := FindBestCanvasForImage(FImage).CreateForImage(FImage);
+  // Stretch image over background canvas
+  FImageCanvas.StretchDrawAlpha(FImage.BoundsRect, FBackCanvas, R, Filter);
+  ImagingComponents.DisplayImage(PaintBox.Canvas, PaintBox.BoundsRect, FBack);
+end;
+
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  FImage := TMultiImage.Create;
+  FImageCanvas := TImagingCanvas.Create;
+  FBack := TSingleImage.CreateFromParams(128, 128, ifA8R8G8B8);
+  FBackCanvas := FindBestCanvasForImage(FBack).CreateForImage(FBack);
+  SetUnsupported;
+end;
+
+procedure TForm1.FormDestroy(Sender: TObject);
+begin
+  FImage.Free;
+  FImageCanvas.Free;
+  FBack.Free;
+  FBackCanvas.Free;
+end;
+
+procedure TForm1.mapPanelResize(Sender: TObject);
+begin
+  // Resize background image to fit the paint box
+  FBack.Resize(PaintBox.ClientWidth, PaintBox.ClientHeight, rfNearest);
+  // Update back canvas state after resizing of associated image
+  FBackCanvas.UpdateCanvasState;
+end;
+
+
+procedure TForm1.TBItemMapPreviewClick(Sender: TObject);
+begin
+   if not TBItemMapPreview.Checked then
+   JvNetscapeSplitter1.Maximized := True else JvNetscapeSplitter1.Maximized := False;
+
 end;
 
 end.

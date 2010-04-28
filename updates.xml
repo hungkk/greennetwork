@@ -2,11 +2,11 @@
 
 <xml version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/">
 	<updinfo>
-		<title>New version: Green Network v1.0.31 avaiable!</title>
+		<title>New version: Green Network v1.0.32 avaiable!</title>
 		<link>http://prgnetwork.blogspot.com/</link>
-		<VERCOMP>1031</VERCOMP>
-		<download>http://greennetwork.googlecode.com/files/setup_1031.exe</download>
+		<VERCOMP>1032</VERCOMP>
+		<download>http://greennetwork.googlecode.com/files/pr_gnetwork_setup_1032.exe</download>
 		<Date>Mon, 29 Mar 2010 02:42:47 GMT</Date>
-		<ainfo>+ Some minor bugs are fixed ||</ainfo> 
+		<ainfo>+ One little bug fixed || + New feature "Map preview" added</ainfo> 
 	</updinfo>
 </xml>

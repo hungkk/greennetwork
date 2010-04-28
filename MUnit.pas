@@ -4,7 +4,7 @@ interface
 
 uses  Options, Menus, ShellApi, ColListb, Forms, ShlObj, 
       BF2ServerInfo, Clipbrd, ComCtrls, StdCtrls, Graphics, cStrings, Unit1,
-      Windows, Messages, SysUtils, Variants, Classes, TB2Item, GeoIP, LanguageUnit, ALfcnString;
+      Windows, Messages, SysUtils, Variants, Classes, TB2Item, GeoIP, LanguageUnit, ALfcnString, ExtCtrls,NativeXml;
 
  const
    gALL = 0;
@@ -14,6 +14,10 @@ uses  Options, Menus, ShellApi, ColListb, Forms, ShlObj,
    NAME_FILE    = 'names.cfg';
    CLANTAG_FILE = 'clantag.cfg';
    SERVERS_FILE = 'servers.cfg';
+
+
+   BF2_LEVEL_DIR = 'levels\';
+   BF2_MOD_PR_MAP_FILE = 'mapOverview_%s_%s.png';
 
    inHost = 3;
    inName = 2;
@@ -135,6 +139,13 @@ procedure LoadLanguageFilesList(LLFL: TStrings);
 function GetFavServer(Str: String) : TFavServerInfo;
 function GetEntryValueS(Str: string; EntryIndex: Integer; const Separator : string = ';'): String;
 function GetEntryValueI(Str: string; EntryIndex: Integer; const Separator : string = ';'): Integer;
+
+function GetMapFilePath(MapName, Gtype, Mplayers: String):String;
+procedure BuildModMapsWays(const GameDir: string; var List: TStringList);
+//function GetMapAcronim(Map: String): string;
+//procedure LoadMapImage(MFile: String; PaintBox: TPaintBox);
+
+
 
 implementation
 
@@ -707,7 +718,7 @@ begin
        Form1.MatestGrid.LoadFromIni( path + 'Settings.ini', 'MGRID');
        Form1.PROnlinePlayersGrid.LoadFromIni( path + 'Settings.ini', 'OPGRID');
 
-      {DEBUG  }
+      {DEBUG}
        Form1.PROnlinePlayersGrid.Columns.Item[15].Visible := False;
        Form1.GameSpyGrid.Columns.Item[15].Visible := False;
        Form1.GlobalServersGrid.Columns.Item[15].Visible := False;
@@ -719,7 +730,7 @@ begin
        Form1.MatestGrid.Columns.Item[9].Visible := False;
        Form1.MatestGrid.Columns.Item[12].Visible := False;
        Form1.PlayersGrid.Columns.Item[12].Visible := False;
-      
+         
      {FORM POS}
 
 
@@ -763,6 +774,12 @@ begin
 
             {Update Click}
             TBClickUpdate.Checked := jvpnflstrg1.ReadBoolean('CLKCUPD', False);
+
+            {MapPreView}
+            TBItemMapPreview.Checked := jvpnflstrg1.ReadBoolean('MAPPRV', True);
+            if not TBItemMapPreview.Checked then
+            JvNetscapeSplitter1.Maximized := True else JvNetscapeSplitter1.Maximized := False;
+
          end;
 
      end;
@@ -1735,6 +1752,75 @@ end;
 
 
 
+{   'mapOverview' + '_' + GameMode + '_' + MaxPlayers + '.png'  ;                 mapOverviewgpm_coop_16.png    }
+
+function GetMapFilePath(MapName, Gtype, Mplayers: String) : String;
+begin
+  with Form1 do
+  begin
+    MapsPaths.NameValueSeparator := '|';
+    Result:= IncludeTrailingBackslash(MapsPaths.Values[MapName]) + Format( BF2_MOD_PR_MAP_FILE, [Gtype, Mplayers] );
+
+    if not FileExists(Result) then
+    Result:= IncludeTrailingBackslash(MapsPaths.Values[MapName]) + Format( BF2_MOD_PR_MAP_FILE, [Gtype, '16'] );
+
+    if not FileExists(Result) then
+    Result:= IncludeTrailingBackslash(MapsPaths.Values[MapName]) + Format( BF2_MOD_PR_MAP_FILE, [Gtype, '32'] );
+
+    if not FileExists(Result) then
+    Result:= IncludeTrailingBackslash(MapsPaths.Values[MapName]) + Format( BF2_MOD_PR_MAP_FILE, [Gtype, '64'] );
+
+  end;
+end;
+
+
+procedure BuildModMapsWays(const GameDir: string; var List: TStringList);
+ var
+  FXmlDoc: TNativeXml;
+
+      procedure AddMapDefPath(Path: string);
+      var Name: string;
+      begin
+          FXmlDoc.LoadFromFile( Path );
+
+          Name:= Trim(  FXmlDoc.Root.ReadUnicodeString('name','') );
+          if Name <> '' then
+          List.Add(Name + '|' + ExtractFilePath(Path) );
+      end;
+
+      procedure FileSearch(const PathName, FileName : string; const InDir : boolean);
+      var  Rec  : TSearchRec;
+           Path : string;
+      begin
+        Path := IncludeTrailingBackslash(PathName);
+        if FindFirst(Path + FileName, faAnyFile - faDirectory, Rec) = 0 then
+         try
+           repeat
+               AddMapDefPath( Path + Rec.Name );
+           until FindNext(Rec) <> 0;
+         finally
+            FindClose(Rec);
+          end;
+
+          If not InDir then Exit;
+
+          if FindFirst(Path + '*.*', faDirectory, Rec) = 0 then
+           try
+             repeat
+               if ((Rec.Attr and faDirectory) <> 0)  and (Rec.Name<>'.') and (Rec.Name<>'..') then
+               FileSearch(Path + Rec.Name, FileName, True);
+             until FindNext(Rec) <> 0;
+          finally
+             FindClose(Rec);
+          end;
+      end;
+
+begin
+   FXmlDoc := TNativeXml.Create;
+   List.Clear;
+   FileSearch( IncludeTrailingPathDelimiter(GameDir) + BF2_LEVEL_DIR, '*.desc', True );
+   FXmlDoc.Free;
+end;
 
 
 end.

@@ -64,7 +64,7 @@ object OptionsForm: TOptionsForm
       Top = 1
       Width = 476
       Height = 397
-      ActivePage = JvJoinServerPage
+      ActivePage = JvGeneralPage
       PropagateEnable = False
       Align = alClient
       object JvMatesPage: TJvStandardPage

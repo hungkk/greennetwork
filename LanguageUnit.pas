@@ -18,7 +18,7 @@ uses MUnit;
 //   WordsCount = 133;
 
 var
-  WORDS : array [0..165] of string;
+  WORDS : array [0..167] of string;
 
 function GetWORD(Index: Integer) : AnsiString;
 begin
@@ -290,6 +290,9 @@ begin
   Label10.Caption := WORDS[120];
   //165=Click-update
   TBClickUpdate.Hint := WORDS[165];
+
+  //166 166=Map preview
+  TBItemMapPreview.Caption := WORDS[166];
 
  end;
 

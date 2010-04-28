@@ -1,9 +1,9 @@
 object Form1: TForm1
-  Left = 285
-  Top = 334
+  Left = 236
+  Top = 353
   Width = 894
   Height = 575
-  Caption = ' PR - Green Network (Build# 0030)'
+  Caption = ' PR - Green Network (Build# 0031)'
   Color = clBtnFace
   DefaultMonitor = dmMainForm
   Font.Charset = DEFAULT_CHARSET
@@ -15,6 +15,8 @@ object Form1: TForm1
   Position = poDesktopCenter
   OnActivate = FormActivate
   OnClose = FormClose
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnResize = FormResize
   OnShow = FormShow
   PixelsPerInch = 96
@@ -37,10 +39,28 @@ object Form1: TForm1
     Height = 196
     Align = alBottom
     TabOrder = 0
+    object JvNetscapeSplitter1: TJvNetscapeSplitter
+      Left = 704
+      Top = 1
+      Width = 16
+      Height = 194
+      Align = alRight
+      Beveled = True
+      Color = clWhite
+      MinSize = 1
+      ParentColor = False
+      ResizeStyle = rsUpdate
+      Maximized = False
+      Minimized = False
+      ButtonCursor = crDefault
+      WindowsButtons = []
+      ButtonColor = clWhite
+      ButtonHighlightColor = clSilver
+    end
     object NxPageControl2: TNxPageControl
       Left = 1
       Top = 1
-      Width = 884
+      Width = 703
       Height = 194
       ActivePage = NxTabSheet3
       ActivePageIndex = 0
@@ -66,7 +86,7 @@ object Form1: TForm1
         object PlayersGrid: TNextGrid
           Left = 0
           Top = 0
-          Width = 884
+          Width = 703
           Height = 173
           Align = alClient
           AppearanceOptions = [aoAlphaBlendedSelection, aoHighlightSlideCells]
@@ -341,7 +361,7 @@ object Form1: TForm1
           Tag = 1
           Left = 0
           Top = 0
-          Width = 884
+          Width = 703
           Height = 173
           Align = alClient
           AppearanceOptions = [aoAlphaBlendedSelection, aoHighlightSlideCells]
@@ -576,7 +596,7 @@ object Form1: TForm1
         object ServerInfoRich: TRichEdit
           Left = 0
           Top = 0
-          Width = 884
+          Width = 703
           Height = 173
           Align = alClient
           PopupMenu = TBPopupMenuDetailedInfo
@@ -595,14 +615,35 @@ object Form1: TForm1
         TabFont.Style = []
       end
     end
+    object mapPanel: TPanel
+      Left = 720
+      Top = 1
+      Width = 165
+      Height = 194
+      Align = alRight
+      BevelOuter = bvNone
+      Color = clWhite
+      TabOrder = 1
+      OnResize = mapPanelResize
+      object PaintBox: TPaintBox
+        Left = 0
+        Top = 0
+        Width = 165
+        Height = 194
+        Align = alClient
+        Color = clWhite
+        ParentColor = False
+        OnPaint = PaintBoxPaint
+      end
+    end
   end
   object NxPageControl1: TNxPageControl
     Left = 0
     Top = 113
     Width = 886
     Height = 208
-    ActivePage = NxTabSheet6
-    ActivePageIndex = 1
+    ActivePage = NxTabSheet2
+    ActivePageIndex = 0
     Align = alClient
     Color = clWhite
     ParentColor = False
@@ -2098,6 +2139,11 @@ object Form1: TForm1
           Caption = 'Filter'
           OnClick = TBItemFilterBarClick
         end
+        object TBItemMapPreview: TTBItem
+          AutoCheck = True
+          Caption = 'Map preview'
+          OnClick = TBItemMapPreviewClick
+        end
         object TBSeparatorItem6: TTBSeparatorItem
         end
         object TBShowServers: TTBSubmenuItem
@@ -2771,7 +2817,7 @@ object Form1: TForm1
     MenuUpdate = False
     MenuMerge = False
     OnSkinChanged = SkinData1SkinChanged
-    Left = 56
+    Left = 88
     Top = 256
     SkinStream = {
       CA5A0000FC790300FE6771B8CFCE3B0AFE7DDBA97F4F1803FE0024801EE0100B
@@ -3505,7 +3551,7 @@ object Form1: TForm1
   object TBPopupMenu1: TTBPopupMenu
     Tag = 98
     OnPopup = OnPopup
-    Left = 232
+    Left = 224
     Top = 256
     object TBSubmenuItem6: TTBSubmenuItem
       Caption = 'Join server as'

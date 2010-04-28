@@ -40,7 +40,8 @@ interface
   STARS_RED    = 3;
   STARS_GREEN  = 4;
   STARS_BLUE   = 5;
-  STARS_NONE   = 7;
+  STARS_NOSTAR = 6;
+  STARS_NONE   = 7; //7
 
   C_GOLD   = '#C9A007';//$0007A0C9;
   C_BLACK  = '#000000';//$000D0D0D;
@@ -264,7 +265,7 @@ implementation
    with Params do
    begin
     Mate     := 0;
-    Star     := 7;
+    Star     := STARS_NONE;
     NameBold := False;
     PrefBold := False;
     TagBold  := False;
@@ -308,7 +309,7 @@ implementation
      if (Priority in [pBolds, pAll]) and (Params.NameBold = False) then
      Params.PrefBold := IsBold(PlayerIndex, fpPrefix);
 
-     if (Priority in [pStars, pAll]) and (Params.Star = STARS_NONE) then
+     if (Priority in [pStars, pAll]) and (Params.Star >= STARS_NOSTAR{STARS_NONE}) then
      Params.Star     := isStar(PlayerIndex, fpPrefix);
 
      if (Priority in [pNotes, pAll]) and (Params.Note = EmptyStr) then
@@ -331,7 +332,7 @@ implementation
      if (Priority in [pBolds, pAll])  then
      Params.TagBold  := IsBold(PlayerIndex, fpClantag);
 
-     if (Priority in [pStars, pAll]) and (Params.Star = STARS_NONE) then
+     if (Priority in [pStars, pAll]) and (Params.Star >= STARS_NOSTAR {STARS_NONE}) then
      Params.Star     := isStar(PlayerIndex, fpClantag);
 
      if (Priority in [pNotes, pAll]) and (Params.Note = EmptyStr) then

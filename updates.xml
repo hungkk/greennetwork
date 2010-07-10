@@ -4,9 +4,9 @@
 	<updinfo>
 		<title>New version: Green Network v1.0.32 avaiable!</title>
 		<link>http://prgnetwork.blogspot.com/</link>
-		<VERCOMP>1032</VERCOMP>
-		<download>http://greennetwork.googlecode.com/files/pr_gnetwork_setup_1032.exe</download>
+		<VERCOMP>1033</VERCOMP>
+		<download>http://greennetwork.googlecode.com/files/pr_gnetwork_setup_1033.exe</download>
 		<Date>Mon, 29 Mar 2010 02:42:47 GMT</Date>
-		<ainfo>+ One little bug fixed ||+ New feature added "Map preview" </ainfo> 
+		<ainfo>+ Fixed splitter ||+ Geoip database update </ainfo> 
 	</updinfo>
 </xml>

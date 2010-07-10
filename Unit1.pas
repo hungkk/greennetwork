@@ -58,9 +58,9 @@ uses
 {$I defs.inc}
 
   const
-        BuildDate = '2010.04.28';
-        VerNo     = '1.0.32';
-        VERCOMP   = 1032;
+        BuildDate = '2010.07.16';
+        VerNo     = '1.0.33';
+        VERCOMP   = 1033;
 
         {IMG}
         FillColor       = ClWhite; //$FFA6FFFF;
@@ -457,6 +457,8 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure mapPanelResize(Sender: TObject);
     procedure TBItemMapPreviewClick(Sender: TObject);
+    procedure JvNetscapeSplitter1CanResize(Sender: TObject;
+      var NewSize: Integer; var Accept: Boolean);
 
   private
     FImage: ImagingClasses.TMultiImage;
@@ -2554,6 +2556,14 @@ begin
    if not TBItemMapPreview.Checked then
    JvNetscapeSplitter1.Maximized := True else JvNetscapeSplitter1.Maximized := False;
 
+end;
+
+procedure TForm1.JvNetscapeSplitter1CanResize(Sender: TObject;
+  var NewSize: Integer; var Accept: Boolean);
+begin
+    if JvNetscapeSplitter1.Maximized  then TBItemMapPreview.Checked := True else
+    if NewSize = 1 then TBItemMapPreview.Checked := False;
+    Accept:= True;
 end;
 
 end.

@@ -1,9 +1,9 @@
 object Form1: TForm1
-  Left = 236
-  Top = 353
+  Left = 287
+  Top = 302
   Width = 894
   Height = 575
-  Caption = ' PR - Green Network (Build# 0031)'
+  Caption = ' PR - Green Network (Build# 0033)'
   Color = clBtnFace
   DefaultMonitor = dmMainForm
   Font.Charset = DEFAULT_CHARSET
@@ -50,6 +50,7 @@ object Form1: TForm1
       MinSize = 1
       ParentColor = False
       ResizeStyle = rsUpdate
+      OnCanResize = JvNetscapeSplitter1CanResize
       Maximized = False
       Minimized = False
       ButtonCursor = crDefault

@@ -1436,7 +1436,7 @@ procedure sDeletePrefix(PrefixName: String);
 var i: Integer;
 begin
     if Trim(PrefixName) = '' then Exit;
-    i:= GetMateIndex(PrefixName, fpPrefix);  if I = -1 then Exit;
+    i:= GetMateIndex(Trim(PrefixName) + ' ', fpPrefix);  if I = -1 then Exit;
     with OptionsForm do begin
       NextGridPrefix.DeleteRow( I );
       NextGridPrefix.SaveToTextFile(ExtractFilePath(ParamStr(0){Application.ExeName})  + PREFIX_FILE,  ',', 'û');

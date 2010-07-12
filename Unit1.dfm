@@ -1,9 +1,9 @@
 object Form1: TForm1
-  Left = 287
-  Top = 302
+  Left = 261
+  Top = 340
   Width = 894
   Height = 575
-  Caption = ' PR - Green Network (Build# 0033)'
+  Caption = ' PR - Green Network (Build# 0034)'
   Color = clBtnFace
   DefaultMonitor = dmMainForm
   Font.Charset = DEFAULT_CHARSET
@@ -124,7 +124,6 @@ object Form1: TForm1
             Font.Name = 'MS Sans Serif'
             Font.Style = []
             Header.Caption = 'Prefix'
-            Options = [coCanClick, coCanInput, coCanSort, coPublicUsing, coShowTextFitHint]
             Position = 1
             SortType = stAlphabetic
             Width = 58
@@ -137,7 +136,6 @@ object Form1: TForm1
             Font.Name = 'MS Sans Serif'
             Font.Style = []
             Header.Caption = 'Name'
-            Options = [coCanClick, coCanInput, coCanSort, coPublicUsing, coShowTextFitHint]
             Position = 2
             SortType = stAlphabetic
             Width = 141
@@ -396,7 +394,6 @@ object Form1: TForm1
             Font.Name = 'MS Sans Serif'
             Font.Style = []
             Header.Caption = 'Prefix'
-            Options = [coCanClick, coCanInput, coCanSort, coPublicUsing, coShowTextFitHint]
             Position = 1
             SortType = stAlphabetic
             Width = 58
@@ -409,7 +406,6 @@ object Form1: TForm1
             Font.Name = 'MS Sans Serif'
             Font.Style = []
             Header.Caption = 'Name'
-            Options = [coCanClick, coCanInput, coCanSort, coPublicUsing, coShowTextFitHint]
             Position = 2
             SortType = stAlphabetic
             Width = 141
@@ -1543,7 +1539,6 @@ object Form1: TForm1
           Font.Name = 'MS Sans Serif'
           Font.Style = []
           Header.Caption = 'Prefix'
-          Options = [coCanClick, coCanInput, coCanSort, coPublicUsing, coShowTextFitHint]
           Position = 1
           SortType = stAlphabetic
           Width = 52
@@ -1556,7 +1551,6 @@ object Form1: TForm1
           Font.Name = 'MS Sans Serif'
           Font.Style = []
           Header.Caption = 'Player name'
-          Options = [coCanClick, coCanInput, coCanSort, coPublicUsing, coShowTextFitHint]
           Position = 2
           SortType = stAlphabetic
           Width = 112

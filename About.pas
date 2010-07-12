@@ -21,15 +21,6 @@ type
     Label2: TLabel;
     VersionLabel: TLabel;
     Label8: TLabel;
-    Label9: TLabel;
-    Label10: TLabel;
-    Edit2: TEdit;
-    Edit3: TEdit;
-    Edit4: TEdit;
-    Label11: TLabel;
-    Label12: TLabel;
-    Label13: TLabel;
-    Edit5: TEdit;
     Button3: TButton;
     UPDPanel: TPanel;
     LogRichEdit: TRichEdit;

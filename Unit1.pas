@@ -59,8 +59,8 @@ uses
 
   const
         BuildDate = '2010.07.16';
-        VerNo     = '1.0.33';
-        VERCOMP   = 1033;
+        VerNo     = '1.0.34';
+        VERCOMP   = 1034;
 
         {IMG}
         FillColor       = ClWhite; //$FFA6FFFF;

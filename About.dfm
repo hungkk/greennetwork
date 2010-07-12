@@ -1,6 +1,6 @@
 object AboutForm: TAboutForm
-  Left = 363
-  Top = 217
+  Left = 370
+  Top = 244
   BorderStyle = bsDialog
   Caption = 'Peace'
   ClientHeight = 302
@@ -3371,71 +3371,6 @@ object AboutForm: TAboutForm
       'source code can be obtained from Internet.'
     WordWrap = True
   end
-  object Label9: TLabel
-    Left = 256
-    Top = 128
-    Width = 38
-    Height = 13
-    Caption = 'Donate:'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'MS Sans Serif'
-    Font.Style = [fsUnderline]
-    ParentFont = False
-  end
-  object Label10: TLabel
-    Left = 256
-    Top = 152
-    Width = 33
-    Height = 13
-    Caption = 'PayPal'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clNavy
-    Font.Height = -11
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-  end
-  object Label11: TLabel
-    Left = 256
-    Top = 176
-    Width = 27
-    Height = 13
-    Caption = 'WMZ'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clNavy
-    Font.Height = -11
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-  end
-  object Label12: TLabel
-    Left = 256
-    Top = 224
-    Width = 28
-    Height = 13
-    Caption = 'WMR'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clNavy
-    Font.Height = -11
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-  end
-  object Label13: TLabel
-    Left = 256
-    Top = 200
-    Width = 27
-    Height = 13
-    Caption = 'WME'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clNavy
-    Font.Height = -11
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-  end
   object Button1: TButton
     Left = 445
     Top = 264
@@ -3446,49 +3381,13 @@ object AboutForm: TAboutForm
     TabOrder = 0
     OnClick = Button1Click
   end
-  object Edit2: TEdit
-    Left = 304
-    Top = 152
-    Width = 177
-    Height = 21
-    ReadOnly = True
-    TabOrder = 1
-    Text = 'exxxxx@gmail.com'
-  end
-  object Edit3: TEdit
-    Left = 304
-    Top = 176
-    Width = 177
-    Height = 21
-    ReadOnly = True
-    TabOrder = 2
-    Text = 'Z336411912281'
-  end
-  object Edit4: TEdit
-    Left = 304
-    Top = 200
-    Width = 177
-    Height = 21
-    ReadOnly = True
-    TabOrder = 3
-    Text = 'E341133628527'
-  end
-  object Edit5: TEdit
-    Left = 304
-    Top = 224
-    Width = 177
-    Height = 21
-    ReadOnly = True
-    TabOrder = 4
-    Text = 'R477238087404'
-  end
   object Button3: TButton
     Left = 256
     Top = 264
     Width = 69
     Height = 25
     Caption = 'Web'
-    TabOrder = 5
+    TabOrder = 1
     OnClick = Button3Click
   end
   object Button5: TButton
@@ -3497,7 +3396,7 @@ object AboutForm: TAboutForm
     Width = 106
     Height = 25
     Caption = 'Check for updates'
-    TabOrder = 7
+    TabOrder = 3
     OnClick = Button5Click
   end
   object UPDPanel: TPanel
@@ -3505,7 +3404,7 @@ object AboutForm: TAboutForm
     Top = 296
     Width = 516
     Height = 284
-    TabOrder = 6
+    TabOrder = 2
     object LogRichEdit: TRichEdit
       Left = 8
       Top = 8

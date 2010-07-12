@@ -1410,7 +1410,7 @@ end;
 procedure eAddPrefix(PrefixName: String);
 begin
      if Trim(PrefixName) = '' then Exit;
-     if GetMateIndex(PrefixName, fpPrefix) > -1 then Exit;
+     if GetMateIndex( Trim(PrefixName)  + ' ', fpPrefix) > -1 then Exit;
    with OptionsForm do begin
     NextGridPrefix.AddRow();
     NextGridPrefix.Cells[2, NextGridPrefix.RowCount-1] := PrefixName;

@@ -4,14 +4,14 @@ interface
 
 uses
   Windows,
-  Messages,
+  
   SysUtils,
 //  Variants,
   Classes,
   Graphics,
   Controls,
   Forms,
-  Dialogs,
+  
   StdCtrls,
   ComCtrls,
   ExtCtrls,
@@ -23,11 +23,11 @@ uses
 
   JvPageList,
 
-  JvExComCtrls,
+  
   JvPageListTreeView,
-  JvExControls,
+  
 
-  JvComponentBase,
+  
   JvAppIniStorage,
   JvAppStorage,
   CheckLst,
@@ -35,7 +35,7 @@ uses
 
   
   
-  NxScrollControl,
+  
   NxEdit,
 
   NxPageControl,
@@ -44,11 +44,12 @@ uses
 
   
   NxColumnClasses,
-  NxColumns,
+  
   NxCustomGridControl,
   NxCustomGrid,
-  NxGrid, ALListBox, JvExStdCtrls, JvCombobox, JvListComb, NxAutoCompletion,
-  XPStyleActnCtrls, ActnList, ActnMan;
+  NxGrid, JvListComb, NxAutoCompletion, Dialogs, JvComponentBase,
+  JvExStdCtrls, JvCombobox, NxColumns, NxScrollControl, JvExControls,
+  JvExComCtrls;
 
 
 type

@@ -3,7 +3,7 @@ unit ServerPassUnit;
 interface
 
 uses
-  Windows, Messages, Classes, Controls, Forms,
+  Classes, Controls, Forms,
    StdCtrls;
 
 type

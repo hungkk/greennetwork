@@ -4,7 +4,7 @@ interface
 
 uses  Options, Menus, ShellApi, ColListb, Forms, ShlObj, 
       BF2ServerInfo, Clipbrd, ComCtrls, StdCtrls, Graphics, cStrings, Unit1,
-      Windows, Messages, SysUtils, Variants, Classes, TB2Item, GeoIP, LanguageUnit, ALfcnString, ExtCtrls,NativeXml;
+      Windows, Messages, SysUtils, Classes, TB2Item, GeoIP, LanguageUnit, ALfcnString, NativeXml;
 
  const
    gALL = 0;
@@ -67,7 +67,7 @@ function IsPR(S: String) : Integer;
 function ServerInFavorites(Str: String ):Integer;
 function GetDefLangFile:string;
 procedure ExtractRes(OutFile, ResName: string; ResType: PChar );
-function RunDosAndWait(const CommandLine: AnsiString; var OutSrings: AnsiString): boolean;
+//function RunDosAndWait(const CommandLine: AnsiString; var OutSrings: AnsiString): boolean;
 
 { GeoIP }
 
@@ -113,7 +113,7 @@ function PrefixInMates(Name: String):Integer;
 function NameInMates(Name: String):Integer;
 
 
-function AdvIsMate(Name: String):Variant;
+//function AdvIsMate(Name: String):Variant;
 function isMate(Name: String):Integer;
 function isBot(P: TPlayerInfo ):Integer;
 function GetPOImageIndex(Index: integer): Integer;
@@ -334,7 +334,7 @@ end;
   .1
 }
 
-
+          (*
 function AdvIsMate(Name: String):Variant;
 var index: Integer;
 begin
@@ -347,7 +347,7 @@ begin
       if IsBoldName(index) then Result:= Result + 0.1;
    end;
 
-   index:= GetMateIndex( ExtractPrefix(Name), fpPrefix);
+   index:= GetMateIndex( {ExtractPrefix(}Name{)}, fpPrefix);
    if index > -1 then
    begin
       Inc(Result, 2);
@@ -364,7 +364,7 @@ begin
    end;
 
 
-end;
+end;   *)
 
 
 
@@ -476,63 +476,6 @@ begin
        for i:= 0 to Item.TotalPlayersCount -1 do {Item.CountPlayers -1 do}
          if GetMateIndex( Item.BF2Player[i].Name, fpAll ) > -1 then Inc(Result);
 end;
-
-(*
-function GetMateIndex(SrcName: String; CompareParam: TCompareBy; const cTAGindex : Integer = 10 ): Integer;
-var tmpName, tmpStr : string;  iPos : Integer;
-begin
-  Result := -1;
-  if Trim(SrcName) = '' then Exit;
-
-   if CompareParam in [fpAll, fpPrefix ] then
-   begin
-
-     if CompareParam = fpAll then tmpName:= ExtractPrefix(SrcName) else
-     tmpName:= SrcName;
-     if tmpName <> '' then
-     for Result:=0 to OptionsForm.NextGridPrefix.RowCount-1 do
-     if StrCompareNoCase(tmpName, OptionsForm.NextGridPrefix.Cells[2, Result]) = 0 then Exit; //           {PrefixListBox.Items.Strings[Result]} ) = 0 then Exit;
-   end;
-
-   if CompareParam in [fpAll, fpName] then
-   begin
-     tmpName:= ExtractName(SrcName);
-     if tmpName <> '' then
-     for Result:=0 to OptionsForm.NextGridPname.RowCount-1 do
-     if StrCompareNoCase(tmpName, OptionsForm.NextGridPname.Cells[2, Result] ) = 0 then Exit;
-   end;
-
-
-   if CompareParam in [fpClantag, fpAll] then
-   begin
-      tmpName:= ExtractName(SrcName);
-      if tmpName <> '' then
-      for Result:=0 to OptionsForm.NextGridClantag.RowCount -1 do
-      begin
-       //  
-         tmpStr :=   OptionsForm.NextGridClantag.Cells[2, Result];
-         if tmpStr = '' then Continue;
-         iPos   :=   AdvPos( tmpStr , tmpName, OptionsForm.NextGridClantag.Cell[4, Result].AsBoolean );  // PosStr( tmpStr , tmpName, 1,  OptionsForm.NextGridClantag.Cell[4, Result].AsBoolean );
-         if iPos < 1 then Continue;
-
-         {Before}
-         if cTAGindex in [10, 0] then    if (iPos = 1) and (OptionsForm.NextGridClantag.Cell[3, Result].AsInteger = 1 ) then Exit;
-         {After}
-         if cTAGindex in [10, 1] then    if ( (iPos + Length(tmpStr)-1) = Length(tmpName) ) and  (OptionsForm.NextGridClantag.Cell[3, Result].AsInteger = 2 ) then Exit;
-         {Inside}
-         if cTAGindex in [10, 2] then    if ((iPos > 1) and ( (iPos + Length(tmpStr)-1) < Length(tmpName) )) and  (OptionsForm.NextGridClantag.Cell[3, Result].AsInteger = 3 )  then Exit;
-         {Any}
-         if cTAGindex in [10, 3] then    if ( iPos >= 1) and  (OptionsForm.NextGridClantag.Cell[3, Result].AsInteger = 4)  then Exit;
-
-      end;
-   end;
-
-   Result := -1;
-end;
-
-    *)
-
-
 
 
 procedure SaveOptions;
@@ -656,7 +599,7 @@ begin
      ShowMatesStyle.ItemIndex := jvpnflstrg1.ReadInteger('VMFORMAT', 3);
 
 
-     CheckUpdatescb.Checked:= jvpnflstrg1.ReadBoolean('CFUPD',False);
+     CheckUpdatescb.Checked:= jvpnflstrg1.ReadBoolean('CFUPD',True);
 
 
 
@@ -734,8 +677,8 @@ begin
      {FORM POS}
 
 
-      Form1.Width := jvpnflstrg1.ReadInteger( 'FORMWIDTH',  757);
-      Form1.Height:= jvpnflstrg1.ReadInteger( 'FORMHEIGHT', 543);
+      Form1.Width := jvpnflstrg1.ReadInteger( 'FORMWIDTH',  894);
+      Form1.Height:= jvpnflstrg1.ReadInteger( 'FORMHEIGHT', 618);
 
    //   if jvpnflstrg1.ReadBoolean ( 'FORVAXIMIZED', False) then Form1.WindowState := wsMaximized;
 
@@ -1070,7 +1013,7 @@ end;
 
 
 
-
+   {
 function RunDosAndWait(const CommandLine: AnsiString; var OutSrings: AnsiString): boolean;
 const
   BuffSize = 1024;
@@ -1136,23 +1079,8 @@ begin
  // else
  //   Raise Exception.Create('Ошибка создания процесса');
 end;
-
-                   {   
-procedure LoadGameSpyServers(var List: TStringList);
-var i: Integer;  str: string;
-begin
-  List.LoadFromFile( ExtractFilePath(Application.ExeName) + 'gslist-out.gsl' );
-  for i:= 0 to list.Count-1 do
-  begin
-     str:= List.Strings[i];
-     if Trim(str) <> '' then
-     List.Strings[i]:= Trim(Copy(str, 0, Pos(' ', str)-1 ));
-  end;
-end;
-      }
-
-
-
+         }
+ 
 
 
 function GameSpyFilterQueryStr(inx: integer):string;
@@ -1425,7 +1353,7 @@ begin
      if GetMateIndex(PName, fpName) > -1 then Exit;
    with OptionsForm do begin
     NextGridPname.AddRow();
-    NextGridPname.Cells[2, NextGridPname.RowCount-1] := PName;
+    NextGridPname.Cells[2, NextGridPname.RowCount-1] := ExtractName(PName);
     NextGridPname.Cell[4, NextGridPname.RowCount-1].AsInteger := 6;  
     NextGridPname.SaveToTextFile(ExtractFilePath(ParamStr(0){Application.ExeName})  + NAME_FILE,  ',', 'ы');
    end;

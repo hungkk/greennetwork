@@ -3357,7 +3357,7 @@ object AboutForm: TAboutForm
     Top = 40
     Width = 134
     Height = 13
-    Caption = 'ver: 1.0.29 Build 2010.03.20'
+    Caption = 'ver: 1.1.35 Build 2010.03.20'
   end
   object Label8: TLabel
     Left = 256

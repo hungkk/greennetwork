@@ -1,6 +1,6 @@
 {
 
-    BattleField 2 Server Info Library v 0.4.3
+    BattleField 2 Server Info Library v 0.4.4a
 
     http:// blogspot.com
 
@@ -25,6 +25,7 @@ interface
   MMSEC            = 1000; //Миллискунды
   ERC_TIMEOUT      = -101;
   ERC_SNDFAIL      = -100;
+  ERC_ABORT        = -102;
   ERC_NONE         = 0;
 
 
@@ -122,21 +123,27 @@ interface
 
      FSendTime, FRecvdTime : Integer;
 
+
+     FSkipSend : Boolean;
+
      procedure RefreshTable;
   protected
      procedure Execute; override;
      procedure BF2WSocketDataAvailable( Sender  : TObject; ErrCode : WORD);
      procedure BF2WSocketSessionConnected( Sender  : TObject; ErrCode : WORD);
      procedure BF2WSocketChangeState(Sender: TObject; OldState,  NewState: TSocketState);
-     procedure ThStop;
+
 
      procedure TimerEvent(Sender : TObject);
   public
 
      property  WSocket    : TWSocket  read FBF2WSocket;
 
+     property  SkipSend   : Boolean read FSkipSend write FSkipSend;
      property  DeadID     : integer   read FDeadID;
+
      property  LastError  : integer   read FErrorCode;
+
      property  RcvdBytes  : ByteArray read FRcvdBytes;
      property  Timeout    : Int64     read FTimeOut write FTimeOut;
      property  RetryCount : Integer read FRetry write FRetry;
@@ -151,6 +158,8 @@ interface
 
      constructor Create(const sAddr: string; sPort: string; ThID: Integer);
      destructor  Destroy; override;
+
+      procedure ThStop(const index: Integer = 0);
   end;
 
 
@@ -244,9 +253,12 @@ interface
 
     FRealPlayersCount      : Integer;      // Only alive players
     FTotalPlayersCount     : Integer;      // Alive players and Bots
+    FAssignedPlayers       : Integer;      //
 
     FPing                  : Integer;
     FApproxPing            : Integer;
+
+    FLastWSockError        : Integer;
 
   //  function GetPlayerInfo(Index: Integer) : TPlayerInfo;
 
@@ -310,15 +322,22 @@ interface
 
     property     Ping                  : Integer read FPing write FPing;
     property     ApproxPing            : Integer read FApproxPing write FApproxPing;
+
+    property     LastWSockError        : Integer read FLastWSockError;
                  //Approximate
 
 
 
  end;
 
+ {
+ TCollectionItemClass
+ TCollectionListItemClass
+ 
 
+ TCollectionItemClass = class (TBF2ServerInfoItem);
 
-// TCollectionListItemClass = class (TBF2ServerInfoItem);
+ }
 
  TBF2ServerSList   = class (TCollection)
  private
@@ -326,8 +345,8 @@ interface
    function GetListItem(Index : Integer) : TBF2ServerInfoItem;
  public
    Constructor Create(ItemClass: TCollectionItemClass);
-   Function AddServerInfo(const RcvdBytes: array of byte; IP, Qport: string; StartQTime, EndQTime : integer): TBF2ServerInfoItem ;
-   Function UpdateServerInfo(const RcvdBytes: array of byte; IP, Qport: string; Index: Integer; StartQTime, EndQTime : integer): TBF2ServerInfoItem ;
+   Function AddServerInfo(const RcvdBytes: array of byte; IP, Qport: string; StartQTime, EndQTime, LastError : integer): TBF2ServerInfoItem ;
+   Function UpdateServerInfo(const RcvdBytes: array of byte; IP, Qport: string; Index: Integer; StartQTime, EndQTime, LastError : integer): TBF2ServerInfoItem ;
 
    Property  AnItems[Index : Integer] : TBF2ServerInfoItem read GetListItem; default;
  end;
@@ -456,6 +475,7 @@ begin
      FErrCode          := 0;
      FRealPlayersCount := 0;
      FTotalPlayersCount:= 0;
+   //  FAssignedPlayers  := 0;
      FErrCode:= LoadFromByteArray(B, PlayLoad);
 end;
 
@@ -468,6 +488,7 @@ begin
   FErrCode:=0;
      FRealPlayersCount := 0;
      FTotalPlayersCount:= 0;
+   //  FAssignedPlayers:= 0;
 end;
 
 destructor  TBF2ServerInfo.Destroy;
@@ -687,7 +708,7 @@ begin
     FErrorCode        := ERC_NONE;
     FPing             := TPing.Create(nil);
     FPing.OnEchoReply := BF2PingEchoReply;
-    FreeOnTerminate   := True;
+    FreeOnTerminate   := True;   {OFF}
     FServerIP         := sAddr;
 
 end;
@@ -724,7 +745,7 @@ begin
 
     FPing.Ping;
 
-   while not Terminated and Assigned(FPing) do FPing.ProcessMessages;
+   while not Terminated {and Assigned(FPing)} do FPing.ProcessMessages;
 
 end;
 
@@ -939,7 +960,7 @@ end;
     FDeadID         := ThID;
     FErrorCode      := ERC_NONE;
     FBF2WSocket     := TWSocket.Create(nil);
-    FreeOnTerminate := True;
+    FreeOnTerminate := True;      {OFF}
     FServerIP       := sAddr;
     FServerPort     := sPort;
 
@@ -996,9 +1017,11 @@ end;
     FreeAndNil(FBF2WSocket);
  end;
 
- procedure TBF2WSockThread.ThStop;
+ procedure TBF2WSockThread.ThStop(const index: Integer = 0);
  begin
-   
+
+   if index <> 0 then FErrorCode:= index;
+
    FreeAndNil(FTimer);
   //DEbug- FreeAndNil(FBF2WSocket);
   // if WaitForSingleObject(Handle, 100) = WAIT_TIMEOUT then
@@ -1010,19 +1033,30 @@ end;
  procedure TBF2WSockThread.Execute;
  var  Rbytes: ByteArray;
  begin
+
+    if FSkipSend then
+    begin
+      FErrorCode := ERC_ABORT;
+      ThStop;
+      Exit;
+    end;
+
+
     FTimer.Interval :=  FTimeOut;
 
     FBF2WSocket.Connect;
-
+          {
     FErrorCode:= FBF2WSocket.LastError;
     if FErrorCode <> 0 then
     begin
       ThStop;
       Exit;
-    end;
-                     {TEst  }
-    while FBF2WSocket.State in [wsOpened, wsConnecting] do
-     FBF2WSocket.ProcessMessages; 
+    end;  }
+                     {TEst}
+     while FBF2WSocket.State in [wsOpened, wsConnecting] do
+     FBF2WSocket.ProcessMessages;
+
+
 
 
     RandomBytes(Rbytes);
@@ -1037,10 +1071,10 @@ end;
      FTimer.Enabled := True;
      FSendTime := Windows.GetTickCount;
 
-
-    while not Terminated and Assigned(FBF2WSocket) do
-      FBF2WSocket.ProcessMessages;
-
+      {TEMPOFF  } 
+      while not Terminated {and Assigned(FBF2WSocket)} do
+      FBF2WSocket.ProcessMessages;   
+    
 
  end;
 
@@ -1103,7 +1137,7 @@ end;
  end;
  procedure TBF2WSockThread.TimerEvent(Sender : TObject);
  begin
-   FErrorCode:= 0; //ERC_TIMEOUT;
+   FErrorCode:= ERC_TIMEOUT;
    FTimer.Enabled := False;
    ThStop;
  end;
@@ -1121,7 +1155,7 @@ Begin
 End;
 
 
-Function TBF2ServerSList.UpdateServerInfo(const RcvdBytes: array of byte; IP, Qport: string; Index: Integer; StartQTime, EndQTime : integer): TBF2ServerInfoItem ;
+Function TBF2ServerSList.UpdateServerInfo(const RcvdBytes: array of byte; IP, Qport: string; Index: Integer; StartQTime, EndQTime, LastError : integer): TBF2ServerInfoItem ;
 var BF2SInf : TBF2ServerInfo;   i: Integer;
 begin
 
@@ -1192,6 +1226,7 @@ begin
        Result.FPing                  := 0;
        FServerIP                     := IP;
        FServerQueryPort              := QPort;
+       FLastWSockError               := LastError;
        {
        FApproxPing                   := EndQTime - StartQTime;
        }
@@ -1214,6 +1249,7 @@ begin
       Result.FErrorCode             := -1;
       Result.FServerIP              := IP;
       Result.FServerQueryPort       := QPort;
+      Result.FLastWSockError        := LastError;
            
     end;
 
@@ -1228,7 +1264,7 @@ end;
 
 
 
-Function TBF2ServerSList.AddServerInfo(const RcvdBytes: array of byte; IP, Qport: string; StartQTime, EndQTime : integer): TBF2ServerInfoItem ;
+Function TBF2ServerSList.AddServerInfo(const RcvdBytes: array of byte; IP, Qport: string; StartQTime, EndQTime, LastError : integer): TBF2ServerInfoItem ;
 var BF2SInf : TBF2ServerInfo;   i: Integer;
 begin
 
@@ -1252,6 +1288,7 @@ begin
 
       with Result, BF2SInf do
       begin
+
         Fhostname              :=GValue(0);
         Fgamename              :=GValue(1);
         Fgamever               :=GValue(2);
@@ -1304,6 +1341,7 @@ begin
        Result.FPing                  := 0;
        FServerIP                     := IP;
        FServerQueryPort              := QPort;
+       FLastWSockError               := LastError;
 
        i := EndQTime - StartQTime - 10;
        if i < 0 then i:= 0;
@@ -1322,7 +1360,7 @@ begin
       Result.FErrorCode             := -1;
       Result.FServerIP              := IP;
       Result.FServerQueryPort       := QPort;
-           
+      Result.FLastWSockError        := LastError;     
     end;
 
 

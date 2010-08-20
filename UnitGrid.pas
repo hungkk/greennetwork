@@ -3,9 +3,9 @@ unit UnitGrid;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, NxColumns, NxCustomGridControl, KOLTrans, MatesUnit, cStrings,
-  NxGrid, ExtCtrls, Menus, BF2ServerInfo, Unit1, StrUtils, LanguageUnit;
+  SysUtils, Classes, Controls,  Windows,
+  NxColumns, NxCustomGridControl, MatesUnit, cStrings,
+  NxGrid, BF2ServerInfo, Unit1, StrUtils, LanguageUnit;
 
 {$I defs.inc}
 //lifeline.ru
@@ -27,13 +27,15 @@ uses
       function GridCopyColFromSelRow(const NG: TNextGrid; Col: Integer ) : string;
       procedure SaveToHtml(const NG: TNextGrid; FileName: WideString; SaveSettings: TNxHtmlSaveSettings);
 
-     // procedure GridAddNewsEvents(NG: TNextGrid; Date: TDateTime; Caption, Msg, Url: AnsiString; Ico: integer);
-      Function GridStrExists(NG: TNextGrid; ACOL: Integer; Str: String):Boolean;
-      procedure UpdatePlayersMatesList(PGrid, MGrid : TNextGrid; Item: TBF2ServerInfoItem);
-      //
       procedure ProcessPlayers(PGrid, MGrid : TNextGrid; Item: TBF2ServerInfoItem);
       procedure GridAddPlayerInfoW(NG: TNextGrid; Item: TPlayerInfo; P: TMParams; pID: Integer);
       function GridCOLStrExists(NG: TNextGrid; S: string; ACOL: Integer; ExcludeSelectedRow: Boolean = True): Integer;
+
+      procedure GridPOReplaceFavIndex(NG: TNextGrid; IdValue, newValue : Integer);
+      procedure GridPlayersMatesSilentMIndexUpdate(NG1, NG2, NG3: TNextGrid; Slist: TBF2ServerSList );
+      procedure GridSilentUpdateMatesCount(NG : TNextGrid);
+      procedure GridPOSilentUpdateMates(NG : TNextGrid);
+   
 
     const
        C_OS      =  1;
@@ -50,12 +52,12 @@ uses
        C_COUNTRY =  12;
        C_SINFO   =  13;
        H_ITEMID  =  14;
-       H_HIGHLIGHT =  15;
+       H_HIGHLIGHT   = 15;
        H_VIS_COL_CMD = 15;
-       C_PO_PREFIX = 1;
-       C_PO_NAME = 2;
-       C_PO_CMD = 15;
-       C_NOTE = 16;
+       C_PO_PREFIX   = 1;
+       C_PO_NAME     = 2;
+       C_PO_CMD      = 15;
+       C_NOTE        = 16;
 
 
 
@@ -130,14 +132,7 @@ uses MUnit;
 
 
     procedure GridAddServerInfo(NG: TNextGrid; Item: TBF2ServerInfoItem; UpdateIndex: Integer = -1);
-
-        { function BoolToInt(b:boolean):Integer;
-         begin
-          if b then result:= 1 else Result:= 0;
-         end;   }
-
-
-    var RowIndex, Si : integer; Info: TMInfo;
+    var RowIndex: integer; Info: TMInfo;
     begin
 
        if UpdateIndex > -1 then
@@ -159,7 +154,19 @@ uses MUnit;
          NG.Cell[C_PW,        RowIndex].AsInteger:= 5;
          NG.Cell[C_MOD,       RowIndex].AsInteger:= 5;
          NG.Cells[C_PING,     RowIndex]:= '';
-         NG.Cells[C_SERVER,   RowIndex]:=  GetWORD(133);//'^Unavaiable ...';
+
+        
+         case Item.LastWSockError of
+          ERC_ABORT   : NG.Cells[C_SERVER,   RowIndex]:=  GetWORD(167);  //Send request cancelled by user
+          ERC_SNDFAIL : NG.Cells[C_SERVER,   RowIndex]:=  GetWORD(168); //Send request failed!
+
+
+          ERC_TIMEOUT : NG.Cells[C_SERVER,   RowIndex]:=  GetWORD(133);
+         end;
+                {
+          NG.Cells[C_SERVER,   RowIndex]:=  GetWORD(133);  //'^Unavaiable ...';
+                }
+
          NG.Cells[C_COUNTRY,  RowIndex]:=  GeoIPGetCountryName( Item.ServerIP );
          NG.Cells[C_SINFO,    RowIndex]:=  Item.ServerIP + ':' + item.ServerQueryPort;
          NG.Cell[H_ITEMID,    RowIndex].AsInteger:= Item.Index; //-1;
@@ -200,7 +207,7 @@ uses MUnit;
 
 
        NG.Cell[C_MATES,   RowIndex].AsString := Info.OutText;
-                                               // 
+                                               //
       with GetFavServer(Item.ServerIP + ':' + item.ServerQueryPort) do
       begin
        NG.Cell[C_PO_CMD,        RowIndex].AsInteger := FavIndex;
@@ -224,17 +231,17 @@ uses MUnit;
 
     var RowIndex, i : integer;
 
-        iMatesCount, iCountry, prefix, name  : string;
+         iCountry, prefix, name  : string;
 
         iPW : Integer;
         iAC : Boolean;
 
-        BotCheck : Integer;
+
         Params   : TMParams;
         Info     : TMInfo;
         FsInfo   : TFavServerInfo;
     begin
-      BotCheck := PLAYER_REAL;
+     
       if Item.ErrorCode = -1 then Exit;
       if Item.TotalPlayersCount <= 0 then Exit;
       NG.BeginUpdate;
@@ -249,8 +256,15 @@ uses MUnit;
       for i:=0 to Item.TotalPlayersCount-1 do
       begin
        if item.BF2Player[i].Name = '' then Continue;
+       
        {NEW +}
        AdvGetMateParameters(item.bf2_bots, item.BF2Player[i], pAll, Params);
+
+       {Фпесду ботофф}
+       if Params.Star = 8 then Continue;
+
+       
+
        prefix := ExtractPrefix(item.BF2Player[i].Name);
        name   := ExtractName(item.BF2Player[i].Name);
        RowIndex:= NG.AddRow();
@@ -269,13 +283,10 @@ uses MUnit;
 
        NG.Cell[3,         NG.RowCount-1].AsBoolean:= iAC;
        NG.Cell[C_PW,      NG.RowCount-1].AsInteger:= iPW;
-       NG.Cell[C_MATES,   NG.RowCount-1].AsString := Info.OutText; //iMatesCount;
+       NG.Cell[C_MATES,   NG.RowCount-1].AsString := Info.OutText;
        NG.Cell[H_ITEMID,  NG.RowCount-1].AsInteger:= Item.Index;
 
-      { if item.bf2_bots = '1' then BotCheck:= isBot(item.BF2Player[i]);
 
-       if BotCheck = PLAYER_BOT then
-        NG.Cell[5,         NG.RowCount-1].AsInteger:= 7 else  }
         NG.Cell[5,         NG.RowCount-1].AsInteger:= Params.Star; //GetPOImageIndex(isMate(item.BF2Player[i].Name));
 
         NG.Cells[C_PO_CMD,   NG.RowCount-1]  := FormatCmdIndex( FsInfo.FavIndex, Params.Mate, i);
@@ -352,10 +363,33 @@ uses MUnit;
 procedure SaveToHtml(const NG: TNextGrid; FileName: WideString; SaveSettings: TNxHtmlSaveSettings);
 var
 	i, j: Integer;
-  Html, Css: TStringList;
+  Html, Css:    TStringList;
   HtmlFile, CssFile: TextFile;
-  S: WideString;
+  S: String;
   CssFileName: string;
+
+  function AnsiToWideString(const AText: AnsiString): WideString;
+ 	var
+ 	  BufSize: Integer;
+ 	begin
+ 	  Result := '';
+ 	  BufSize := MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, PAnsiChar(AText), Length(AText), nil, 0);
+ 	  SetLength(result, BufSize);
+ 	  MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, PANsiChar(AText), Length(AText), PWideChar(Result), BufSize);
+ 	end;
+
+  function WideStringToUTF8(const S: WideString): AnsiString;
+	var
+	  BufSize: Integer;
+	begin
+	  Result := '';
+	  if Length(S) = 0 then Exit;
+
+	  BufSize := WideCharToMultiByte(CP_UTF8, 0, PWideChar(S), Length(S) , nil, 0, nil, nil);
+	  SetLength(result, BufSize);
+	  WideCharToMultiByte(CP_UTF8, 0, PWideChar(S), Length(S) , PAnsiChar(Result), BufSize, nil, nil);
+ end;
+
 
   function ExtractName(const FileName: string): string;
   var
@@ -364,13 +398,14 @@ var
     S := ExtractFileName(FileName);
     Result := LeftStr(S, Length(S) - Length(ExtractFileExt(S)));
   end;
-
-  function Content(S: WideString): WideString;
+                           {}
+  function Content(S: String): WideString;
   begin
-    if S = '' then Result := '&nbsp;'  else Result := AnsiToUtf8(Trim(S));
+    if S = '' then Result := '&nbsp;'  else Result := WideStringToUTF8(AnsiToWideString(S));
   end;
+
 begin
-  Html := TStringList.Create;
+  Html :=    TStringList.Create;
 
   with NG do
   begin
@@ -382,11 +417,19 @@ begin
     Html.Add('<html>');
     Html.Add(#9'<head>');
     Html.Add(#9#9'<title>Report</title>');
-    Html.Add(#9#9'<meta http-equiv="Content-Type" content="text/html; charset=utf-8">');
+    Html.Add(#9#9'<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">');
     if hsCreateStyleSheet in SaveSettings then
     begin
       Html.Add(#9#9'<link href="' + 'styles.css" rel="stylesheet" type="text/css" />');
     end;
+
+    Html.Add(#9#9 +
+    '		<style type="text/css">' +
+		'.style1 {'                  +
+		'	white-space: nowrap;'      +
+		'}'                          +
+		'</style>');
+
     Html.Add(#9'</head>');
     Html.Add(#9'<body>');
   end;
@@ -402,7 +445,7 @@ begin
   for i := 0 to NG.Columns.Count - 1 do
   	if Columns.PositionItem[i].Visible then
 	  begin
-		  Html.Add(#9#9#9#9'<th>' + Content(Columns.PositionItem[i].Header.Caption) + '</th>');
+		  Html.Add(#9#9#9#9'<th>' +  Content(Columns.PositionItem[i].Header.Caption) + '</th>');
      // Form1.Memo1.Lines.Add( Columns.PositionItem[i].Header.Caption );
 	  end;
   Html.Add(#9#9#9'</tr>');
@@ -446,12 +489,11 @@ begin
                           end;
 
             0           : S := Cells[i, j];
-           end;
-         
 
-               {            
-          S := Columns.PositionItem[i].GetDrawText(GetCellInfo(i, j));     }
-          S := Content(S); 
+
+           end;
+
+          S := Content(S);
 
          
 
@@ -459,32 +501,13 @@ begin
           if Columns.PositionItem[i].StyleClass <> '' then
             Html.Add(#9#9#9#9'<td class="' + Columns.PositionItem[i].StyleClass + '">' + S + '</td>')
           else
-            Html.Add(#9#9#9#9'<td>' + S + '</td>')
+            Html.Add(#9#9#9#9'<td class="style1">' + S + '</td>')
         end; { Visible }
       //  end;
       Html.Add(#9#9#9'</tr>');
     end; { Row Visible }
 
-  { SaveFooter }   {
-  if hsSaveFooter in SaveSettings then
-  begin
-    Html.Add(#9#9#9'<tr class="footer">');
-    for i := 0 to Columns.VisibleCount - 1 do
-      with Columns.PositionItem[i] do
-        if Visible then
-        begin
-          if Footer.FormatMask <> '' then
-          begin
-            case Footer.FormatMaskKind of
-              mkText: S := FormatMaskText(Footer.FormatMask, Footer.Caption);
-              mkFloat: S := FormatFloat(Footer.FormatMask, StrToFloatDef(Footer.Caption, 0));
-            end;
-          end else S := Footer.Caption;
-          S := Concat(Footer.TextBefore, S, Footer.TextAfter);
-          Html.Add(#9#9#9#9'<td>' + Content(S) + '</td>');
-        end;
-    Html.Add(#9#9#9'</tr>');
-  end;      }
+
   Html.Add(#9#9'</table>');
 
   if hsSaveHeaders in SaveSettings then
@@ -493,13 +516,9 @@ begin
     Html.Add('<html>');
   end;
 
-
-  {  #187#187  « » }
-
-  Html.CommaText:= StrReplace('«','<',Html.CommaText, False);
-  Html.CommaText:= StrReplace('»','>',Html.CommaText, False);
-
-
+   Html.CommaText:= StrReplace(UTF8Encode('«'), UTF8Encode('<')  , Html.CommaText, False);
+   Html.CommaText:= StrReplace(UTF8Encode('»'),  UTF8Encode('>')  , Html.CommaText, False);
+          
 
   { Finish writing .htm file }
   try
@@ -513,7 +532,7 @@ begin
 
   if hsCreateStyleSheet in SaveSettings then
   begin
-    Css := TStringList.Create;
+    Css :=  TStringList.Create;
 
     Css.Add('body, table {');
     Css.Add(#9'font-family: Verdana, Arial, Helvetica, sans-serif;');
@@ -578,80 +597,7 @@ begin
 end;
 
 
-
-Function GridStrExists(NG: TNextGrid; ACOL: Integer; Str: String):Boolean;
-var i: Integer;
-begin
-
-    for i:=0 to NG.RowCount-1 do
-    begin
- //    Result:= cStrings.StrCompareNoCase( NG.Cell[ACOL, i], str) = 0;
-     if Result then Break;
-    end;
-
-end;
-
-procedure UpdatePlayersMatesList(PGrid, MGrid : TNextGrid; Item: TBF2ServerInfoItem);
-var  i: integer;
-     MateIndex: Single;
-     
-begin
-  MGrid.ClearRows;
-  PGrid.ClearRows;
-
-  if Item.ErrorCode <= -1 then  Exit;
-  with Item do
-  begin
-     for i:=0 to TotalPlayersCount-1 do
-     begin
-
-
-       // GetMateParameters(BF2Player[i].Name, pAll, Params);
-
-
-
-         MateIndex  := AdvisMate(BF2Player[i].Name);
-         GridAddPlayerInfo(PGrid, BF2Player[i], MateIndex);
-         if MateIndex > 0 then
-         GridAddPlayerInfo(MGrid, BF2Player[i], MateIndex);
-
-
-
-
-     end;
-  end;
-end;
-
-
-
-
-       {
-procedure GridUpdateMateStatus(NG: TNextGrid; ACOL: Integer; Value: string);
-begin
-
-     //Издел сатаны то что опьяняет в большом колличесве запрещено в малом
-    //+++++++//
-end;
-
-procedure GridAddNewsEvents(NG: TNextGrid; Date: TDateTime; Caption, Msg, Url: AnsiString; Ico: integer);
-begin
-
-  NG.AddRow();
-  NG.BeginUpdate;
-  NG.Cell[1,  NG.RowCount -1].AsInteger  :=  Ico;
-  NG.Cell[2,  NG.RowCount -1].AsDateTime :=  Date;
-  NG.Cells[3, NG.RowCount -1]            :=  Caption;
-  NG.Cells[4, NG.RowCount -1]            :=  Msg;
-  NG.EndUpdate;
-end;    }
-
-
-{---------------------------------}
-
-
-
-
-
+ 
 procedure ProcessPlayers(PGrid, MGrid : TNextGrid; Item: TBF2ServerInfoItem);
 var
  Params   : TMParams;
@@ -681,7 +627,7 @@ end;
 
 
 procedure GridAddPlayerInfoW(NG: TNextGrid; Item: TPlayerInfo; P: TMParams; pID: Integer);
-var prefix, name : string; BotCheck: Integer;
+var prefix, name : string;
 begin
       if item.Name = '' then Exit;
 
@@ -723,8 +669,128 @@ begin
     Result:= -1;
 end;
 
+procedure GridPOReplaceFavIndex(NG: TNextGrid; IdValue, newValue : Integer);
+
+          function FormatCmdIndex(F, M, P : Integer):string;
+          begin
+              Result:= Format('/%d/%d/%d/', [F,M,P]);
+          end;
+
+var i: Integer;
+begin
+   for I:=0 to NG.RowCount-1 do
+   begin
+      if  NG.Cell[H_ITEMID, I].AsInteger = IdValue then
+       NG.Cells[C_PO_CMD, I]:= FormatCmdIndex( newValue, GetEntryValueI( NG.Cells[C_PO_CMD, I] , Entry_MATEINDEX , '/' ), GetEntryValueI( NG.Cells[C_PO_CMD, I] , Entry_PLAYERINDEX , '/' ) ) ;
+   end;
+end;
 
 
+
+
+
+procedure GridPlayersMatesSilentMIndexUpdate(NG1, NG2, NG3: TNextGrid; Slist: TBF2ServerSList );
+var i: integer; P : TMParams;  FullName, prefix, name: string;  asc: Boolean; Info: TMInfo;
+begin
+   if NG1.RowCount <= 0 then Exit;
+
+  {PlayersGrid}
+   NG2.BeginUpdate;
+   for I:= 0 to NG2.RowCount-1 do
+   begin
+     FullName:= Slist.AnItems[NG1.Cell[14, NG1.SelectedRow ].AsInteger].BF2Player[ NG2.Cell[12, I].asInteger ].Name;
+
+     GetMateParameters( FullName,  pAll, P  );
+
+     prefix := ExtractPrefix(FullName);
+     name   := ExtractName(FullName);
+
+     NG2.Cell[9,   I].AsFloat     :=  P.Mate;
+     NG2.Cells[1,  I]             :=  FormatPlayerPrefix(P.PrefBold, prefix ); //ExtractPrefix(item.Name);
+     NG2.Cells[2,  I]             :=  FormatPlayerName(P.NameBold, P.TagBold, P.TagIndex, name );//ExtractName(item.Name);
+     NG2.Cell[10,  I].AsInteger   :=  P.Star;
+     NG2.Cells[11, I]             :=  P.Note;
+   end;
+
+   NG2.Refresh;
+ NG2.EndUpdate;
+
+  {MatesGrid}
+
+  NG3.BeginUpdate;
+
+  NG3.ClearRows;
+  with Slist.AnItems[NG1.Cell[14, NG1.SelectedRow ].AsInteger] do
+  begin
+     for i:=0 to TotalPlayersCount-1 do
+     begin
+        AdvGetMateParameters(bf2_bots, BF2Player[i], pAll, P);
+        if P.Mate > 0 then
+        GridAddPlayerInfoW(NG3, BF2Player[i], P, i);
+     end;
+  end;
+
+   if (NG3.SortedColumn <> nil) and (NG3.RowCount > 0) then
+   begin
+    asc:= NG3.SortedColumn.SortKind = skAscending;
+    NG3.SortColumn(NG3.SortedColumn ,  asc );
+   end;
+
+   NG3.Refresh;
+   NG3.EndUpdate;
+
+end;
+
+procedure GridSilentUpdateMatesCount(NG : TNextGrid);
+var i: Integer; Info: TMInfo;
+begin
+   if NG.RowCount <= 0 then Exit;
+
+  NG.BeginUpdate;
+  for i:= 0 to NG.RowCount-1 do
+  begin
+    GetMatesCout( Form1.GetBF2List(NG.Tag).AnItems[NG.Cell[14, i ].AsInteger], Info,  GetOut  );
+    if Info.OutText = '0' then
+    NG.Cell[C_MATES,   I].AsString := '' else NG.Cell[C_MATES,   I].AsString := Info.OutText;
+  end;
+
+     NG.Refresh;
+   NG.EndUpdate;
+end;
+
+procedure GridPOSilentUpdateMates(NG : TNextGrid);
+          function FormatCmdIndex(F, M, P : Integer):string;
+          begin
+              Result:= Format('/%d/%d/%d/', [F,M,P]);
+          end;
+
+          var 
+          M : TMParams;
+          i ,F,  P: Integer;   prefix1, name1 : string;
+begin
+   if NG.RowCount <= 0 then Exit;
+
+    NG.BeginUpdate;
+   for i:=0 to NG.RowCount-1 do
+   begin
+       with Form1.GetBF2List(NG.Tag).AnItems[NG.Cell[14, i ].AsInteger] do
+       begin
+          P:=  GetEntryValueI( NG.Cells[C_PO_CMD, I], Entry_PLAYERINDEX, '/');
+          F:=  GetEntryValueI( NG.Cells[C_PO_CMD, I], Entry_FAVINDEX, '/');
+          GetMateParameters( BF2Player[P].Name ,  pAll, M  );
+          prefix1 := ExtractPrefix( BF2Player[P].Name);
+          name1   := ExtractName(BF2Player[P].Name);
+       end;
+
+       NG.Cell[C_PO_CMD,   I].AsString :=  FormatCmdIndex( F, M.Mate, P);
+       NG.Cells[1,  I]             :=  FormatPlayerPrefix(M.PrefBold,  prefix1  );
+       NG.Cells[2,  I]             :=  FormatPlayerName(M.NameBold, M.TagBold, M.TagIndex, name1 );
+       NG.Cell[5,  I].AsInteger    :=  M.Star;
+       NG.Cells[16, I]             :=  M.Note;
+   end;
+      NG.Refresh;
+   NG.EndUpdate;
+end;
 
 
 end.

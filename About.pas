@@ -3,8 +3,8 @@ unit About;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, 
-  CnWaterImage, StdCtrls, ShellAPI, ExtCtrls, pngimage, ComCtrls;
+  Windows, SysUtils, Classes, Graphics, Controls, Forms, 
+  CnWaterImage, StdCtrls, ShellAPI, ExtCtrls, ComCtrls, pngimage;
 
 type
   TAboutForm = class(TForm)

@@ -2,12 +2,12 @@ unit MatesUnit;
 
 interface
 
- uses Windows,
+ uses 
       SysUtils,
       cStrings,
-      ALfcnString,
+      
       BF2ServerInfo,
-      Unit1,
+      
       MUnit,
       Options;
 
@@ -153,6 +153,8 @@ implementation
     CountMates := 0;
     tStars:= 0; tBolds:= 0; tNotes:= 0;
     sGold:= 0; sBlack:= 0; sSilver:= 0; sRed:= 0; sGreen:= 0; sBlue:= 0;
+    Info.OutText := '';
+
 
    for i:= 0 to Item.TotalPlayersCount -1 do
    begin

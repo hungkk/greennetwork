@@ -1,9 +1,9 @@
 object Form1: TForm1
-  Left = 261
-  Top = 340
+  Left = 254
+  Top = 266
   Width = 894
-  Height = 575
-  Caption = ' PR - Green Network (Build# 0034)'
+  Height = 618
+  Caption = ' PR - Green Network (Build# 0035)'
   Color = clBtnFace
   DefaultMonitor = dmMainForm
   Font.Charset = DEFAULT_CHARSET
@@ -23,7 +23,7 @@ object Form1: TForm1
   TextHeight = 13
   object Splitter1: TSplitter
     Left = 0
-    Top = 321
+    Top = 364
     Width = 886
     Height = 8
     Cursor = crVSplit
@@ -34,7 +34,7 @@ object Form1: TForm1
   end
   object BottomPanel: TPanel
     Left = 0
-    Top = 329
+    Top = 372
     Width = 886
     Height = 196
     Align = alBottom
@@ -638,7 +638,7 @@ object Form1: TForm1
     Left = 0
     Top = 113
     Width = 886
-    Height = 208
+    Height = 251
     ActivePage = NxTabSheet2
     ActivePageIndex = 0
     Align = alClient
@@ -667,7 +667,7 @@ object Form1: TForm1
         Left = 0
         Top = 0
         Width = 886
-        Height = 187
+        Height = 230
         Align = alClient
         AppearanceOptions = [aoAlphaBlendedSelection, aoHighlightSlideCells]
         Caption = 
@@ -1084,7 +1084,7 @@ object Form1: TForm1
         Left = 0
         Top = 0
         Width = 886
-        Height = 187
+        Height = 230
         Align = alClient
         AppearanceOptions = [aoAlphaBlendedSelection, aoHighlightSlideCells]
         Caption = 'List empty. Update gamespy server list by pressing Alt+G'
@@ -1498,7 +1498,7 @@ object Form1: TForm1
         Left = 0
         Top = 0
         Width = 886
-        Height = 187
+        Height = 230
         Align = alClient
         AppearanceOptions = [aoAlphaBlendedSelection, aoHighlightSlideCells]
         Caption = 
@@ -1863,10 +1863,30 @@ object Form1: TForm1
         end
       end
     end
+    object NxTabSheet8: TNxTabSheet
+      Caption = 'Public PR Irc chanel (1000)'
+      PageIndex = 3
+      TabFont.Charset = DEFAULT_CHARSET
+      TabFont.Color = clWindowText
+      TabFont.Height = -11
+      TabFont.Name = 'MS Sans Serif'
+      TabFont.Style = []
+      TabVisible = False
+    end
+    object NxTabSheet9: TNxTabSheet
+      Caption = 'News'
+      PageIndex = 4
+      TabFont.Charset = DEFAULT_CHARSET
+      TabFont.Color = clWindowText
+      TabFont.Height = -11
+      TabFont.Name = 'MS Sans Serif'
+      TabFont.Style = []
+      TabVisible = False
+    end
   end
   object JvStatusBar1: TJvStatusBar
     Left = 0
-    Top = 525
+    Top = 568
     Width = 886
     Height = 23
     Panels = <
@@ -1876,6 +1896,10 @@ object Form1: TForm1
         Style = psOwnerDraw
         Width = 150
         Control = Panel2
+      end
+      item
+        Width = 75
+        Control = CancelButton
       end
       item
         Width = 50
@@ -1894,6 +1918,15 @@ object Form1: TForm1
         Height = 13
         TabOrder = 0
       end
+    end
+    object CancelButton: TButton
+      Left = 153
+      Top = 3
+      Width = 72
+      Height = 19
+      Caption = 'Cancel'
+      TabOrder = 1
+      OnClick = CancelButtonClick
     end
   end
   object TBDock1: TTBDock
@@ -2235,14 +2268,13 @@ object Form1: TForm1
             Checked = True
             OnClick = PopupActionsEnt
           end
-          object TBItem28: TTBItem
-            Tag = 22
-            AutoCheck = True
-            Caption = 'Bots'
-            Checked = True
-            OnClick = PopupActionsEnt
-          end
         end
+      end
+      object TBItem28: TTBItem
+        Caption = 'Cancel'
+        ShortCut = 27
+        Visible = False
+        OnClick = CancelButtonClick
       end
     end
   end
@@ -2808,7 +2840,7 @@ object Form1: TForm1
       'TNxColorPicker=combobox')
     SkinStore = '(Good)'
     SkinFormtype = sfMainform
-    Version = '5.50.10.11'
+    Version = '5.60.03.29'
     MenuUpdate = False
     MenuMerge = False
     OnSkinChanged = SkinData1SkinChanged
@@ -3634,6 +3666,35 @@ object Form1: TForm1
     object TBSubmenuItem1: TTBSubmenuItem
       Caption = 'Join server as'
     end
+    object TBSeparatorItem23: TTBSeparatorItem
+    end
+    object TBSubmenuItem7: TTBSubmenuItem
+      Caption = 'Buddy list'
+      object TBItemOPAddname: TTBItem
+        Tag = 8
+        Caption = 'Add name'
+        OnClick = PopupActionsEnt
+      end
+      object TBItemOPAddPrefix: TTBItem
+        Tag = 6
+        Caption = 'Add prefix'
+        OnClick = PopupActionsEnt
+      end
+      object TBSeparatorItem20: TTBSeparatorItem
+      end
+      object TBItemOPremPrefix: TTBItem
+        Tag = 7
+        Caption = 'Remove prefix'
+        OnClick = PopupActionsEnt
+      end
+      object TBItemOPRemname: TTBItem
+        Tag = 9
+        Caption = 'Remove name'
+        OnClick = PopupActionsEnt
+      end
+      object TBSeparatorItem35: TTBSeparatorItem
+      end
+    end
     object TBSeparatorItem22: TTBSeparatorItem
     end
     object TBItemOPCopyPlayers: TTBItem
@@ -3648,18 +3709,6 @@ object Form1: TForm1
     end
     object TBSeparatorItem21: TTBSeparatorItem
     end
-    object TBItemOPAddPrefix: TTBItem
-      Tag = 6
-      Caption = 'Add prefix to buddy list'
-      OnClick = PopupActionsEnt
-    end
-    object TBItemOPAddname: TTBItem
-      Tag = 8
-      Caption = 'Add player to buddy list'
-      OnClick = PopupActionsEnt
-    end
-    object TBSeparatorItem20: TTBSeparatorItem
-    end
     object TBItemAddToFav3: TTBItem
       Tag = 4
       Caption = 'Add server to favorites'
@@ -3668,18 +3717,6 @@ object Form1: TForm1
     object TBItem29: TTBItem
       Tag = 5
       Caption = 'Remove server from favorites'
-      OnClick = PopupActionsEnt
-    end
-    object TBSeparatorItem23: TTBSeparatorItem
-    end
-    object TBItemOPremPrefix: TTBItem
-      Tag = 7
-      Caption = 'Remove prefix from buddy list'
-      OnClick = PopupActionsEnt
-    end
-    object TBItemOPRemname: TTBItem
-      Tag = 9
-      Caption = 'Remove player from buddy list'
       OnClick = PopupActionsEnt
     end
   end

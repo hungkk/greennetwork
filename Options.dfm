@@ -1209,8 +1209,8 @@ object OptionsForm: TOptionsForm
           Top = 30
           Width = 476
           Height = 367
-          ActivePage = VisualNxTabSheet
-          ActivePageIndex = 1
+          ActivePage = EngineNxTabSheet
+          ActivePageIndex = 0
           Align = alClient
           TabOrder = 1
           OnClick = BuddyListWorks
@@ -1295,10 +1295,10 @@ object OptionsForm: TOptionsForm
               Top = 55
               Width = 57
               Height = 22
-              MaxValue = 20
+              MaxValue = 6
               MinValue = 1
               TabOrder = 2
-              Value = 10
+              Value = 1
               OnChange = TimeOutSpinChange
             end
             object TrackBar2: TTrackBar
@@ -1306,10 +1306,10 @@ object OptionsForm: TOptionsForm
               Top = 55
               Width = 225
               Height = 25
-              Max = 20
+              Max = 6
               Min = 1
               PageSize = 1
-              Position = 10
+              Position = 1
               TabOrder = 3
               ThumbLength = 15
               OnChange = TrackBar2Change

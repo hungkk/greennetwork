@@ -127,6 +127,7 @@ interface
      FSkipSend : Boolean;
 
      procedure RefreshTable;
+     function GetTimeOutTimer : Boolean;
   protected
      procedure Execute; override;
      procedure BF2WSocketDataAvailable( Sender  : TObject; ErrCode : WORD);
@@ -136,7 +137,7 @@ interface
 
      procedure TimerEvent(Sender : TObject);
   public
-
+     property  TimeOutTimerOn : Boolean read GetTimeOutTimer;
      property  WSocket    : TWSocket  read FBF2WSocket;
 
      property  SkipSend   : Boolean read FSkipSend write FSkipSend;
@@ -1019,10 +1020,16 @@ end;
 
  procedure TBF2WSockThread.ThStop(const index: Integer = 0);
  begin
+   if Assigned(FTimer) then
+   begin
+     FTimer.Enabled := False;
+     FreeAndNil(FTimer);
+   end;
+
 
    if index <> 0 then FErrorCode:= index;
 
-   FreeAndNil(FTimer);
+   
   //DEbug- FreeAndNil(FBF2WSocket);
   // if WaitForSingleObject(Handle, 100) = WAIT_TIMEOUT then
  // FreeAndNil(FBF2WSocket);
@@ -1102,6 +1109,14 @@ end;
          TimerEvent(Self);
        end;
  end;
+
+
+ function TBF2WSockThread.GetTimeOutTimer : Boolean;
+ begin
+   if Assigned(FTimer) then
+   Result:= FTimer.Enabled else Result:= False;
+ end;
+
 
  procedure TBF2WSockThread.RefreshTable;
  var A   : TBF2ServerInfoItem;

@@ -1,9 +1,9 @@
 object Form1: TForm1
-  Left = 262
-  Top = 139
+  Left = 348
+  Top = 250
   Width = 894
   Height = 618
-  Caption = ' PR - Green Network (Build# 0035)'
+  Caption = ' PR - Green Network (Build# 0036)'
   Color = clBtnFace
   DefaultMonitor = dmMainForm
   Font.Charset = DEFAULT_CHARSET
@@ -15,6 +15,7 @@ object Form1: TForm1
   Position = poDesktopCenter
   OnActivate = FormActivate
   OnClose = FormClose
+  OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnResize = FormResize
@@ -610,6 +611,18 @@ object Form1: TForm1
         TabFont.Height = -11
         TabFont.Name = 'MS Sans Serif'
         TabFont.Style = []
+        DesignSize = (
+          703
+          173)
+        object Memo1: TMemo
+          Left = 0
+          Top = 0
+          Width = 577
+          Height = 173
+          Anchors = [akLeft, akTop, akRight, akBottom]
+          ScrollBars = ssBoth
+          TabOrder = 0
+        end
       end
     end
     object mapPanel: TPanel
@@ -1925,6 +1938,7 @@ object Form1: TForm1
       Width = 72
       Height = 19
       Caption = 'Cancel'
+      Enabled = False
       TabOrder = 1
       OnClick = CancelButtonClick
     end
@@ -3668,35 +3682,6 @@ object Form1: TForm1
     end
     object TBSeparatorItem23: TTBSeparatorItem
     end
-    object TBSubmenuItem7: TTBSubmenuItem
-      Caption = 'Buddy list'
-      object TBItemOPAddname: TTBItem
-        Tag = 8
-        Caption = 'Add name'
-        OnClick = PopupActionsEnt
-      end
-      object TBItemOPAddPrefix: TTBItem
-        Tag = 6
-        Caption = 'Add prefix'
-        OnClick = PopupActionsEnt
-      end
-      object TBSeparatorItem20: TTBSeparatorItem
-      end
-      object TBItemOPremPrefix: TTBItem
-        Tag = 7
-        Caption = 'Remove prefix'
-        OnClick = PopupActionsEnt
-      end
-      object TBItemOPRemname: TTBItem
-        Tag = 9
-        Caption = 'Remove name'
-        OnClick = PopupActionsEnt
-      end
-      object TBSeparatorItem35: TTBSeparatorItem
-      end
-    end
-    object TBSeparatorItem22: TTBSeparatorItem
-    end
     object TBItemOPCopyPlayers: TTBItem
       Tag = 11
       Caption = 'Copy player'
@@ -3709,6 +3694,18 @@ object Form1: TForm1
     end
     object TBSeparatorItem21: TTBSeparatorItem
     end
+    object TBItemOPAddPrefix: TTBItem
+      Tag = 6
+      Caption = 'Add prefix'
+      OnClick = PopupActionsEnt
+    end
+    object TBItemOPAddname: TTBItem
+      Tag = 8
+      Caption = 'Add name'
+      OnClick = PopupActionsEnt
+    end
+    object TBSeparatorItem20: TTBSeparatorItem
+    end
     object TBItemAddToFav3: TTBItem
       Tag = 4
       Caption = 'Add server to favorites'
@@ -3717,6 +3714,18 @@ object Form1: TForm1
     object TBItem29: TTBItem
       Tag = 5
       Caption = 'Remove server from favorites'
+      OnClick = PopupActionsEnt
+    end
+    object TBSeparatorItem22: TTBSeparatorItem
+    end
+    object TBItemOPremPrefix: TTBItem
+      Tag = 7
+      Caption = 'Remove prefix'
+      OnClick = PopupActionsEnt
+    end
+    object TBItemOPRemname: TTBItem
+      Tag = 9
+      Caption = 'Remove name'
       OnClick = PopupActionsEnt
     end
   end

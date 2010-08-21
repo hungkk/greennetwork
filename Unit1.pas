@@ -20,7 +20,7 @@ interface
 
 uses
   Windows, 
-  SysUtils, //Variants,
+  SysUtils,  Variants,
   Classes,
   Graphics,
   Controls, Forms,
@@ -405,6 +405,7 @@ type
     TBItem28: TTBItem;
     TBSeparatorItem20: TTBSeparatorItem;
     TBSeparatorItem22: TTBSeparatorItem;
+    Memo1: TMemo;
     procedure FormShow(Sender: TObject);
     procedure GlobalServersGridCompare(Sender: TObject; Cell1,
       Cell2: TCell; var Compare: Integer);
@@ -480,6 +481,7 @@ type
       var NewSize: Integer; var Accept: Boolean);
     procedure CancelButtonClick(Sender: TObject);
     procedure  ProcButtonsOnOff(B: Boolean );
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 
   private
     FImage: ImagingClasses.TMultiImage;
@@ -493,7 +495,8 @@ type
   //  FLastTime: LongInt;
     FOriginalFormats: array of TImageFormat;
     FSupported: Boolean;
-    
+
+    CloseAppWhenItsDone: Boolean;
     { Private declarations }
   public
      GeoIP : TGeoIP;
@@ -546,7 +549,7 @@ type
     procedure FillDefault;
     procedure SetUnsupported;
     procedure LoadImage(MFile: String);
-
+    procedure Debug( v: Variant);
 
 
     { Public declarations }
@@ -603,6 +606,15 @@ uses MUnit, UnitGrid, Options, About, ServerPassUnit, LanguageUnit, NativeXml, c
 *******************************HELPER UTILS***************************************
 **********************************************************************************
 }
+
+procedure TForm1.Debug( v: Variant);
+begin
+ Memo1.Lines.Add(  VarToStr(v)     );
+end;
+
+
+
+
 
 function TForm1.GetBF2List( i: Integer): TBF2ServerSList;
 begin
@@ -1308,7 +1320,7 @@ begin
 
    Caption:= CapCap;
 
-
+  CloseAppWhenItsDone := False;
 
   {NEW$}
   PRGameSpy          :=   TBF2ServerSList.Create(TBF2ServerInfoItem) ;
@@ -1434,27 +1446,24 @@ begin
   NotifyForStart;
 
   ExecuteFirstWave;
-  ProcButtonsOnOff(False);
+ // ProcButtonsOnOff(False);
 end;
 
 procedure TForm1.ExecuteFirstWave;
 var i, max: integer;   tmpIP, tmpPort : string;
 begin
 
-
-
-
   ActiveThreading := True;
-             MainThreadsDone  := not ActiveThreading;
-              PingsThreadsDone := not ActiveThreading;
+  MainThreadsDone  := not ActiveThreading;
+  PingsThreadsDone := not ActiveThreading;
   
-  ProcButtonsOnOff(False);
+  
   if ServerListBuffer.Count-1 > OptionsForm.threads.Value then
    max:=  OptionsForm.threads.Value-1 else max:= ServerListBuffer.Count-1;
 
   ElapsedTime    := 0;
   SpeedStartTime := Windows.GetTickCount;
-
+  ProcButtonsOnOff(False);
   for i:= 0 to max do
   begin
     if SListNextServer(tmpIP,  tmpPort) {and (not TerminateProgress)} then
@@ -1530,8 +1539,8 @@ begin
 
              if A.ErrorCode > -1 then
              begin
-              Inc(PingsCount);
               CreatePingQThread( ServerNo, A.Index , ServerIP );
+              Inc(PingsCount);
              end;
 
             Inc(ServersDone);
@@ -1539,6 +1548,7 @@ begin
 
             if SListNextServer(tmpIP, tmpPort ) {and (not TerminateProgress)} then
             begin
+               Application.ProcessMessages;
               CreateQThread(DeadID, tmpIP, tmpPort, OptionsForm.updRetrySpin.Value  );
 
             end
@@ -1595,25 +1605,23 @@ begin
 
   with (Sender as TBF2PingThread) do
   begin
-    Inc(PingsDone);
+     Inc(PingsDone);
      GetBF2List(GridIndexTag).AnItems[Tag].Ping := RTT;
     ModifyGridPingValue(GetGrid(GridIndexTag), Tag, GetBF2List(GridIndexTag).AnItems[Tag]);
   end;
 
    PingsThreadsDone :=   PingsDone = PingsCount ;
-   
-    
- 
+
    if MainThreadsDone and PingsThreadsDone then
    begin
     ActiveThreading := False ;
     ProcButtonsOnOff(True);
-   end;
+    if CloseAppWhenItsDone then Application.Terminate;
+   end;     
 end;
 
 procedure TForm1.NotifyForEnd( E : TAfterEvent );
 var  GoodServers, tPlayers : Integer; asc: Boolean;  max, i : Integer;
-JackStillalive: Boolean;
 begin
 
   if E = eMultiThScann then
@@ -1671,15 +1679,17 @@ begin
     GetGrid(GridIndexTag).SelectedRow  := GetGrid(GridIndexTag).SelectedRow;
   end;
   
-  
+
   MainThreadsDone := True;
 
    if MainThreadsDone and PingsThreadsDone then
    begin
      ActiveThreading := False ;
      ProcButtonsOnOff(True);
-     
+     if CloseAppWhenItsDone then Application.Terminate;
    end;
+     
+
 
 
 end;
@@ -1699,7 +1709,7 @@ begin
   ActiveThreading := True;
              MainThreadsDone  := not ActiveThreading;
               PingsThreadsDone := not ActiveThreading;
-  ProcButtonsOnOff(False);
+ // ProcButtonsOnOff(False);
   JvStatusBar1.Panels[2].Text := GetWORD(123);//'Requesting servers list from GameSpy ...';
   TempGameSpySrvList.Clear;
 
@@ -1749,7 +1759,7 @@ begin
    ActiveThreading := True;
                 MainThreadsDone  := not ActiveThreading;
               PingsThreadsDone := not ActiveThreading;
-   ProcButtonsOnOff(False);
+//   ProcButtonsOnOff(False);
    JvStatusBar1.Panels[2].Text := GetWORD(123);//'Requesting servers from GameSpy ...';
    TempGameSpySrvList.Clear;
 
@@ -1794,7 +1804,7 @@ end;
 
 procedure TForm1.Exit1Click(Sender: TObject);
 begin
- Application.Terminate;
+ Close;
 end;
 
 procedure TForm1.Showapplication1Click(Sender: TObject);
@@ -1804,7 +1814,7 @@ end;
 
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
   var path : string;
-begin                    
+begin
     path :=  ExtractFilePath(ParamStr(0){Application.ExeName})+'Settings.ini';
     GlobalServersGrid.SaveToIni( path, 'FGRID' );
     GameSpyGrid.SaveToIni( path, 'GSGRID');
@@ -2798,6 +2808,13 @@ end;
 procedure TForm1.CancelButtonClick(Sender: TObject);
 var max, i : Integer;
 begin
+
+  if not ActiveThreading then Exit;
+
+  CancelButton.Enabled := False;
+  JvStatusBar1.Panels[2].Text := GetWORD(171);
+
+
   TerminateProgress := True;
 
   if ServerListBuffer.Count-1 > OptionsForm.threads.Value then
@@ -2806,11 +2823,15 @@ begin
    for i:= max downto 0 do
    begin
        if Assigned(BF2Thread[I]) then
-        if BF2Thread[I].SkipSend = False then
-            BF2Thread[I].ThStop(ERC_ABORT);    
+       begin
+        if BF2Thread[I].SkipSend = False and BF2Thread[I].TimeOutTimerOn then
+        BF2Thread[I].ThStop(ERC_ABORT);
+       end;
    end;
 
-   ProcButtonsOnOff(True);
+
+
+  // ProcButtonsOnOff(True);
   //Прервать Retry
   //Прервать Timeout-ы
 end;
@@ -2826,5 +2847,18 @@ begin
    CancelButton.Enabled := not B;
 end;
 
+
+procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+begin
+
+  if ActiveThreading then
+  begin
+     CanClose:= False;
+     CancelButton.Click;
+     CloseAppWhenItsDone:= True;
+  end;
+
+
+end;
 
 end.

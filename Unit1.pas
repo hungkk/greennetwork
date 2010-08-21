@@ -276,12 +276,10 @@ type
     TBItemSearchBar: TTBItem;
     TBItem21: TTBItem;
     OnlinePlayersPopupMenu: TTBPopupMenu;
-    TBSeparatorItem20: TTBSeparatorItem;
     TBItemOPAddPrefix: TTBItem;
     TBItemOPAddname: TTBItem;
     TBSeparatorItem21: TTBSeparatorItem;
     TBItemOPCopyPlayers: TTBItem;
-    TBSeparatorItem22: TTBSeparatorItem;
     TBItemAddToFav3: TTBItem;
     TBSeparatorItem23: TTBSeparatorItem;
     TBItemOPremPrefix: TTBItem;
@@ -404,9 +402,9 @@ type
     NxTabSheet9: TNxTabSheet;
     CancelButton: TButton;
     NxTextColumn5: TNxHtmlColumn;
-    TBSeparatorItem35: TTBSeparatorItem;
-    TBSubmenuItem7: TTBSubmenuItem;
     TBItem28: TTBItem;
+    TBSeparatorItem20: TTBSeparatorItem;
+    TBSeparatorItem22: TTBSeparatorItem;
     procedure FormShow(Sender: TObject);
     procedure GlobalServersGridCompare(Sender: TObject; Cell1,
       Cell2: TCell; var Compare: Integer);
@@ -562,7 +560,7 @@ var
   {NEW$}
   ActiveThreading        : Boolean;
   ServerNo, ServersCount : Integer;
-  ServersDone, PingsDone : Integer;
+  ServersDone, PingsDone, PingsCount : Integer;
 
 
 
@@ -796,7 +794,7 @@ begin
 
                               case ActGridIndex of
                                 S_GAME_SPY  : GetGrid(ActGridIndex).Cell[15, GetGrid(ActGridIndex).SelectedRow].AsInteger := -1;
-                                S_FAVORITES : GetGrid(ActGridIndex).DeleteRow( GetGrid(ActGridIndex).SelectedRow );
+                              //  S_FAVORITES : GetGrid(ActGridIndex).RowVisible[ GetGrid(ActGridIndex).SelectedRow ]:= False;
                                 S_PRPONLINE : GridPOReplaceFavIndex(GetGrid(ActGridIndex), GetGrid(ActGridIndex).Cell[14, GetGrid(ActGridIndex).SelectedRow].AsInteger , -1);
                               end;
                               GetGrid(ActGridIndex).Refresh;
@@ -839,6 +837,7 @@ begin
 
                        end;
 
+                      
 
                         sDeletePrefix(Str);
                         GridPlayersMatesSilentMIndexUpdate( GetGrid(ActGridIndex), GetPInfoGrid(P_ALLPLAYERS),GetPInfoGrid(P_MATES), GetBF2List(ActGridIndex) );
@@ -1400,6 +1399,7 @@ begin
     ServerNo          := 0;
     ServersDone       := 0;
     PingsDone         := 0;
+    PingsCount  := 0;
     GridIndexTag      := GridIndex;
     RowItemIndex      := ItemIndex;
     ActiveThreading   := True;
@@ -1427,6 +1427,7 @@ begin
  // ServerNo    := 0;
   ServersDone := 0;
   PingsDone   := 0;
+  PingsCount  := 0;
   GridIndexTag   := GridIndex;
   RowItemIndex   := SS_MULTI;
 
@@ -1527,7 +1528,11 @@ begin
 
             end;
 
-            if A.ErrorCode > -1 then CreatePingQThread( ServerNo, A.Index , ServerIP );
+             if A.ErrorCode > -1 then
+             begin
+              Inc(PingsCount);
+              CreatePingQThread( ServerNo, A.Index , ServerIP );
+             end;
 
             Inc(ServersDone);
             ProgressBar1.Position:=   ((ServersDone * 100) div  (ServerListBuffer.Count)); //-1
@@ -1588,7 +1593,6 @@ procedure TForm1.OnPingQThreadTerminate(Sender: Tobject);
 begin
 
 
-
   with (Sender as TBF2PingThread) do
   begin
     Inc(PingsDone);
@@ -1596,15 +1600,15 @@ begin
     ModifyGridPingValue(GetGrid(GridIndexTag), Tag, GetBF2List(GridIndexTag).AnItems[Tag]);
   end;
 
-
-   if PingsDone < ServerListBuffer.Count then Exit;
-   PingsThreadsDone:= True;
+   PingsThreadsDone :=   PingsDone = PingsCount ;
+   
+    
+ 
    if MainThreadsDone and PingsThreadsDone then
    begin
-     ActiveThreading := False ;
-     ProcButtonsOnOff(True);
+    ActiveThreading := False ;
+    ProcButtonsOnOff(True);
    end;
-
 end;
 
 procedure TForm1.NotifyForEnd( E : TAfterEvent );
@@ -1616,7 +1620,7 @@ begin
    if ServersDone < ServerListBuffer.Count then Exit;
    SpeedEndTime := Windows.GetTickCount;
 
-
+  
   
   ProgressBar1.Position:= 0;
 
@@ -1674,6 +1678,7 @@ begin
    begin
      ActiveThreading := False ;
      ProcButtonsOnOff(True);
+     
    end;
 
 
@@ -2804,6 +2809,8 @@ begin
         if BF2Thread[I].SkipSend = False then
             BF2Thread[I].ThStop(ERC_ABORT);    
    end;
+
+   ProcButtonsOnOff(True);
   //Прервать Retry
   //Прервать Timeout-ы
 end;

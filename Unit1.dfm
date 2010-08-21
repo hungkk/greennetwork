@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 254
-  Top = 266
+  Left = 262
+  Top = 139
   Width = 894
   Height = 618
   Caption = ' PR - Green Network (Build# 0035)'

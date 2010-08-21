@@ -73,9 +73,10 @@ uses
 {$I defs.inc}
 
   const
-        BuildDate = '2010.08.26';
-        VerNo     = '1.0.35';
-        VERCOMP   = 1035;
+        CapCap    = ' PR - Green Network 1.0.36';
+        BuildDate = '2010.08.23';
+        VerNo     = '1.0.36';
+        VERCOMP   = 1036;
 
         {IMG}
         FillColor       = ClWhite; //$FFA6FFFF;
@@ -480,6 +481,7 @@ type
     procedure JvNetscapeSplitter1CanResize(Sender: TObject;
       var NewSize: Integer; var Accept: Boolean);
     procedure CancelButtonClick(Sender: TObject);
+    procedure  ProcButtonsOnOff(B: Boolean );
 
   private
     FImage: ImagingClasses.TMultiImage;
@@ -560,7 +562,15 @@ var
   {NEW$}
   ActiveThreading        : Boolean;
   ServerNo, ServersCount : Integer;
-  ServersDone            : Integer;
+  ServersDone, PingsDone : Integer;
+
+
+
+  MainThreadsDone, PingsThreadsDone : Boolean;
+
+
+
+
   GridIndexTag           : Integer;
   RowItemIndex           : Integer;
   ServerListBuffer       : TStringList;
@@ -576,11 +586,11 @@ var
   FHttpCli    : THttpCli;
     mHandle    : THandle;    // Mutexhandle
   //FHttpCliBool: Boolean;
-  
+
 
   TerminateProgress : Boolean;
 
-  SpeedStartTime, SpeedEndTime : Integer;
+  ElapsedTime, SpeedStartTime, SpeedEndTime : Integer;
 
 
 implementation
@@ -659,11 +669,12 @@ begin
     if ( (Sender as TComponent{TTBCustomItem}).tag in [GET_GAMESPY, GET_FAVORITES] ) and  ActiveThreading then Exit;
     ActGridIndex       :=   Succ(NxPageControl1.ActivePageindex);// + 1;
 
+
     case (Sender as TComponent{TTBCustomItem}).tag of
 
 
        GET_GAMESPY   :  begin   
-                            if ActiveThreading then Exit;
+                            if ActiveThreading  then Exit;
 
 
                             NxPageControl1.ActivePageIndex := 1;
@@ -678,8 +689,8 @@ begin
                         end ;
 
        GET_FAVORITES :  begin
-                           if ActiveThreading then Exit;
-
+                           if ActiveThreading  then Exit;
+                    
 
                             NxPageControl1.ActivePageIndex := 0;
                             GlobalServersGrid.ClearRows;
@@ -702,9 +713,8 @@ begin
 
 
        GET_ALLPLAYERS : begin
+                          if ActiveThreading  then Exit;
 
-
-                          if ActiveThreading then Exit;
                           NxPageControl1.ActivePageIndex := 2;
 
                           PROnlinePlayersGrid.ClearRows;
@@ -1296,8 +1306,8 @@ var Mema: TmemoryStream;
 begin
  // ReadLng('D:\Programing\LAB\LAB4\PR GreenNetwork\Lang\Russian.ini');
 
-   
-   Caption:= ' PR - Green Network 1.0.35';
+
+   Caption:= CapCap;
 
 
 
@@ -1309,6 +1319,8 @@ begin
   ServerListBuffer   :=   TStringList.Create;
   TempGameSpySrvList :=   TStringList.Create;
   ActiveThreading    :=   False;
+             MainThreadsDone  := not ActiveThreading;
+              PingsThreadsDone := not ActiveThreading;
 
   GeoIP := TGeoIP.Create;
   LoadGeoIPdbFromRes(GeoIP);
@@ -1387,12 +1399,17 @@ procedure TForm1.StartSingleThreading(IP: string; Port: string; GridIndex: Integ
 begin
     ServerNo          := 0;
     ServersDone       := 0;
+    PingsDone         := 0;
     GridIndexTag      := GridIndex;
     RowItemIndex      := ItemIndex;
     ActiveThreading   := True;
+             MainThreadsDone  := not ActiveThreading;
+              PingsThreadsDone := not ActiveThreading;
+    ProcButtonsOnOff(False);
 
     TerminateProgress := False;
-
+     SpeedStartTime := Windows.GetTickCount;
+     SpeedEndTime   := 0;
     CreateQThread(0, IP, PORT);
 end;
 
@@ -1400,6 +1417,7 @@ end;
 
 Procedure TForm1.StarMultiThreading(Slist: TStrings; const GridIndex: Integer = S_GAME_SPY);
 begin
+
   ServerListBuffer.Clear;
   ServerListBuffer.AddStrings( Slist );
   SListStart;   //Or use comatext
@@ -1408,23 +1426,32 @@ begin
 
  // ServerNo    := 0;
   ServersDone := 0;
+  PingsDone   := 0;
   GridIndexTag   := GridIndex;
   RowItemIndex   := SS_MULTI;
 
   NotifyForStart;
 
   ExecuteFirstWave;
+  ProcButtonsOnOff(False);
 end;
 
 procedure TForm1.ExecuteFirstWave;
 var i, max: integer;   tmpIP, tmpPort : string;
 begin
 
+
+
+
   ActiveThreading := True;
+             MainThreadsDone  := not ActiveThreading;
+              PingsThreadsDone := not ActiveThreading;
+  
+  ProcButtonsOnOff(False);
   if ServerListBuffer.Count-1 > OptionsForm.threads.Value then
    max:=  OptionsForm.threads.Value-1 else max:= ServerListBuffer.Count-1;
 
-
+  ElapsedTime    := 0;
   SpeedStartTime := Windows.GetTickCount;
 
   for i:= 0 to max do
@@ -1439,13 +1466,25 @@ end;
                    //  OptionsForm.updRetrySpin.Value
 procedure TForm1.CreateQThread(ID: Integer; IP, QPort: string; const RetryCount: Integer = 0);
 begin
+
+     
        BF2Thread[ID]:= TBF2WSockThread.Create(IP , QPort, ID);
+
        BF2Thread[ID].Timeout      := OptionsForm.TimeOutSpin.Value * 1000;
        BF2Thread[ID].Priority     := tpNormal;  // tpHigher;
        BF2Thread[ID].OnTerminate  := OnQThreadTerminate;
        BF2Thread[ID].RetryCount   := RetryCount;
        BF2Thread[ID].SkipSend     := TerminateProgress;
+
+      Try
        BF2Thread[ID].Resume;
+          except on EConvertError do
+      begin
+        BF2Thread[ID].Free;
+        BF2Thread[ID] := nil;
+       // ShowMessage('That is not a valid number!');
+      end;
+      end;
       // Sleep(10);
       // Memo1.Lines.Add( 'Sta: ' + IntToStr(ID) );
 end;
@@ -1520,6 +1559,9 @@ begin
              if A.ErrorCode > -1 then CreatePingQThread( ServerNo, A.Index , ServerIP );
 
              ActiveThreading := False;
+             MainThreadsDone  := not ActiveThreading;
+              PingsThreadsDone := not ActiveThreading;
+             ProcButtonsOnOff(True);
 
              NotifyForEnd(eSingleThScann);
 
@@ -1528,7 +1570,7 @@ begin
 
   end;
 
- 
+
    
 end;
 
@@ -1544,22 +1586,38 @@ end;
 
 procedure TForm1.OnPingQThreadTerminate(Sender: Tobject);
 begin
+
+
+
   with (Sender as TBF2PingThread) do
   begin
+    Inc(PingsDone);
      GetBF2List(GridIndexTag).AnItems[Tag].Ping := RTT;
     ModifyGridPingValue(GetGrid(GridIndexTag), Tag, GetBF2List(GridIndexTag).AnItems[Tag]);
   end;
+
+
+   if PingsDone < ServerListBuffer.Count then Exit;
+   PingsThreadsDone:= True;
+   if MainThreadsDone and PingsThreadsDone then
+   begin
+     ActiveThreading := False ;
+     ProcButtonsOnOff(True);
+   end;
+
 end;
 
 procedure TForm1.NotifyForEnd( E : TAfterEvent );
-var ElapsedTime, GoodServers, tPlayers : Integer; asc: Boolean;
+var  GoodServers, tPlayers : Integer; asc: Boolean;  max, i : Integer;
+JackStillalive: Boolean;
 begin
 
   if E = eMultiThScann then
-  if ServersDone < ServerListBuffer.Count then Exit;
-  SpeedEndTime := Windows.GetTickCount;
+   if ServersDone < ServerListBuffer.Count then Exit;
+   SpeedEndTime := Windows.GetTickCount;
 
-  ActiveThreading := False;
+
+  
   ProgressBar1.Position:= 0;
 
   {New method for seaarching Collection}
@@ -1588,10 +1646,11 @@ begin
  {New}  // FormatDateTime
    //  SysUtils.
  // SysUtils.Date;
-   ElapsedTime := Trunc( ( SpeedEndTime - SpeedStartTime) div 1000);
+   ElapsedTime := ElapsedTime + Trunc( ( SpeedEndTime - SpeedStartTime) div 1000);
 
-    
+   if ElapsedTime = 0 then ElapsedTime:= 1;
 
+  if E = eMultiThScann then
   JvStatusBar1.Panels[2].Text := FormatDateTime('hh:nn:ss', Now ) + ' - ' + Format( GetWORD(121), [GoodServers, GetBF2List(GridIndexTag).Count, tPlayers]) + ' * ' +Format(GetWORD(170), [ElapsedTime]  );  //' - Done! ( Servers: ' + IntTostr(GoodServers) + ' of ' + IntTostr(GetBF2List(GridIndexTag).Count) + ')'  + ' / (TotalPlayers: ' + IntToStr(tPlayers) + ')';
   TerminateProgress := False;
 
@@ -1607,6 +1666,16 @@ begin
    if GetGrid(GridIndexTag).SortedColumn = nil then Exit;
     GetGrid(GridIndexTag).SelectedRow  := GetGrid(GridIndexTag).SelectedRow;
   end;
+  
+  
+  MainThreadsDone := True;
+
+   if MainThreadsDone and PingsThreadsDone then
+   begin
+     ActiveThreading := False ;
+     ProcButtonsOnOff(True);
+   end;
+
 
 end;
 
@@ -1623,6 +1692,9 @@ procedure TForm1.GetPROnlinePlayers;
 var Str: AnsiString; inx : Integer;
 begin
   ActiveThreading := True;
+             MainThreadsDone  := not ActiveThreading;
+              PingsThreadsDone := not ActiveThreading;
+  ProcButtonsOnOff(False);
   JvStatusBar1.Panels[2].Text := GetWORD(123);//'Requesting servers list from GameSpy ...';
   TempGameSpySrvList.Clear;
 
@@ -1637,14 +1709,23 @@ begin
    1      : begin
              JvStatusBar1.Panels[2].Text := GetWORD(124);//'Received servers list empty!';
              ActiveThreading := False;
+             MainThreadsDone  := not ActiveThreading;
+             PingsThreadsDone := not ActiveThreading;
+             ProcButtonsOnOff(True);
             end;
    -1, -2 : begin
               JvStatusBar1.Panels[2].Text := Format(GetWORD(125), [inx]); //'Can''t connect to GameSpy! (ErrorCode: ' + IntToStr(inx) + ')' ;
               ActiveThreading := False;
+              MainThreadsDone  := not ActiveThreading;
+              PingsThreadsDone := not ActiveThreading;
+              ProcButtonsOnOff(True);
             end;
    -3, -4 : begin
                JvStatusBar1.Panels[2].Text := GetWORD(126);//'Can''t decrypt received data. Try again!';//     //'Access error in module "xdec.exe" (ErrorCode: ' + IntToStr(inx) + ')'  ;
                ActiveThreading := False;
+                            MainThreadsDone  := not ActiveThreading;
+              PingsThreadsDone := not ActiveThreading;
+               ProcButtonsOnOff(True);
             end;
   end;
 
@@ -1661,6 +1742,9 @@ procedure TForm1.GetGameSpyServers;
 var Str: AnsiString;  inx : Integer;
 begin
    ActiveThreading := True;
+                MainThreadsDone  := not ActiveThreading;
+              PingsThreadsDone := not ActiveThreading;
+   ProcButtonsOnOff(False);
    JvStatusBar1.Panels[2].Text := GetWORD(123);//'Requesting servers from GameSpy ...';
    TempGameSpySrvList.Clear;
 
@@ -1673,14 +1757,26 @@ begin
    1      : begin
              JvStatusBar1.Panels[2].Text := GetWORD(124); //'Received servers list empty!';
              ActiveThreading := False;
+                          MainThreadsDone  := not ActiveThreading;
+              PingsThreadsDone := not ActiveThreading;
+             ProcButtonsOnOff(True);
+
             end;
    -1, -2 : begin
               JvStatusBar1.Panels[2].Text := Format(GetWORD(125), [inx]); //'Can''t connect to GameSpy! (ErrorCode: ' + IntToStr(inx) + ')' ;
               ActiveThreading := False;
+                           MainThreadsDone  := not ActiveThreading;
+              PingsThreadsDone := not ActiveThreading;
+              ProcButtonsOnOff(True);
+
             end;
    -3, -4 : begin
                JvStatusBar1.Panels[2].Text := Format(GetWORD(127), [inx]);//'Access error in module "xdec.exe" (ErrorCode: ' + IntToStr(inx) + ')'  ;
                ActiveThreading := False;
+                            MainThreadsDone  := not ActiveThreading;
+              PingsThreadsDone := not ActiveThreading;
+               ProcButtonsOnOff(True);
+
             end;
   end;
 
@@ -2706,10 +2802,22 @@ begin
    begin
        if Assigned(BF2Thread[I]) then
         if BF2Thread[I].SkipSend = False then
-            BF2Thread[I].ThStop(ERC_ABORT);
+            BF2Thread[I].ThStop(ERC_ABORT);    
    end;
   //Прервать Retry
   //Прервать Timeout-ы
 end;
+
+procedure TForm1.ProcButtonsOnOff(B: Boolean );
+begin
+   TBItem1.Enabled := B;
+   TBItem2.Enabled := B;
+   TBItem3.Enabled := B;
+   TBItem11.Enabled := B;
+   TBItem10.Enabled := B;
+   TBItem20.Enabled := B;
+   CancelButton.Enabled := not B;
+end;
+
 
 end.

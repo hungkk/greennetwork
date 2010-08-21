@@ -1045,13 +1045,13 @@ end;
     FTimer.Interval :=  FTimeOut;
 
     FBF2WSocket.Connect;
-          {
+          
     FErrorCode:= FBF2WSocket.LastError;
     if FErrorCode <> 0 then
     begin
       ThStop;
       Exit;
-    end;  }
+    end;  {}
                      {TEst}
      while FBF2WSocket.State in [wsOpened, wsConnecting] do
      FBF2WSocket.ProcessMessages;
@@ -1072,7 +1072,7 @@ end;
      FSendTime := Windows.GetTickCount;
 
       {TEMPOFF  } 
-      while not Terminated {and Assigned(FBF2WSocket)} do
+      while not Terminated and Assigned(FBF2WSocket){} do
       FBF2WSocket.ProcessMessages;   
     
 

@@ -3,7 +3,7 @@ object Form1: TForm1
   Top = 250
   Width = 894
   Height = 618
-  Caption = ' PR - Green Network (Build# 0036)'
+  Caption = ' PR - Green Network (Build# 0037)'
   Color = clBtnFace
   DefaultMonitor = dmMainForm
   Font.Charset = DEFAULT_CHARSET
@@ -4501,5 +4501,19 @@ object Form1: TForm1
     Left = 240
     Top = 198
     Bitmap = {}
+  end
+  object Timer1: TTimer
+    Enabled = False
+    Interval = 10
+    OnTimer = Timer1Timer
+    Left = 320
+    Top = 246
+  end
+  object Timer2: TTimer
+    Enabled = False
+    Interval = 10
+    OnTimer = Timer2Timer
+    Left = 360
+    Top = 246
   end
 end

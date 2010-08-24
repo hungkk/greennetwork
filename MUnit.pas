@@ -38,7 +38,6 @@ uses  Options, Menus, ShellApi, ColListb, Forms, ShlObj,
 
 
 
-
 {
 type
   TCompareBy = (fpPrefix, fpName, fpClantag, fpAll);

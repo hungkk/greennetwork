@@ -2,10 +2,10 @@
 
 <xml version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/">
 	<updinfo>
-		<title>New version: Green Network v1.0.41 avaiable!</title>
+		<title>New version: Green Network v1.0.42 avaiable!</title>
 		<link>http://prgnetwork.blogspot.com/</link>
-		<VERCOMP>1041</VERCOMP>
+		<VERCOMP>1042</VERCOMP>
 		<download>http://greennetwork.googlecode.com/files/pr_gnetwork_setup.exe</download>
-		<ainfo>New always better than older ;)</ainfo> 
+		<ainfo>+ Fixed Wanda Shan preview error</ainfo> 	
 	</updinfo>
 </xml>

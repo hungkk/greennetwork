@@ -2,7 +2,7 @@ unit MUnit;
 
 interface
 
-uses  Options, Menus, ShellApi, ColListb, Forms, ShlObj, 
+uses  Options, Menus, ShellApi, ColListb, Forms, ShlObj, //UnZIP,
       BF2ServerInfo, Clipbrd, ComCtrls, StdCtrls, Graphics, cStrings, Unit1,
       Windows, Messages, SysUtils, Classes, TB2Item, GeoIP, LanguageUnit, ALfcnString, NativeXml;
 
@@ -14,10 +14,30 @@ uses  Options, Menus, ShellApi, ColListb, Forms, ShlObj,
    NAME_FILE    = 'names.cfg';
    CLANTAG_FILE = 'clantag.cfg';
    SERVERS_FILE = 'servers.cfg';
+   LASTKNOWNASS = 'servers.log';
 
 
-   BF2_LEVEL_DIR = 'levels\';
-   BF2_MOD_PR_MAP_FILE = 'mapOverview_%s_%s.png';
+   BF2_LEVEL_DIR         = 'levels\';
+   BF2_MOD_PR_MAP_FILE   = 'mapOverview_%s_%s.png';
+   BF2_MOD_PR_MAPNOTINST = 'external\flashmenu\images\mapnotinstalled.png';
+   PR_MENULEVEL          = 'menu\menu_client.zip';
+   BF2_MENULEVEL         = 'bf2\menu_client.zip';
+   MOD_JOINGAME_DIR      = 'external\flashmenu\images\joingame\';
+
+
+
+                GS_MAP_SIZE_64     = 2;
+                GS_MAP_SIZE_32     = 3;
+                GS_MAP_SIZE_16     = 4;
+                GS_NUMPLAYERS      = 5;
+                GS_NOTFULL         = 7;
+                GS_POPULATED       = 8;
+                GS_PASSWORDED      = 9;
+                GS_VOIP            = 10;
+                GS_PUNKBUSTER      = 11;
+                GS_GMP             = 12;
+
+   
 
    inHost = 3;
    inName = 2;
@@ -71,11 +91,13 @@ procedure ExtractRes(OutFile, ResName: string; ResType: PChar );
 { GeoIP }
 
 function GeoIPGetCountryName( IP: string ): string;
+function GeoIPGetCountryCode( IP: string ): string;
 procedure LoadGeoIPdbFromRes(GIP: TGeoIP);
 
 
 procedure SaveOptions;
 procedure LoadOptions(InxType: Integer = gALL);
+procedure LoadIMPS;
 
 
 procedure RichEditAddColored(RE: TRichEdit; AText, BText: string; AColor, BColor: Integer);
@@ -117,7 +139,7 @@ function isMate(Name: String):Integer;
 function isBot(P: TPlayerInfo ):Integer;
 function GetPOImageIndex(Index: integer): Integer;
 
-procedure eAddPrefix(PrefixName: String);
+procedure eAddPrefix(PrefixName: String; Note: string = ''; Star: Integer = 6; Bold: Boolean = False; ROW: Integer = -1);
 procedure eAddPName(PName: String);
 procedure sDeletePrefix(PrefixName: String);
 procedure sDeletePName(PName: String);
@@ -126,7 +148,6 @@ procedure sDeletePName(PName: String);
 procedure WriteAdvServerInfo(Item: TBF2ServerInfoItem);
 function MatchSearchRequest(const SrcFor: string; item: TBF2ServerInfoItem; SearchIn : integer; StartFrom : Integer = 0 ): Integer;
 
-function GameSpyFilterQueryStr(inx: integer):string;
 Function GetGSSList(const Param : Integer; var OutServers: AnsiString): integer;
 Function Dos2Win(CmdLine:String; var OutText: String): boolean;
 
@@ -143,6 +164,7 @@ function GetMapFilePath(MapName, Gtype, Mplayers: String):String;
 procedure BuildModMapsWays(const GameDir: string; var List: TStringList);
 //function GetMapAcronim(Map: String): string;
 //procedure LoadMapImage(MFile: String; PaintBox: TPaintBox);
+function GameSpyFilterQueryStr2(inx: integer):string;
 
 
 
@@ -494,6 +516,7 @@ begin
     //  ServersListBox.Items.SaveToFile(Path + 'servers.txt');
 
      NextGridFavServers.SaveToTextFile(Path + SERVERS_FILE, ',', #19);
+     Form1.UpdateFavBtnEn;
 
      {General settings}
      jvpnflstrg1.WriteInteger('THREADS', threads.Value );
@@ -510,9 +533,9 @@ begin
      jvpnflstrg1.WriteBoolean('CFUPD', CheckUpdatescb.Checked);
 
      //jvpnflstrg1.WriteBoolean('HIDEUNA', HideInactiveCheckBox.Checked);
-     {Filter}
+     {Filter}     
      jvpnflstrg1.WriteBoolean('CUSTFILTER', customfiltercb.Checked);
-                                                            {
+                   (*                                         {
 
      jvpnflstrg1.WriteBoolean('P64', FilterListBox.Checked[0]);
      jvpnflstrg1.WriteBoolean('P32', FilterListBox.Checked[1]);
@@ -535,12 +558,38 @@ begin
      jvpnflstrg1.WriteBoolean('VOIP_ON',        FilterListBox.Checked[11]);
      jvpnflstrg1.WriteBoolean('NOTFULL',        FilterListBox.Checked[12]);
      jvpnflstrg1.WriteBoolean('PASSWORD',       FilterListBox.Checked[13]);
+          *)
+
+     {GSFilter}
+     with jvpnflstrg1, FilterInspector.Items do
+     begin
+       WriteInteger( 'FMINPLAYERS' ,Item[GS_NUMPLAYERS].AsInteger);
+       WriteInteger( 'FEXCLUDEGPM' ,NxComboBoxItem1.ItemIndex);
+       WriteBoolean('FPB',   Item[GS_PUNKBUSTER].AsBoolean);
+       WriteBoolean('FFULL', Item[GS_NOTFULL].AsBoolean);
+       WriteBoolean('FPOP',  Item[GS_POPULATED].AsBoolean);
+       WriteBoolean('FPWRDD',Item[GS_PASSWORDED].AsBoolean);
+       WriteBoolean('FVOIP', Item[GS_VOIP].AsBoolean);
+       WriteBoolean('FMSZ64',Item[GS_MAP_SIZE_64].AsBoolean);
+       WriteBoolean('FMSZ32',Item[GS_MAP_SIZE_32].AsBoolean);
+       WriteBoolean('FMSZ16',Item[GS_MAP_SIZE_16].AsBoolean);
+     end;
+
+       {live}
+       jvpnflstrg1.WriteBoolean('LFCB', OptionsForm.LiveFavCb.Checked);
+       jvpnflstrg1.WriteBoolean('LGSCB',OptionsForm.liveGSCb.Checked);
+       jvpnflstrg1.WriteBoolean('LPCB', OptionsForm.LivePoCb.Checked);
 
 
-     {Accounts}
+
+
+
+     {Accounts}                       
       jvpnflstrg1.DeleteValue('OAC');
       jvpnflstrg1.DeleteSubTree('OAC');
-      jvpnflstrg1.WriteCollection('OAC',ColumnListBox1.ListBoxItems );
+      jvpnflstrg1.WriteCollection('OAC',ColumnListBox1.ListBoxItems );  
+                             {
+      jvpnflstrg1.WriteString('PUP',  acs);   }
 
      {PR Execution}
      jvpnflstrg1.WriteString('PRPATH',     PrPAthEdit.text);
@@ -560,7 +609,7 @@ begin
 end;
 //-----------------------
 procedure LoadOptions(InxType: Integer = gALL);
-var Path: string; Strs: TStringList;
+var Path: string; Strs: TStringList;     B2: Boolean;   //Flbc: TListBoxItemCollection;
 begin
   Path:= ExtractFilePath(ParamStr(0){Application.ExeName});
 
@@ -577,6 +626,7 @@ begin
      NextGridClantag.LoadFromTextFile(Path + CLANTAG_FILE, ',', #19);
      if FileExists( Path + SERVERS_FILE  ) then
      NextGridFavServers.LoadFromTextFile(Path + SERVERS_FILE, ',', #19);
+     Form1.UpdateFavBtnEn;
      {NOTE}
      NxAutoCompletionNote.Strings.CommaText := OptionsForm.jvpnflstrg1.ReadString('MRURECENTNOTE', '' );
      NoteComboBox.Items.CommaText := NxAutoCompletionNote.Strings.CommaText;
@@ -617,13 +667,14 @@ begin
 
      {Filter}
      customfiltercb.Checked := jvpnflstrg1.ReadBoolean('CUSTFILTER', False);
-
+     customfiltercbClick(nil);
+    {
     
-                                                                   {
+                                                                   
     FilterListBox.Checked[0]:= jvpnflstrg1.ReadBoolean('P64', True);
     FilterListBox.Checked[1]:= jvpnflstrg1.ReadBoolean('P32', False);
     FilterListBox.Checked[2]:= jvpnflstrg1.ReadBoolean('P16', False); }
-
+       (*
     FilterListBox.Checked[0]:= jvpnflstrg1.ReadBoolean('M64', True);
     FilterListBox.Checked[1]:= jvpnflstrg1.ReadBoolean('M32', False);
     FilterListBox.Checked[2]:= jvpnflstrg1.ReadBoolean('M16', False);
@@ -642,11 +693,41 @@ begin
     FilterListBox.Checked[13]:=  jvpnflstrg1.ReadBoolean('PASSWORD',    False   );
 
     FilterListBox.Enabled := customfiltercb.Checked;
+     *)
 
-     {Accounts}
-     jvpnflstrg1.ReadCollection('OAC',ColumnListBox1.ListBoxItems );
+         {GSFilter}
+     with jvpnflstrg1, FilterInspector.Items do
+     begin
+      Item[GS_NUMPLAYERS].AsInteger := ReadInteger('FMINPLAYERS', 0);
+      NxComboBoxItem1.ItemIndex      := ReadInteger('FEXCLUDEGPM', 0);
+      Item[GS_PUNKBUSTER].AsBoolean  := ReadBoolean('FPB',   True);
+      Item[GS_NOTFULL].AsBoolean     := ReadBoolean('FFULL', False);
+      Item[GS_POPULATED].AsBoolean   := ReadBoolean('FPOP',  False);
+      Item[GS_PASSWORDED].AsBoolean  := ReadBoolean('FPWRDD', False);
+      Item[GS_VOIP].AsBoolean        := ReadBoolean('FVOIP', True);
+      Item[GS_MAP_SIZE_64].AsBoolean := ReadBoolean('FMSZ64',True);
+      Item[GS_MAP_SIZE_32].AsBoolean := ReadBoolean('FMSZ32',True);
+      Item[GS_MAP_SIZE_16].AsBoolean := ReadBoolean('FMSZ16',True);
+     end;
 
 
+      {live}
+      OptionsForm.LiveFavCb.Checked := jvpnflstrg1.ReadBoolean('LFCB', True);
+      OptionsForm.liveGSCb.Checked  := jvpnflstrg1.ReadBoolean('LGSCB',True);
+      OptionsForm.LivePoCb.Checked  := jvpnflstrg1.ReadBoolean('LPCB', True);
+
+
+
+
+     {Accounts}         // ColumnListBox1.ListBoxItems
+
+
+     jvpnflstrg1.ReadCollection('OAC', ColumnListBox1.ListBoxItems);
+       {
+     acs:= jvpnflstrg1.ReadString('PUP',  '');
+     
+      // jvpnflstrg1.ReadBinary()
+            }
      {PR Execution}
      OptionsForm.PrPAthEdit.text     := OptionsForm.jvpnflstrg1.ReadString('PRPATH',    GetPRExe );
      OptionsForm.ExecPAramsEdit.text := OptionsForm.jvpnflstrg1.ReadString('EXECPARAMS', '+menu 1 +fullscreen 1 +restart 1');
@@ -660,18 +741,20 @@ begin
        Form1.MatestGrid.LoadFromIni( path + 'Settings.ini', 'MGRID');
        Form1.PROnlinePlayersGrid.LoadFromIni( path + 'Settings.ini', 'OPGRID');
 
-      {DEBUG}
-       Form1.PROnlinePlayersGrid.Columns.Item[15].Visible := False;
-       Form1.GameSpyGrid.Columns.Item[15].Visible := False;
-       Form1.GlobalServersGrid.Columns.Item[15].Visible := False;
+       B2:= False; //Debug
+       Form1.PROnlinePlayersGrid.Columns.Item[15].Visible := B2;
+       Form1.GameSpyGrid.Columns.Item[15].Visible := B2;
+       Form1.GlobalServersGrid.Columns.Item[15].Visible := B2;
+      // Form1.GlobalServersGrid.Columns.Item[17].Visible := True;
 
-       Form1.PROnlinePlayersGrid.Columns.Item[14].Visible := False;
-       Form1.GlobalServersGrid.Columns.Item[14].Visible := False;
-       Form1.GameSpyGrid.Columns.Item[14].Visible := False;
-       Form1.PlayersGrid.Columns.Item[9].Visible := False;
-       Form1.MatestGrid.Columns.Item[9].Visible := False;
-       Form1.MatestGrid.Columns.Item[12].Visible := False;
-       Form1.PlayersGrid.Columns.Item[12].Visible := False;
+
+       Form1.PROnlinePlayersGrid.Columns.Item[14].Visible := B2;
+       Form1.GlobalServersGrid.Columns.Item[14].Visible := B2;
+       Form1.GameSpyGrid.Columns.Item[14].Visible := B2;
+       Form1.PlayersGrid.Columns.Item[9].Visible := B2;
+       Form1.MatestGrid.Columns.Item[9].Visible := B2;
+       Form1.MatestGrid.Columns.Item[12].Visible := B2;
+       Form1.PlayersGrid.Columns.Item[12].Visible := B2;   {DEBUG}
          
      {FORM POS}
 
@@ -736,6 +819,67 @@ begin
 
    end;
 end;
+
+
+procedure LoadIMPS;
+var LastVer, i: Integer; Path: string;
+begin
+    with OptionsForm do
+    begin
+
+      LastVer:= jvpnflstrg1.ReadInteger('LASTVER', 0);
+
+      if LastVer < ImPS then
+      begin
+        for i:=LastVer to IMPS-1 do
+        begin
+            {Improvements}
+            case i of
+
+             0: begin
+                  Form1.GlobalServersGrid.Columns.Item[17].Visible  :=  True;
+                  Form1.GlobalServersGrid.Columns.Item[17].Position := 1;
+
+                  Form1.GameSpyGrid.Columns.Item[17].Visible        :=  True;
+                  Form1.GameSpyGrid.Columns.Item[17].Position       := 1;
+
+                  Form1.PlayersGrid.Columns.Item[13].Visible        := True;
+                  Form1.PlayersGrid.Columns.Item[13].Position       := 1;
+
+                  Form1.MatestGrid.Columns.Item[13].Visible        :=  True;
+                  Form1.MatestGrid.Columns.Item[13].Position       := 1;
+
+                  Path:= ExtractFilePath(ParamStr(0) )+'Settings.ini';
+
+                      Form1.GlobalServersGrid.SaveToIni( path , 'FGRID' );
+                      Form1.GameSpyGrid.SaveToIni( path , 'GSGRID');
+                      Form1.PlayersGrid.SaveToIni( path , 'PGRID');
+                      Form1.MatestGrid.SaveToIni(  path , 'MGRID');
+
+
+                end;
+
+             1: begin
+
+                  {Обнова для танкистов}
+                  jvpnflstrg1.WriteBoolean('CFUPD', True);
+
+                end;
+
+
+
+            end;
+        end;
+        jvpnflstrg1.WriteInteger('LASTVER', ImPS );
+      end;
+
+
+
+    end;
+  //
+end;
+
+
 //-----------------------
 function GeoIPGetCountryName( IP: string ): string;
 var
@@ -753,12 +897,22 @@ begin
     end
     else
     begin
-      Result := 'ERROR';
+      Result := '--';
     end;
  { finally
     GeoIP.Free;
   end;      }
 end;
+
+function GeoIPGetCountryCode( IP: string ): string;
+var GeoIPCountry: TGeoIPCountry;
+begin
+    if not Assigned(Form1.GeoIP) then Exit;
+    if Form1.GeoIP.GetCountry( IP , GeoIPCountry) = GEOIP_SUCCESS then
+     Result := GeoIPCountry.CountryCode
+    else  Result := '--';
+end;
+
 
 function GetOs(S : String): Integer;
 begin
@@ -843,10 +997,10 @@ end;
 
 
 procedure UpdateJoinServerList( item: TTBCustomItem );
-var Titem :  TTBCustomItem; i : Integer;
+var Titem :  TTBCustomItem; i : Integer;   sep: TTBSeparatorItem;
 begin
-       for i:=item.Count -1 downto 0 do
-       item.Items[i].Destroy;
+    for i:=item.Count -1 downto 0 do
+    item.Items[i].Destroy;
 
     // For I:=0 to Form9.NextGrid1.RowCount-1 do
    //  begin
@@ -860,6 +1014,16 @@ begin
       Titem.Tag        := JOINSERVER;
       item.Add(Titem); //item.Add
      end;
+
+     {setup}
+      sep            := TTBSeparatorItem.Create(nil);
+      item.Add(sep);
+
+
+      Titem            := TTBCustomItem.Create(nil);
+      Titem.Caption    := GetWORD(193);
+      Titem.OnClick    := Form1.SettingsGotoClick;
+      item.Add(Titem);
 
 
 end;
@@ -1011,279 +1175,6 @@ end;
 
 
 
-
-   {
-function RunDosAndWait(const CommandLine: AnsiString; var OutSrings: AnsiString): boolean;
-const
-  BuffSize = 1024;
-var
-  SecurityAttributes: TSecurityAttributes;
-  StartupInfo: TStartupInfo;
-  ProcessInfo: TProcessInformation;
-  tRead, cWrite, dwRead, dwAvail: Cardinal;
-  Buffer: PChar;
-  ExitCode: Cardinal;
-begin
-  Result := false;
-  Application.ProcessMessages;
-  Buffer := AllocMem(BuffSize);
-  ZeroMemory(@SecurityAttributes, SizeOf(TSecurityAttributes));
-  SecurityAttributes.nLength := SizeOf(TSecurityAttributes);
-  SecurityAttributes.bInheritHandle := true;
-  SecurityAttributes.lpSecurityDescriptor := nil;
-
-  if not CreatePipe(tRead, cWrite, @SecurityAttributes, 0) then
-  begin
-    FreeMem(Buffer);
-    Exit;
-  end;
-
-  ZeroMemory(@StartupInfo, SizeOf(TStartupInfo));
-  with StartupInfo do
-  begin
-    cb := SizeOf(TStartupInfo);
-    dwFlags := STARTF_USESTDHANDLES or STARTF_USESHOWWINDOW;
-    wShowWindow := SW_HIDE;
-    hStdError := cWrite;
-  end;
-
-         //For D2009 PWCHAR(WideString(CommandLine))
-  if CreateProcessA(nil, PAnsiChar(CommandLine), nil, nil, true, 0, nil, nil, StartupInfo, ProcessInfo) then
-  begin
-    repeat
-      Application.ProcessMessages;
-      PeekNamedPipe(tRead, Buffer, BuffSize, @dwRead, @dwAvail, nil);
-      while (dwRead > 0) do
-      begin
-        ZeroMemory(Buffer, BuffSize);
-        ReadFile(tRead, Buffer[0], BuffSize, dwRead, nil);
-        if dwRead > 0 then
-        begin
-          OutSrings  := OutSrings  + Buffer;
-          PeekNamedPipe(tRead, Buffer, BuffSize, @dwRead, @dwAvail, nil);
-        end;
-      end;
-      GetExitCodeProcess(ProcessInfo.hProcess, ExitCode);
-    until (ExitCode <> STILL_ACTIVE);
-    CloseHandle(ProcessInfo.hProcess);
-    CloseHandle(ProcessInfo.hThread);
-    Result:= True;
-  end;
-
-  FreeMem(Buffer);
-  CloseHandle(tRead);
-  CloseHandle(cWrite);
-  CloseHandle(dwRead);
-  CloseHandle(dwAvail);
- // else
- //   Raise Exception.Create('Ошибка создания процесса');
-end;
-         }
- 
-
-
-function GameSpyFilterQueryStr(inx: integer):string;
-
-function GetGameTypes( gt: array of boolean): string;
-const
- CONST_COUNT = 6;
- const_value : array [0..CONST_COUNT] of string = (
-'gametype not like ''%gpm_insurgency%''',
-'gametype not like ''%gpm_cq%''',
-'gametype not like ''%gpm_skirmish%''',
-'gametype not like ''%gpm_cnc%''',
-'gametype not like ''%gpm_training%''',
-'gametype not like ''%gmp_coop%''',
-'gametype not like ''%gmp_vehicles'''
-);
-
- var i, cnt, cnt2 : Integer;
-begin
-  cnt:= 0;
-
-  for i:=0 to CONST_COUNT do if not gt[i] then Inc(cnt);
-  if cnt = 0 then Exit;
-
-  if cnt = 1 then
-  Begin
-     for i:=0 to CONST_COUNT do if not gt[i] then Result:= const_value[i];
-  end
-  else
-  Begin
-      Result:= '(';
-      cnt2 := 0;
-        for i:=0 to CONST_COUNT do
-        begin
-          if not gt[i] then
-          begin
-             Inc(cnt2);
-             Result:= Result + const_value[i];
-             if cnt2 < cnt then Result:= Result + ' and ';
-          end;
-        end;
-      Result:= Result +  ')';
-  end;
-
-end;
-
-
-function GetMapSizes( gt: array of boolean): string;
-const
- CONST_COUNT = 2;
- const_value : array [0..CONST_COUNT] of string = (
- 'bf2_mapsize = 64',
- 'bf2_mapsize = 32',
- 'bf2_mapsize = 16');
-
- var i, cnt, cnt2 : Integer;
-begin
-  cnt:= 0;
-
-  for i:=0 to CONST_COUNT do if gt[i] then Inc(cnt);
-  if cnt = 0 then Exit;
-
-  if cnt = 1 then
-  Begin
-     for i:=0 to CONST_COUNT do if gt[i] then Result:= const_value[i];
-  end
-  else
-  Begin
-      Result:= '(';
-      cnt2 := 0;
-        for i:=0 to CONST_COUNT do
-        begin
-          if gt[i] then
-          begin
-             Inc(cnt2);
-             Result:= Result + const_value[i];
-             if cnt2 < cnt then Result:= Result + ' or ';
-          end;
-        end;
-      Result:= Result +  ')';
-  end;
-
-end;
-
-           {
-function GetMaxPlayers( gt: array of boolean): string;
-const
- CONST_COUNT = 2;
- const_value : array [0..CONST_COUNT] of string = (
- 'maxpalyers = 64',
- 'maxplayers = 32',
- 'maxplayers = 16');
-
- var i, cnt, cnt2 : Integer;
-begin
-  cnt:= 0;
-
-  for i:=0 to CONST_COUNT do if gt[i] then Inc(cnt);
-  if cnt = 0 then Exit;
-
-  if cnt = 1 then
-  Begin
-     for i:=0 to CONST_COUNT do if gt[i] then Result:= const_value[i];
-  end
-  else
-  Begin
-      Result:= '(';
-      cnt2 := 0;
-        for i:=0 to CONST_COUNT do
-        begin
-          if gt[i] then
-          begin
-             Inc(cnt2);
-             Result:= Result + const_value[i];
-             if cnt2 < cnt then Result:= Result + ' or ';
-          end;
-        end;
-      Result:= Result +  ')';
-  end;
-
-end;         }
-
-var Bools : array of Boolean;
-    Str: string;
-begin
-
-
-       with OptionsForm do
-       begin
-
-             {For Players online}
-             if Inx = 1 then
-             begin     {(bf2_anticheat = 1 or bf2_anticheat = 0) and (bf2_mapsize = 16 or bf2_mapsize = 32 or bf2_mapsize = 64) and }
-              result:= 'numplayers > 0 and gamever = ''1.5.3153-802.0'' and gamevariant = ''pr''';
-              Exit;
-             end;
-
-             {Default Without Filter}
-             if not customfiltercb.checked then
-             begin
-                result:= '(bf2_anticheat = 1 or bf2_anticheat = 0) and (bf2_mapsize = 16 or bf2_mapsize = 32 or bf2_mapsize = 64) and gamever = ''1.5.3153-802.0'' and gamevariant = ''pr'' and gametype not like ''%gpm_training%''';
-              //  result:= '(bf2_anticheat = 1 or bf2_anticheat = 0) and (bf2_mapsize = 16 or bf2_mapsize = 32 or bf2_mapsize = 64) and gamever = ''1.5.3153-802.0''';
-                Exit;
-             end; { }
-
-                          
-
-
-
-             {with filter}
-
-              {
-             Bools[0] := FilterListBox.Checked[0];
-             Bools[1] := FilterListBox.Checked[1];
-             Bools[2] := FilterListBox.Checked[2];
-             Str := Str + GetMaxPlayers(Bools);
-             if Str <> '' then Result:= Str  + ' and ';
-                }
-
-             SetLength(Bools, 3);
-             Str := '';
-             Bools[0] := FilterListBox.Checked[0];
-             Bools[1] := FilterListBox.Checked[1];
-             Bools[2] := FilterListBox.Checked[2];
-             Str := Str + GetMapSizes(Bools);
-             if Str <> '' then Result:=  Str + ' and ';
-
-             Str := '';
-             SetLength(Bools, 7);
-             Bools[0] := FilterListBox.Checked[3];
-             Bools[1] := FilterListBox.Checked[4];
-             Bools[2] := FilterListBox.Checked[5];
-             Bools[3] := FilterListBox.Checked[6];
-             Bools[4] := FilterListBox.Checked[7];
-             Bools[5] := FilterListBox.Checked[8];
-             Bools[6] := FilterListBox.Checked[9];
-             Str := Str + GetGameTypes(Bools);
-             if Str <> '' then Result:= Result + Str + ' and ';
-
-             {+++++++++++++++++++++}
-
-             if FilterListBox.Checked[10] then
-             Result:= Result + 'bf2_anticheat = 1' + ' and ';
-
-             if FilterListBox.Checked[11] then
-             Result:= Result + 'numplayers > 0' + ' and ';
-
-             if FilterListBox.Checked[12] then
-             Result:= Result + 'bf2_voip = 1' + ' and ';
-
-             if FilterListBox.Checked[13] then
-             Result:= Result + 'numplayers < maxplayers' + ' and ';
-
-             if FilterListBox.Checked[14] then
-             Result:= Result + 'password = 0' + ' and ';
-
-
-             Result:= Result +  'gamever = ''1.5.3153-802.0'' and gamevariant = ''pr''';
-
-             //Result:= '"' + Result + '"';
-
-       end;
-end;
-
 function GetPRExe: string;
 var key : HKey;
 begin
@@ -1334,14 +1225,16 @@ begin
 end;
 
 
-procedure eAddPrefix(PrefixName: String);
+procedure eAddPrefix(PrefixName: String; Note: string = ''; Star: Integer = 6; Bold: Boolean = False; ROW: Integer = -1);
 begin
      if Trim(PrefixName) = '' then Exit;
      if GetMateIndex( Trim(PrefixName)  + ' ', fpPrefix) > -1 then Exit;
    with OptionsForm do begin
     NextGridPrefix.AddRow();
     NextGridPrefix.Cells[2, NextGridPrefix.RowCount-1] := PrefixName;
-    NextGridPrefix.Cell[4, NextGridPrefix.RowCount-1].AsInteger := 6;
+    NextGridPrefix.Cell[4, NextGridPrefix.RowCount-1].AsInteger := Star;
+    NextGridPrefix.Cell[1, NextGridPrefix.RowCount-1].AsBoolean := Bold;
+    NextGridPrefix.Cells[3, NextGridPrefix.RowCount-1] := Note;
     NextGridPrefix.SaveToTextFile(ExtractFilePath(ParamStr(0){Application.ExeName})  + PREFIX_FILE,  ',', 'ы');
    end;
 end;
@@ -1449,7 +1342,9 @@ begin
 
    str        := '';
    OutServers := '';
-   GS         := TGameSpy.Create( GameSpyFilterQueryStr(Param) );
+   GS         := TGameSpy.Create( GameSpyFilterQueryStr2(Param) );
+
+  // Form1.Debug(GameSpyFilterQueryStr2(Param));
 
    Result     := GS.GetServersList;
  //DEBUG  Form1.Memo1.lines.add( IntToStr(Result ) );
@@ -1549,7 +1444,7 @@ var  F: TFavServerInfo;
 begin
  RV.Clear;
 
- if Item.ErrorCode <= -1 then  Exit;
+ if Item.ErrorCode = -1 then  Exit;
 
  with Item do
  begin
@@ -1748,6 +1643,126 @@ begin
    FileSearch( IncludeTrailingPathDelimiter(GameDir) + BF2_LEVEL_DIR, '*.desc', True );
    FXmlDoc.Free;
 end;
+
+
+
+
+
+function GameSpyFilterQueryStr2(inx: integer):string;
+
+              function FormatExcludeGameType( src_str: string; gmp_index: integer): string;
+              const
+               EXCLUDE_GPM : array [1..9] of string = (
+              'gametype not like ''%gpm_insurgency%''',
+              'gametype not like ''%gpm_cq%''',
+              'gametype not like ''%gpm_skirmish%''',
+              'gametype not like ''%gpm_cnc%''',
+              'gametype not like ''%gpm_training%''',
+              'gametype not like ''%gpp_coop%''',
+              'gametype not like ''%gpp_vehicles%''',
+              'gametype not like ''%gpm_scenario%''',
+              'gametype not like ''%gpm_counter%'''
+              );
+
+              begin
+                Result:= EXCLUDE_GPM[gmp_index];
+                if src_str <> '' then
+                Result:= src_str + ' and ' + EXCLUDE_GPM[gmp_index];
+              end;
+
+
+              function FormatMapSizes( src_str: string; MapsIndex: Integer): string;
+              const MAPS_SIZE : array [1..3] of string = ( 'bf2_mapsize = 64', 'bf2_mapsize = 32', 'bf2_mapsize = 16');
+              begin
+                case MapsIndex of
+                 1   : Result := MAPS_SIZE[1];
+                 2   : Result := MAPS_SIZE[2];
+                 3   : Result := Format('(%s or %s)', [MAPS_SIZE[1], MAPS_SIZE[2]]) ;
+                 4   : Result := MAPS_SIZE[2];
+                 5   : Result := Format('(%s or %s)', [MAPS_SIZE[1], MAPS_SIZE[3]]) ;
+                 6   : Result := Format('(%s or %s)', [MAPS_SIZE[2], MAPS_SIZE[3]]) ;
+                 7   : Result := Format('(%s or %s or %s)', [MAPS_SIZE[2], MAPS_SIZE[3], MAPS_SIZE[1]]) ;
+                end;
+                 if src_str <> '' then Result:= src_str + ' and ' + Result;
+              end;
+
+
+              function FormatMinPlayers(src_str:string; value:integer):string;
+              begin
+                if value = 0 then
+                begin
+                  Result:= src_str;
+                  Exit;
+                end;
+                result:= Format( 'numplayers >= %d', [value]);
+                 if src_str <> '' then result:=  src_str + ' and ' +  result;
+              end;
+
+
+              function FormatDefBoolsVars(src_str:string; Indx:integer):string;
+              const bfp : array [0..4] of string = ('bf2_anticheat = 1', 'numplayers > 0', 'bf2_voip = 1', 'numplayers < maxplayers', 'password = 0');
+              begin
+                result:=  bfp[Indx];
+                if src_str <> '' then
+                 result:=  src_str + ' and ' + result;
+              end;
+
+              Function FormatForLastBF2PR(src_str:string):string;
+              begin
+                result:=  'gamever = ''1.5.3153-802.0'' and gamevariant = ''pr''';
+                if src_str <> '' then result:=  src_str + ' and ' + result;
+              end;
+
+
+var Bools : array of Boolean;
+    Str: string;
+
+    ei : Integer;
+begin
+
+
+
+       with OptionsForm, FilterInspector.Items do
+       begin
+
+             {For Players online}
+             if Inx = 1 then
+             begin     {(bf2_anticheat = 1 or bf2_anticheat = 0) and (bf2_mapsize = 16 or bf2_mapsize = 32 or bf2_mapsize = 64) and }
+               result:= 'numplayers > 0 and gamever = ''1.5.3153-802.0'' and gamevariant = ''pr''';
+               Exit;
+             end;
+
+             {Default Without Filter}
+             if not customfiltercb.checked then
+             begin                        //   Form1.edit1.text;
+                result:= 'bf2_anticheat = 1 and gamever = ''1.5.3153-802.0'' and gamevariant = ''pr'' and gametype not like ''%gpp_coop%''';
+                Exit;
+             end;
+
+              ei:=0;
+              if Item[GS_MAP_SIZE_64].AsBoolean then ei:=1;
+              if Item[GS_MAP_SIZE_32].AsBoolean then ei:=ei+2;
+              if Item[GS_MAP_SIZE_16].AsBoolean then ei:=ei+4;
+
+
+             if ei > 0 then Result:= FormatMapSizes(Result, ei);
+            // Item[GS_NUMPLAYERS]
+             if Item[GS_NUMPLAYERS].AsInteger > 0  then  Result:= FormatMinPlayers(Result, Item[GS_NUMPLAYERS].AsInteger);
+             if NxComboBoxItem1.ItemIndex > 0 then  Result:= FormatExcludeGameType(Result, NxComboBoxItem1.ItemIndex  );
+             if Item[GS_PUNKBUSTER].AsBoolean then  Result:= FormatDefBoolsVars(Result, 0);
+             if Item[GS_NOTFULL].AsBoolean    then  Result:= FormatDefBoolsVars(Result, 1);
+             if Item[GS_POPULATED].AsBoolean  then  Result:= FormatDefBoolsVars(Result, 2);
+             if Item[GS_PASSWORDED].AsBoolean then  Result:= FormatDefBoolsVars(Result, 3);
+             if Item[GS_VOIP].AsBoolean       then  Result:= FormatDefBoolsVars(Result, 4);
+
+             {+++++++++++++++++++++}
+             Result:=FormatForLastBF2PR(Result);
+
+          //   Form1.Debug(Result);
+       end;
+end;
+
+
 
 
 end.

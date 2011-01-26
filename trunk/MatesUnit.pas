@@ -7,7 +7,7 @@ interface
       cStrings,
       
       BF2ServerInfo,
-      
+      Unit1, //DEBUG
       MUnit,
       Options;
 
@@ -65,6 +65,9 @@ interface
    PrefBold : Boolean;
    TagBold  : Boolean;
    TagIndex : Integer;
+   Team1ImxIndex : Shortint;
+   Team2ImxIndex : Shortint;
+
    Note     : string[255];
   end;
 
@@ -96,7 +99,7 @@ interface
  function GetQuotedTagName(Index: integer; Name: String): string;
 
  procedure AdvGetMateParameters(const  Bots : string; Player: TPlayerInfo; Priority: TGPriority; var Params : TMParams );
-
+ function GetTagIndexByName(Name: String):integer;
 
 implementation
 
@@ -139,7 +142,7 @@ implementation
 
  const  FontColor  = '«font color="%s"»%d«/font»';
         FontItalic = '(%d)';   //«à»   <i> </i>
-        FontBold   = '«b»[%d]«/b»';
+        FontBold   = '«b»%d«/b»';
 
  var i, CountMates : Integer;
      Params        : TMParams;
@@ -280,7 +283,7 @@ implementation
     PlayerIndex := GetMateIndex( Name, fpName);
     if PlayerIndex > NON_MATE then
     begin
-     
+
      Params.Mate     := 1;
 
      if Priority in [pBolds, pAll] then
@@ -307,8 +310,8 @@ implementation
     if PlayerIndex > NON_MATE then
     begin
      Params.Mate     := Params.Mate + 2;
-   
-     if (Priority in [pBolds, pAll]) and (Params.NameBold = False) then
+
+     if (Priority in [pBolds, pAll]) {and (Params.NameBold = False)} then
      Params.PrefBold := IsBold(PlayerIndex, fpPrefix);
 
      if (Priority in [pStars, pAll]) and (Params.Star >= STARS_NOSTAR{STARS_NONE}) then
@@ -350,6 +353,65 @@ begin
      AdvCasePosEx:= ALPosEx( F, S, Offset );
 end; }
 
+
+
+function GetTagIndexByName(Name: String):integer;
+var tmpStr, tmpName: string;  iPos, i: Integer;
+begin
+        Result:= -1;
+           tmpName:=    Name;
+
+
+
+      for i:=0 to OptionsForm.NextGridClantag.RowCount -1 do
+      begin
+       // {TAGNAME}
+
+         tmpStr :=   OptionsForm.NextGridClantag.Cells[2, i];
+
+         if tmpStr = '' then Continue;
+
+
+
+         {Before}
+          if OptionsForm.NextGridClantag.Cell[3, i].AsInteger in [CTAG_POS_ALL, CTAG_POS_BEFORE] then
+          begin
+            if AdvCasePos( tmpStr , tmpName, false  ) = 1 then
+            Break else Continue;
+          end;
+
+         {After}
+          if OptionsForm.NextGridClantag.Cell[3, i].AsInteger in [CTAG_POS_ALL,  CTAG_POS_AFTER] then
+          begin
+           iPos:= cStrings.PosStrRev(tmpStr , tmpName, 1, false ); // =
+            if (iPos > 0) and (iPos = Length(tmpName) - Length(tmpStr) +1) then Break else Continue;
+          end;
+
+         {Inside}
+          if OptionsForm.NextGridClantag.Cell[3, i].AsInteger in [CTAG_POS_ALL, CTAG_POS_INSIDE] then
+          begin
+            iPos := AdvCasePosEx(tmpStr , tmpName, false , 2);
+            if (iPos > 1) and (iPos < Length(tmpName) - Length(tmpStr)-1) then  Break else Continue;
+          end;
+
+         {Any}
+          if OptionsForm.NextGridClantag.Cell[3, i].AsInteger in [CTAG_POS_ALL, CTAG_POS_ANY ] then
+          begin
+            if AdvCasePos( tmpStr , tmpName, false  ) > 0 then
+            Break else Continue;
+          end;
+
+
+      end;
+
+        REsult:= i;
+
+end;
+
+
+
+
+
 function GetMateIndex(SrcName: String; CompareParam: TCompareBy; const cTAGindex : Integer = CTAG_POS_ALL ): Integer;
 var tmpName, tmpStr : string;  iPos : Integer;
 begin
@@ -386,8 +448,10 @@ begin
 
          {Before}
           if OptionsForm.NextGridClantag.Cell[3, Result].AsInteger in [CTAG_POS_ALL, CTAG_POS_BEFORE] then
+          begin
             if AdvCasePos( tmpStr , tmpName, OptionsForm.NextGridClantag.Cell[4, Result].AsBoolean ) = 1 then
             Exit else Continue;
+          end;
 
          {After}
           if OptionsForm.NextGridClantag.Cell[3, Result].AsInteger in [CTAG_POS_ALL,  CTAG_POS_AFTER] then
@@ -413,23 +477,7 @@ begin
 
 
 
-         (*
-         iPos   :=   AdvPos( tmpStr , tmpName, OptionsForm.NextGridClantag.Cell[4, Result].AsBoolean );  // PosStr( tmpStr , tmpName, 1,  OptionsForm.NextGridClantag.Cell[4, Result].AsBoolean );
-         if iPos < 1 then Continue;
 
-         {Before}
-         if cTAGindex in [CTAG_POS_ALL, CTAG_POS_BEFORE] then
-           if (iPos = 1) and (OptionsForm.NextGridClantag.Cell[3, Result].AsInteger = 1 ) then Exit;
-         {After}
-         if cTAGindex in [CTAG_POS_ALL, CTAG_POS_AFTER] then
-           if ( (iPos + Length(tmpStr)-1) = Length(tmpName) ) and  (OptionsForm.NextGridClantag.Cell[3, Result].AsInteger = 2 ) then Exit;
-         {Inside}
-         if cTAGindex in [CTAG_POS_ALL, CTAG_POS_INSIDE] then
-           if ((iPos > 1) and ( (iPos + Length(tmpStr)-1) < Length(tmpName) )) and  (OptionsForm.NextGridClantag.Cell[3, Result].AsInteger = 3 )  then Exit;
-         {Any}
-         if cTAGindex in [CTAG_POS_ALL, CTAG_POS_ANY] then
-           if ( iPos >= 1) and  (OptionsForm.NextGridClantag.Cell[3, Result].AsInteger = 4)  then Exit;
-           *)
       end;
   // end;
 
@@ -505,7 +553,7 @@ end;
  end;
 
  function FormatPlayerName(nameB, tagB: Boolean; Tagindex:Integer; PName: string):String;
- const bold = '«b»[%s]«/b»';
+ const bold = '«b»%s«/b»';
  var s: string;
  begin
    Result := PName;

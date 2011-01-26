@@ -58,6 +58,7 @@ uses
        C_PO_NAME     = 2;
        C_PO_CMD      = 15;
        C_NOTE        = 16;
+       C_COUNTRYFLAG = 17;
 
 
 
@@ -102,24 +103,25 @@ uses MUnit;
 
 
     procedure GridAddPlayerInfo(NG: TNextGrid; item: TPlayerInfo; MateIndex: Single{Integer});
+    var R: Integer;
     begin
 
      if item.Name = '' then Exit;
 
-      NG.AddRow();
+      R:= NG.AddRow();
       NG.BeginUpdate;
-      NG.Cells[1, NG.RowCount-1]:= ExtractPrefix(item.Name);
-      NG.Cells[2, NG.RowCount-1]:= ExtractName(item.Name);
+      NG.Cells[1, R]:= ExtractPrefix(item.Name);
+      NG.Cells[2, R]:= ExtractName(item.Name);
 
-      NG.Cells[8, NG.RowCount-1]:= item.Team;
+      NG.Cells[8, R]:= item.Team;
      { }
-      NG.Cell[3, NG.RowCount-1].AsInteger:= SafeStr2Int(item.Score);
-      NG.Cell[4, NG.RowCount-1].AsInteger:= SafeStr2Int(item.Ping);
-      NG.Cell[5, NG.RowCount-1].AsInteger:= SafeStr2Int(item.Deaths);
-      NG.Cell[6, NG.RowCount-1].AsInteger:= SafeStr2Int(item.Pid);
-      NG.Cell[7, NG.RowCount-1].AsInteger:= SafeStr2Int(item.Skill);
+      NG.Cell[3, R].AsInteger:= SafeStr2Int(item.Score);
+      NG.Cell[4, R].AsInteger:= SafeStr2Int(item.Ping);
+      NG.Cell[5, R].AsInteger:= SafeStr2Int(item.Deaths);
+      NG.Cell[6, R].AsInteger:= SafeStr2Int(item.Pid);
+      NG.Cell[7, R].AsInteger:= SafeStr2Int(item.Skill);
 
-      NG.Cell[9, NG.RowCount-1].AsFloat:= MateIndex;
+      NG.Cell[9, R].AsFloat:= MateIndex;
 
      // NG.Cell[10, NG.RowCount-1].AsInteger :=
     //  NG.Cells[11, NG.RowCount-1]          :=
@@ -132,7 +134,7 @@ uses MUnit;
 
 
     procedure GridAddServerInfo(NG: TNextGrid; Item: TBF2ServerInfoItem; UpdateIndex: Integer = -1);
-    var RowIndex: integer; Info: TMInfo;
+    var RowIndex: integer; Info: TMInfo;  LostName: string;
     begin
 
        if UpdateIndex > -1 then
@@ -144,7 +146,7 @@ uses MUnit;
         RowIndex:= NG.AddRow();
 
        NG.BeginUpdate;
-        {   }
+       { }
        if Item.ErrorCode = -1 then
        begin
 
@@ -154,24 +156,23 @@ uses MUnit;
          NG.Cell[C_PW,        RowIndex].AsInteger:= 5;
          NG.Cell[C_MOD,       RowIndex].AsInteger:= 5;
          NG.Cells[C_PING,     RowIndex]:= '';
+         
 
-        
          case Item.LastWSockError of
           ERC_ABORT   : NG.Cells[C_SERVER,   RowIndex]:=  GetWORD(167);  //Send request cancelled by user
           ERC_SNDFAIL : NG.Cells[C_SERVER,   RowIndex]:=  GetWORD(168); //Send request failed!
-
-
-          ERC_TIMEOUT : NG.Cells[C_SERVER,   RowIndex]:=  GetWORD(133);
+          ERC_TIMEOUT :  begin
+                          {}  LostName:= Form1.GetLastknown(Item.ServerIP + ':' + item.ServerQueryPort);
+                            if LostName <> '' then
+                            NG.Cells[C_SERVER,   RowIndex]:= LostName
+                            else NG.Cells[C_SERVER,   RowIndex]:=  GetWORD(133);
+                         end;
          end;
-                {
-          NG.Cells[C_SERVER,   RowIndex]:=  GetWORD(133);  //'^Unavaiable ...';
-                }
 
+         NG.Cell[C_COUNTRYFLAG,   RowIndex].AsInteger:= Form1.GetCountryIndex(GeoIPGetCountryCode(Item.ServerIP));
          NG.Cells[C_COUNTRY,  RowIndex]:=  GeoIPGetCountryName( Item.ServerIP );
          NG.Cells[C_SINFO,    RowIndex]:=  Item.ServerIP + ':' + item.ServerQueryPort;
          NG.Cell[H_ITEMID,    RowIndex].AsInteger:= Item.Index; //-1;
-       //  NG.Cell[C_PO_CMD,   RowIndex].AsInteger := -1;
-         //NG.Cells[16,         RowIndex]:=  '';
 
          with GetFavServer(Item.ServerIP + ':' + item.ServerQueryPort) do
          begin
@@ -190,6 +191,40 @@ uses MUnit;
          Exit;
        end;
 
+       if Item.ErrorCode = -2 then
+       begin
+
+
+
+         NG.Cell[C_OS,    RowIndex].AsInteger:= GetOs(Item.bf2_os);
+         NG.Cell[C_PB,    RowIndex].AsBoolean:= (Item.bf2_anticheat = '1'); //IsPb(Item.bf2_anticheat);
+         NG.Cell[C_VOIP,  RowIndex].AsBoolean:= (Item.bf2_voip = '1');
+         NG.Cell[C_PW,    RowIndex].AsInteger:= IsPassworded(Item.password);
+         NG.Cell[C_MOD,   RowIndex].AsInteger:= IsPR(Item.gamevariant);
+         NG.Cells[C_SERVER,  RowIndex]:=  Item.hostname ;        //     SInfo.ValueFromIndex[HOSTNAME];
+         NG.Cells[C_PLAYERS, RowIndex]:=  Item.numplayers + '/' + Item.maxplayers + ' (' + Item.bf2_reservedslots + ')';
+         NG.Cells[C_MAPNAME, RowIndex]:=  Item.mapname;
+         NG.Cells[C_TYPE,    RowIndex]:=  Item.gametype;
+         NG.Cells[C_COUNTRY, RowIndex]:=  GeoIPGetCountryName( Item.ServerIP );
+         NG.Cells[C_SINFO,   RowIndex]:=  Item.ServerIP + ':' + Item.hostport + ':' + item.ServerQueryPort;
+         NG.Cells[C_PING,    RowIndex]:=  '2500';
+         GetMatesCout(Item, Info,  GetOut {sHtml_All} );
+         NG.Cell[C_MATES,   RowIndex].AsString := Info.OutText;                                       //
+         with GetFavServer(Item.ServerIP + ':' + item.ServerQueryPort) do
+         begin
+            NG.Cell[C_PO_CMD,        RowIndex].AsInteger := FavIndex;
+            NG.Cells[C_NOTE,         RowIndex]           := NoteText;
+         end;
+         NG.Cell[H_ITEMID,  RowIndex].AsInteger     := Item.Index;
+         NG.RowVisible[RowIndex]                    := Form1.SetRowVisibility(Item);
+         NG.Cell[C_COUNTRYFLAG, RowIndex].AsInteger := Form1.GetCountryIndex(GeoIPGetCountryCode(Item.ServerIP));
+
+         NG.EndUpdate;
+         Exit;
+       end;
+
+
+
        NG.Cell[C_OS,    RowIndex].AsInteger:= GetOs(Item.bf2_os);
        NG.Cell[C_PB,    RowIndex].AsBoolean:= (Item.bf2_anticheat = '1'); //IsPb(Item.bf2_anticheat);
        NG.Cell[C_VOIP,  RowIndex].AsBoolean:= (Item.bf2_voip = '1');
@@ -201,6 +236,7 @@ uses MUnit;
        NG.Cells[C_TYPE,    RowIndex]:=  Item.gametype;
        NG.Cells[C_COUNTRY, RowIndex]:=  GeoIPGetCountryName( Item.ServerIP );
        NG.Cells[C_SINFO,   RowIndex]:=  Item.ServerIP + ':' + Item.hostport + ':' + item.ServerQueryPort;
+
 
        NG.Cells[C_PING,    RowIndex]:= ''; //.AsInteger:= 0;
        GetMatesCout(Item, Info,  GetOut {sHtml_All} );
@@ -215,8 +251,10 @@ uses MUnit;
       end;
 
        NG.Cell[H_ITEMID,  RowIndex].AsInteger:= Item.Index;
-       
+
        NG.RowVisible[RowIndex] := Form1.SetRowVisibility(Item);
+
+       NG.Cell[C_COUNTRYFLAG,         RowIndex].AsInteger:= Form1.GetCountryIndex(GeoIPGetCountryCode(Item.ServerIP));
 
        NG.EndUpdate;
     end;
@@ -270,28 +308,28 @@ uses MUnit;
        RowIndex:= NG.AddRow();
 
        {NEW +}     //  Params.Note;  //  Params.Star;
-       NG.Cells[C_PO_PREFIX,NG.RowCount-1]:= FormatPlayerPrefix(Params.PrefBold, prefix );
-       NG.Cells[C_PO_NAME,  NG.RowCount-1]:= FormatPlayerName(Params.NameBold, Params.TagBold, Params.TagIndex, name );
-       NG.Cells[C_SERVER,   NG.RowCount-1]:= Item.hostname;
-       NG.Cells[C_PLAYERS,  NG.RowCount-1]:= Item.numplayers + '/' + Item.maxplayers + ' (' + Item.bf2_reservedslots + ')';
-       NG.Cells[C_MAPNAME,  NG.RowCount-1]:= Item.mapname;
-       NG.Cells[C_TYPE,     NG.RowCount-1]:= Item.gametype;
-       NG.Cells[C_COUNTRY,  NG.RowCount-1]:= iCountry;
-       NG.Cells[C_SINFO,    NG.RowCount-1]:= Item.ServerIP + ':' + Item.hostport + ':' + item.ServerQueryPort;
-       NG.Cells[C_NOTE,     NG.RowCount-1]:= Params.Note;
-       NG.Cells[C_PING,     NG.RowCount-1]:= '';
+       NG.Cells[C_PO_PREFIX,RowIndex]:= FormatPlayerPrefix(Params.PrefBold, prefix );
+       NG.Cells[C_PO_NAME,  RowIndex]:= FormatPlayerName(Params.NameBold, Params.TagBold, Params.TagIndex, name );
+       NG.Cells[C_SERVER,   RowIndex]:= Item.hostname;
+       NG.Cells[C_PLAYERS,  RowIndex]:= Item.numplayers + '/' + Item.maxplayers + ' (' + Item.bf2_reservedslots + ')';
+       NG.Cells[C_MAPNAME,  RowIndex]:= Item.mapname;
+       NG.Cells[C_TYPE,     RowIndex]:= Item.gametype;
+       NG.Cells[C_COUNTRY,  RowIndex]:= iCountry;
+       NG.Cells[C_SINFO,    RowIndex]:= Item.ServerIP + ':' + Item.hostport + ':' + item.ServerQueryPort;
+       NG.Cells[C_NOTE,     RowIndex]:= Params.Note;
+       NG.Cells[C_PING,     RowIndex]:= '';
 
-       NG.Cell[3,         NG.RowCount-1].AsBoolean:= iAC;
-       NG.Cell[C_PW,      NG.RowCount-1].AsInteger:= iPW;
-       NG.Cell[C_MATES,   NG.RowCount-1].AsString := Info.OutText;
-       NG.Cell[H_ITEMID,  NG.RowCount-1].AsInteger:= Item.Index;
+       NG.Cell[3,         RowIndex].AsBoolean:= iAC;
+       NG.Cell[C_PW,      RowIndex].AsInteger:= iPW;
+       NG.Cell[C_MATES,   RowIndex].AsString := Info.OutText;
+       NG.Cell[H_ITEMID,  RowIndex].AsInteger:= Item.Index;
 
 
-        NG.Cell[5,         NG.RowCount-1].AsInteger:= Params.Star; //GetPOImageIndex(isMate(item.BF2Player[i].Name));
+        NG.Cell[5,         RowIndex].AsInteger:= Params.Star; //GetPOImageIndex(isMate(item.BF2Player[i].Name));
 
-        NG.Cells[C_PO_CMD,   NG.RowCount-1]  := FormatCmdIndex( FsInfo.FavIndex, Params.Mate, i);
+        NG.Cells[C_PO_CMD,   RowIndex]  := FormatCmdIndex( FsInfo.FavIndex, Params.Mate, i);
         // /InFavorites(1,-1)/MateIndex/PlayerIndex
-        NG.RowVisible[RowIndex] := Form1.SetPORowVisibility( NG.Cell[5, NG.RowCount-1].AsInteger, Params.Mate) ; //Form1.SetRowVisibility(Item);
+        NG.RowVisible[RowIndex] := Form1.SetPORowVisibility( NG.Cell[5, NG.RowCount-1 ].AsInteger, Params.Mate) ; //Form1.SetRowVisibility(Item);
       end;
 
 
@@ -443,9 +481,9 @@ begin
   { Render Headers }
   Html.Add(#9#9#9'<tr>');
   for i := 0 to NG.Columns.Count - 1 do
-  	if Columns.PositionItem[i].Visible then
+  	if Columns.Item[i].Visible then
 	  begin
-		  Html.Add(#9#9#9#9'<th>' +  Content(Columns.PositionItem[i].Header.Caption) + '</th>');
+		  Html.Add(#9#9#9#9'<th>' +  Content(Columns.Item[i].Header.Caption) + '</th>');
      // Form1.Memo1.Lines.Add( Columns.PositionItem[i].Header.Caption );
 	  end;
   Html.Add(#9#9#9'</tr>');
@@ -457,11 +495,13 @@ begin
       //S:= '';
      // SetActiveRow(j); { move record in NextDBGrid }
       Html.Add(#9#9#9'<tr>');
-      for i := 0 to NG.Columns.Count{VisibleCount} - 1 do
-        if Columns.PositionItem[i].Visible then
+      for i := 0 to NG.Columns.{Count}VisibleCount {- 1} do
+
+
+        if Columns.Item[i] { PositionItem[i]}.Visible then
         begin
 
-          case Columns.PositionItem[i].Tag of
+          case Columns.Item[i].Tag of
             COLTAG_OS   :  case Cell[i, j].AsInteger of
                             4     :  S:= 'linux';
                             3     :  S:= 'win32';
@@ -498,8 +538,8 @@ begin
          
 
 
-          if Columns.PositionItem[i].StyleClass <> '' then
-            Html.Add(#9#9#9#9'<td class="' + Columns.PositionItem[i].StyleClass + '">' + S + '</td>')
+          if Columns.Item[i].StyleClass <> '' then
+            Html.Add(#9#9#9#9'<td class="' + Columns.Item[i].StyleClass + '">' + S + '</td>')
           else
             Html.Add(#9#9#9#9'<td class="style1">' + S + '</td>')
         end; { Visible }
@@ -576,7 +616,7 @@ begin
 
     { Add custom classes }
     for i := 0 to Columns.VisibleCount - 1 do
-      with Columns.PositionItem[i] do
+      with Columns.Item[i] do
         if Visible and (StyleClass <> '') then
           Css.Add('td.' + StyleClass + ' { }');
 
@@ -606,13 +646,16 @@ begin
     MGrid.ClearRows;
     PGrid.ClearRows;
 
-  if Item.ErrorCode <= -1 then  Exit;
+  if Item.ErrorCode = -1 then  Exit;
 
   with Item do
   begin
      for i:=0 to TotalPlayersCount-1 do
      begin
         AdvGetMateParameters(item.bf2_bots, BF2Player[i], pAll, Params);
+
+        Params.Team1ImxIndex := Form1.GetFractionFlagImageIndexByTeamName(Item.bf2_team1);
+        Params.Team2ImxIndex := Form1.GetFractionFlagImageIndexByTeamName(Item.bf2_team2);
 
         GridAddPlayerInfoW(PGrid, BF2Player[i], Params, i);
         if Params.Mate > 0 then
@@ -627,32 +670,45 @@ end;
 
 
 procedure GridAddPlayerInfoW(NG: TNextGrid; Item: TPlayerInfo; P: TMParams; pID: Integer);
-var prefix, name : string;
+var prefix, name : string;  R: Integer;
 begin
       if item.Name = '' then Exit;
 
-      NG.AddRow();
+      R:= NG.AddRow();
       NG.BeginUpdate;
 
       prefix := ExtractPrefix(item.Name);
       name   := ExtractName(item.Name);
 
-      NG.Cells[1, NG.RowCount-1]:= FormatPlayerPrefix(P.PrefBold, prefix ); //ExtractPrefix(item.Name);
-      NG.Cells[2, NG.RowCount-1]:= FormatPlayerName(P.NameBold, P.TagBold, P.TagIndex, name );//ExtractName(item.Name);
+      NG.Cells[1, R]:= FormatPlayerPrefix(P.PrefBold, prefix ); //ExtractPrefix(item.Name);
+      NG.Cells[2, R]:= FormatPlayerName(P.NameBold, P.TagBold, P.TagIndex, name );//ExtractName(item.Name);
 
-      NG.Cells[8, NG.RowCount-1]:= item.Team;
-     { }
-      NG.Cell[3, NG.RowCount-1].AsInteger:= SafeStr2Int(item.Score);
-      NG.Cell[4, NG.RowCount-1].AsInteger:= SafeStr2Int(item.Ping);
-      NG.Cell[5, NG.RowCount-1].AsInteger:= SafeStr2Int(item.Deaths);
-      NG.Cell[6, NG.RowCount-1].AsInteger:= SafeStr2Int(item.Pid);
-      NG.Cell[7, NG.RowCount-1].AsInteger:= SafeStr2Int(item.Skill);
 
-      NG.Cell[9,   NG.RowCount-1].AsFloat    :=  P.Mate;
-      NG.Cell[10,  NG.RowCount-1].AsInteger  :=  P.Star;
-      NG.Cells[11, NG.RowCount-1]            :=  P.Note;
+      NG.Cells[8, R]:= item.Team;
 
-      NG.Cell[12,  NG.RowCount-1].AsInteger  :=  pID;
+      //if R < 14 then
+    //  NG.Cell[13, R].AsInteger := 11;
+    
+      if Item.Team = '1' then
+      NG.Cell[13, R].AsInteger := p.Team1ImxIndex else
+      if Item.Team = '2' then
+      NG.Cell[13, R].AsInteger:= p.Team2ImxIndex else
+       NG.Cell[13, R].AsInteger:= -1;
+
+    { }
+
+      
+      NG.Cell[3, R].AsInteger:= SafeStr2Int(item.Score);
+      NG.Cell[4, R].AsInteger:= SafeStr2Int(item.Ping);
+      NG.Cell[5, R].AsInteger:= SafeStr2Int(item.Deaths);
+      NG.Cell[6, R].AsInteger:= SafeStr2Int(item.Pid);
+      NG.Cell[7, R].AsInteger:= SafeStr2Int(item.Skill);
+
+      NG.Cell[9,   R].AsFloat    :=  P.Mate;
+      NG.Cell[10,  R].AsInteger  :=  P.Star;
+      NG.Cells[11, R]            :=  P.Note;
+
+      NG.Cell[12,  R].AsInteger  :=  pID;
 
       NG.EndUpdate;
 end;
@@ -722,9 +778,14 @@ begin
   NG3.ClearRows;
   with Slist.AnItems[NG1.Cell[14, NG1.SelectedRow ].AsInteger] do
   begin
+      P.Team1ImxIndex := Form1.GetFractionFlagImageIndexByTeamName(bf2_team1);
+      P.Team2ImxIndex := Form1.GetFractionFlagImageIndexByTeamName(bf2_team2);
      for i:=0 to TotalPlayersCount-1 do
      begin
         AdvGetMateParameters(bf2_bots, BF2Player[i], pAll, P);
+
+        
+
         if P.Mate > 0 then
         GridAddPlayerInfoW(NG3, BF2Player[i], P, i);
      end;

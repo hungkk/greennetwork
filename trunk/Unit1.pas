@@ -12,6 +12,11 @@ unit Unit1;
 
 
 
+Ïðè íàæàòèè îòïðàâêè ñåðâåðà â ñïèñîê ôàâîðèòîâ ïîÿâëÿåòñÿ îêíî çàïðîñà ïàðàìåòðîâ
+
+-Delete
+-Import
+
 
 }
 
@@ -19,7 +24,7 @@ unit Unit1;
 interface
 
 uses
-  Windows, 
+  Windows,  VClUnZIP,
   SysUtils,  Variants,
   Classes,
   Graphics,
@@ -36,7 +41,7 @@ uses
   
   
   NxAutoCompletion,
-  NxCells,
+  NxCells, NxPropertyItems,
 
   ExtCtrls,
   ComCtrls,
@@ -61,14 +66,15 @@ uses
   OverbyteIcsHttpProt,
 
 
-    ImagingTypes,
+  ImagingTypes,
   Imaging,
   ImagingClasses,
   ImagingComponents,
   ImagingCanvases,
   
   ImagingUtility, JvNetscapeSplitter, JvComponentBase, ImgList,
-  JvExComCtrls, NxScrollControl, JvExExtCtrls, AppEvnts;
+  JvExComCtrls, NxScrollControl, JvExExtCtrls, AppEvnts, NxCollection,
+  TntStdCtrls, TntComCtrls, pngimage{, OleCtrls, SHDocVw_EWB, EwbCore, EmbeddedWB};
 
 {$I defs.inc}
 
@@ -86,10 +92,11 @@ uses
 
 
   const
-        CapCap    = ' PR - Green Network 1.0.37';
-        BuildDate = '2010.08.23';
-        VerNo     = '1.0.37';
-        VERCOMP   = 1037;
+        CapCap    = ' PR - Green Network 1.0.46';
+        BuildDate = '2011.01.26';
+        VerNo     = '1.0.46';
+        VERCOMP   = 1046;
+        ImPS      = 2;
 
         {IMG}
         FillColor       = ClWhite; //$FFA6FFFF;
@@ -140,6 +147,8 @@ uses
         COPY_NOTE = 23;
 
 
+
+
 type
 
    TAfterEvent = (eMultiThScann, eSingleThScann);
@@ -157,7 +166,6 @@ type
     NxImageColumn5: TNxImageColumn;
     XPManifest1: TXPManifest;
     BottomPanel: TPanel;
-    Splitter1: TSplitter;
     NxPageControl1: TNxPageControl;
     NxTabSheet2: TNxTabSheet;
     NxPageControl2: TNxPageControl;
@@ -188,7 +196,6 @@ type
     NxNumberColumn5: TNxNumberColumn;
     NxNumberColumn6: TNxNumberColumn;
     NxNumberColumn7: TNxNumberColumn;
-    NxTextColumn7: TNxTextColumn;
     NxTabSheet6: TNxTabSheet;
     GameSpyGrid: TNextGrid;
     NxIncrementColumn4: TNxIncrementColumn;
@@ -282,29 +289,11 @@ type
     TBControlItem3: TTBControlItem;
     TBSeparatorItem16: TTBSeparatorItem;
     TBSeparatorItem17: TTBSeparatorItem;
-    TBSeparatorItem18: TTBSeparatorItem;
-    TBControlItem7: TTBControlItem;
-    Label2: TLabel;
-    TBSeparatorItem19: TTBSeparatorItem;
     TBItemSearchBar: TTBItem;
-    TBItem21: TTBItem;
     OnlinePlayersPopupMenu: TTBPopupMenu;
-    TBItemOPAddPrefix: TTBItem;
-    TBItemOPAddname: TTBItem;
-    TBSeparatorItem21: TTBSeparatorItem;
-    TBItemOPCopyPlayers: TTBItem;
-    TBItemAddToFav3: TTBItem;
     TBSeparatorItem23: TTBSeparatorItem;
-    TBItemOPremPrefix: TTBItem;
-    TBItemOPRemname: TTBItem;
     NxCheckBoxColumn2: TNxNumberColumn;
     NxCheckBoxColumn1: TNxNumberColumn;
-    RadioButtonServerName: TRadioButton;
-    TBControlItem1: TTBControlItem;
-    RadioButtonPlayerName: TRadioButton;
-    TBControlItem4: TTBControlItem;
-    RadioButtonPrefix: TRadioButton;
-    TBControlItem5: TTBControlItem;
     TBItemShowHideSearchBar: TTBItem;
     TrayPopupMenu1: TPopupMenu;
     Showapplication1: TMenuItem;
@@ -361,17 +350,6 @@ type
     TBItem8: TTBItem;
     TBItem9: TTBItem;
     TBItem27: TTBItem;
-    TBControlItem16: TTBControlItem;
-    Label8: TLabel;
-    TBControlItem17: TTBControlItem;
-    Label9: TLabel;
-    TBControlItem18: TTBControlItem;
-    Label10: TLabel;
-    TBSeparatorItem33: TTBSeparatorItem;
-    TBSeparatorItem34: TTBSeparatorItem;
-    Panel1: TPanel;
-    TBControlItem19: TTBControlItem;
-    TBItem29: TTBItem;
     NxImageColumn11: TNxImageColumn;
     NxTextColumn26: TNxTextColumn;
     NxImageColumn14: TNxImageColumn;
@@ -390,7 +368,6 @@ type
     NxTextColumn29: TNxTextColumn;
     NxTextColumn30: TNxTextColumn;
     CopyPlayerNote: TTBItem;
-    OPCopyPlayerNote: TTBItem;
     NxNumberColumn21: TNxTextColumn;
     NxNumberColumn18: TNxHtmlColumn;
     ToolbarImageList: TPngImageList;
@@ -401,7 +378,6 @@ type
     TBItem44: TTBItem;
     TBItem45: TTBItem;
     Png16ImgList: TPngImageList;
-    CopyServerNote: TTBItem;
     TBSeparatorItem37: TTBSeparatorItem;
     NxNumberColumn20: TNxNumberColumn;
     NxNumberColumn22: TNxNumberColumn;
@@ -411,16 +387,85 @@ type
     PaintBox: TPaintBox;
     JvNetscapeSplitter1: TJvNetscapeSplitter;
     TBItemMapPreview: TTBItem;
-    NxTabSheet8: TNxTabSheet;
-    NxTabSheet9: TNxTabSheet;
     CancelButton: TButton;
     NxTextColumn5: TNxHtmlColumn;
     TBItem28: TTBItem;
-    TBSeparatorItem20: TTBSeparatorItem;
-    TBSeparatorItem22: TTBSeparatorItem;
     Memo1: TMemo;
     Timer1: TTimer;
     Timer2: TTimer;
+    FlagsPngList: TPngImageList;
+    NxTextColumn7: TNxTextColumn;
+    NxImageColumn15: TNxImageColumn;
+    NxImageColumn16: TNxImageColumn;
+    CountryImageList: TPngImageList;
+    NxGraphicColumn1: TNxImageColumn;
+    NxImageColumn18: TNxImageColumn;
+    JvNetscapeSplitter2: TJvNetscapeSplitter;
+    PlayerNamePopup: TTBPopupMenu;
+    TBItemCopyname: TTBItem;
+    TBItemCopyCell: TTBItem;
+    TBSeparatorItem35: TTBSeparatorItem;
+    CopyTextItem: TTBSubmenuItem;
+    TBItemPlayerNote: TTBItem;
+    TagsItem: TTBSubmenuItem;
+    NamesItem: TTBSubmenuItem;
+    PrefixesItem: TTBSubmenuItem;
+    TBSeparatorItem41: TTBSeparatorItem;
+    TBItemTagsD: TTBItem;
+    TBSeparatorItem42: TTBSeparatorItem;
+    TBItemNameD: TTBItem;
+    TBItemPrfixA: TTBItem;
+    TBItemPrefixE: TTBItem;
+    TBSeparatorItem43: TTBSeparatorItem;
+    TBItemPrefixD: TTBItem;
+    TBItemNameA: TTBItem;
+    TBItemNameE: TTBItem;
+    TBItemTagsA: TTBItem;
+    TBSeparatorItem38: TTBSeparatorItem;
+    TBItemAdToBodyList: TTBItem;
+    TBItemTagsE: TTBItem;
+    RadioButtonServerName: TTBItem;
+    RadioButtonPrefix: TTBItem;
+    RadioButtonPlayerName: TTBItem;
+    TBSubmenuItem8: TTBSubmenuItem;
+    TBItemAdToBodyListPO: TTBItem;
+    CopyTextItemPO: TTBSubmenuItem;
+    TBItemCopyCellPO: TTBItem;
+    TBSeparatorItem19: TTBSeparatorItem;
+    TBItemCopynamePO: TTBItem;
+    TBItemPlayerNotePO: TTBItem;
+    TBSeparatorItem33: TTBSeparatorItem;
+    PrefixesItemPO: TTBSubmenuItem;
+    TBItemPrfixAPO: TTBItem;
+    TBItemPrefixEPO: TTBItem;
+    TBSeparatorItem34: TTBSeparatorItem;
+    TBItemPrefixDPO: TTBItem;
+    NamesItemPO: TTBSubmenuItem;
+    TBItemNameAPO: TTBItem;
+    TBItemNameEPO: TTBItem;
+    TBSeparatorItem39: TTBSeparatorItem;
+    TBItemNameDPO: TTBItem;
+    TagsItemPO: TTBSubmenuItem;
+    TBItemTagsAPO: TTBItem;
+    TBItemTagsEPO: TTBItem;
+    TBSeparatorItem40: TTBSeparatorItem;
+    TBItemTagsDPO: TTBItem;
+    TBItem21: TTBItem;
+    TBItem29: TTBItem;
+    TBSeparatorItem18: TTBSeparatorItem;
+    TBSeparatorItem20: TTBSeparatorItem;
+    KnownServersGrid: TNextGrid;
+    NxTextColumn31: TNxTextColumn;
+    NxTextColumn32: TNxTextColumn;
+    NxDateColumn1: TNxDateColumn;
+    NxNumberColumn25: TNxNumberColumn;
+    NxTabSheet8: TNxTabSheet;
+    TBItem32: TTBItem;
+    TBItem33: TTBItem;
+    TBSubmenuItem7: TTBSubmenuItem;
+    TBItem35: TTBItem;
+    TBSeparatorItem21: TTBSeparatorItem;
+    TBItem34: TTBItem;
     procedure FormShow(Sender: TObject);
     procedure GlobalServersGridCompare(Sender: TObject; Cell1,
       Cell2: TCell; var Compare: Integer);
@@ -459,7 +504,6 @@ type
     procedure TBItemSearchBarClick(Sender: TObject);
     procedure TBItemShowHideSearchBarClick(Sender: TObject);
     procedure Showapplication1Click(Sender: TObject);
-    procedure PopupActionsPO(Sender: TObject);
     procedure TBPopupMenuDetailedInfoPopup(Sender: TObject);
     procedure TBDTinfoCopyClick(Sender: TObject);
     procedure TBDTinfoSelAllClick(Sender: TObject);
@@ -476,9 +520,6 @@ type
     procedure GridColumnResize(Sender: TObject;
       ACol: Integer);
     procedure SkinData1SkinChanged(Sender: TObject);
-    procedure Label8Click(Sender: TObject);
-    procedure Label9Click(Sender: TObject);
-    procedure Label10Click(Sender: TObject);
     procedure GridCellFormating(Sender: TObject; ACol,
       ARow: Integer; var TextColor: TColor; var FontStyle: TFontStyles;
       CellState: TCellState);
@@ -501,6 +542,22 @@ type
     Procedure AbortProcessing;
     procedure Timer1Timer(Sender: TObject);
     procedure Timer2Timer(Sender: TObject);
+    procedure LoadFlags;
+    procedure GlobalServersGridCellFormating(Sender: TObject; ACol,
+      ARow: Integer; var TextColor: TColor; var FontStyle: TFontStyles;
+      CellState: TCellState);
+    procedure MatestGridCellColoring(Sender: TObject; ACol, ARow: Integer;
+      var CellColor, GridColor: TColor; CellState: TCellState);
+    procedure PlayerNamePopupPopup(Sender: TObject);
+    procedure PlayernamePopupActionClick(Sender: TObject);
+    procedure RadioButtonServerNameClick(Sender: TObject);
+    procedure OnlinePlayersPopupMenuActClick(Sender: TObject);
+    procedure OnlinePlayersPopupMenuPopup(Sender: TObject);
+    procedure SettingsGotoClick(Sender: TObject);
+    procedure TBItem33Click(Sender: TObject);
+    procedure TBItem35Click(Sender: TObject);
+    procedure TBItem34Click(Sender: TObject);
+    procedure TBItem12Click(Sender: TObject);
   private
     FImage: ImagingClasses.TMultiImage;
     // Canvas for drawing on loaded images
@@ -535,9 +592,17 @@ type
     { Private declarations }
   public
      GeoIP : TGeoIP;
-     MapsPaths  : TStringList;
+     MapsPaths      : TStringList;
+     FracFlagsList  : TStringList;
+     CountryCodeList: TStringList;
+     UseCountrys : Boolean;
 
 
+     FavHeaderPanel : TPoint;
+     FavHeaderPanelCanMove: Boolean;
+
+    function GetCountryIndex(code: string):Integer;
+    function GetFractionFlagImageIndexByTeamName(TeamName: string):Integer;
     procedure StarMultiThreading(Slist: TStrings; const GridIndex: Integer = S_GAME_SPY);
     procedure StartSingleThreading(IP: string; Port: string; GridIndex: Integer; ItemIndex: Integer);
     procedure ExecuteFirstWave;
@@ -584,8 +649,14 @@ type
     procedure FillDefault;
     procedure SetUnsupported;
     procedure LoadImage(MFile: String);
+    procedure ShowNotInstalledMap;
     procedure Debug( v: Variant);
 
+    function GetLastknown(ipqport:string):string;
+    procedure InListServers( SList: TBF2ServerSList);
+    procedure ClearShits;
+
+    procedure UpdateFavBtnEn;
 
     { Public declarations }
   end;
@@ -598,7 +669,7 @@ var
   {NEW$}
   ActiveThreading        : Boolean;
   ServerNo, ServersCount : Integer;
-  ServersDone, PingsDone, PingsCount : Integer;
+//  ServersDone, PingsDone, PingsCount : Integer;
 
 
 
@@ -631,7 +702,8 @@ var
 
 implementation
 
-uses MUnit, UnitGrid, Options, About, ServerPassUnit, LanguageUnit, NativeXml, cDateTime, MatesUnit;
+uses MUnit, UnitGrid, Options, About, ServerPassUnit, LanguageUnit, NativeXml, cDateTime, MatesUnit,
+  AdvaddBListFrmUnit, FavAddFrm;
 
 {$R *.dfm}
 {$R 7ip.res}
@@ -678,7 +750,7 @@ begin
 end;
 
 procedure TForm1.GetCountCollection(const collection: TBF2ServerSList; var GoodServers: Integer; var TotalPlayers: Integer);
-var i, j: Integer;
+var i: Integer;
 begin
   GoodServers := 0;
   TotalPlayers:= 0;
@@ -695,14 +767,6 @@ end;
 {------------------------------------------------}
 
 
-procedure TForm1.PopupActionsPO(Sender: TObject);
-begin
-
- 
-//
-end;
-
-
 procedure TForm1.PopupActionsEnt(Sender: TObject);
 var
     Str               : string;
@@ -713,8 +777,7 @@ begin
 
   //+OFF   if ( (Sender as TComponent{TTBCustomItem}).tag in [GET_GAMESPY, GET_FAVORITES] ) {and  ActiveThreading } then Exit;
 
-
-    if AppStatus <> [aFree] then Exit;
+    if ( (Sender as TComponent).tag <> JOINSERVER ) and (AppStatus <> [aFree]) then Exit;
 
 
     ActGridIndex       :=   Succ(NxPageControl1.ActivePageindex);// + 1;
@@ -734,8 +797,8 @@ begin
                             PlayersGrid.ClearRows;
                             ServerInfoRich.Clear;
 
-                            NxTabSheet2.Caption:= Format( GetWORD(13), [0] );       //'Favorites (' + IntToStr(GoodServers) + ')';//Fav
-                            NxTabSheet2.Tag := 0;
+                            NxTabSheet6.Caption:= Format( GetWORD(13), [0] );       //'Favorites (' + IntToStr(GoodServers) + ')';//Fav
+                            NxTabSheet6.Tag := 0;
                             SetUnsupported;
                             ProcButtonsOnOff(False);
                             TerminateProgress := False;
@@ -816,29 +879,41 @@ begin
 
 
        ADDTOFAV :      begin    {2}
-                              if (GetGrid(ActGridIndex).RowCount <= 0) or (GetGrid(ActGridIndex).SelectedRow <= -1) or (ActGridIndex = S_FAVORITES) then Exit;
+                              if (GetGrid(ActGridIndex).RowCount < 0) or (GetGrid(ActGridIndex).SelectedRow <= -1) or (ActGridIndex = S_FAVORITES) then Exit;
                               Str:= GetBF2List(ActGridIndex).AnItems[GetGrid(ActGridIndex).Cell[14, GetGrid(ActGridIndex).SelectedRow ].AsInteger].ServerIP + ':' + GetBF2List(ActGridIndex).AnItems[GetGrid(ActGridIndex).Cell[14, GetGrid(ActGridIndex).SelectedRow ].AsInteger].ServerQueryPort;
 
 
                              with OptionsForm do
                              begin
-                                 if (GridCOLStrExists(NextGridFavServers, Trim(Str), 1, False) > -1) or (Trim(Str) = '') then Exit;
+                               if (GridCOLStrExists(NextGridFavServers, Trim(Str), 1, False) > -1) or (Trim(Str) = '') then Exit;
 
-                                NextGridFavServers.AddRow();
-                                NextGridFavServers.Cells[1, NextGridFavServers.RowCount-1] := Str;
-                                NextGridFavServers.SaveToTextFile(SERVERS_FILE, ',', #19);
+
+                                with AddToFavForm do
+                                begin
+                                  IPQport  := Str;
+                                  Capp     := GetBF2List(ActGridIndex).AnItems[GetGrid(ActGridIndex).Cell[14, GetGrid(ActGridIndex).SelectedRow ].AsInteger].hostname;
+                                  if ShowModal = mrOk then
+                                  begin
+                                   NextGridFavServers.AddRow();
+                                   NextGridFavServers.Cells[1, NextGridFavServers.RowCount-1] := Str ;
+                                   NextGridFavServers.Cells[2, NextGridFavServers.RowCount-1] := favnote.text ;
+                                   NextGridFavServers.SaveToTextFile(SERVERS_FILE, ',', #19);
+                                   UpdateFavBtnEn;
+                                    case ActGridIndex of
+                                      S_GAME_SPY  : GetGrid(ActGridIndex).Cell[15, GetGrid(ActGridIndex).SelectedRow].AsInteger := 1;
+                                      S_PRPONLINE  : GridPOReplaceFavIndex(GetGrid(ActGridIndex), GetGrid(ActGridIndex).Cell[14, GetGrid(ActGridIndex).SelectedRow].AsInteger , 1);
+                                    end;
+                                     GetGrid(ActGridIndex).Refresh;
+                                     OnPopup(self);
+
+                                  end;
+
+                                end;
+
+
                              end;
 
-                              case ActGridIndex of
-                                S_GAME_SPY  : GetGrid(ActGridIndex).Cell[15, GetGrid(ActGridIndex).SelectedRow].AsInteger := 1;
-                              //  S_FAVORITES : GetGrid(ActGridIndex).DeleteRow( GetGrid(ActGridIndex).SelectedRow );
-
-                                S_PRPONLINE  : GridPOReplaceFavIndex(GetGrid(ActGridIndex), GetGrid(ActGridIndex).Cell[14, GetGrid(ActGridIndex).SelectedRow].AsInteger , 1);
-
-                              end;
-                               GetGrid(ActGridIndex).Refresh;
-                               OnPopup(self);
-
+                             
                
                        end;
 
@@ -853,13 +928,13 @@ begin
                                  if ( iIndex = -1) or (Trim(Str) = '') then Exit;
                                  NextGridFavServers.DeleteRow(iIndex);
                                  NextGridFavServers.SaveToTextFile(SERVERS_FILE, ',', #19);
-
+                                 UpdateFavBtnEn;
                               end;
 
 
                               case ActGridIndex of
                                 S_GAME_SPY  : GetGrid(ActGridIndex).Cell[15, GetGrid(ActGridIndex).SelectedRow].AsInteger := -1;
-                              //  S_FAVORITES : GetGrid(ActGridIndex).RowVisible[ GetGrid(ActGridIndex).SelectedRow ]:= False;
+                                S_FAVORITES : GetGrid(ActGridIndex).DeleteRow(GetGrid(ActGridIndex).SelectedRow); {GetGrid(ActGridIndex).RowVisible[ GetGrid(ActGridIndex).SelectedRow ]:= False; }
                                 S_PRPONLINE : GridPOReplaceFavIndex(GetGrid(ActGridIndex), GetGrid(ActGridIndex).Cell[14, GetGrid(ActGridIndex).SelectedRow].AsInteger , -1);
                               end;
                               GetGrid(ActGridIndex).Refresh;
@@ -868,29 +943,31 @@ begin
                        end;
 
        ADDPREFIX :    begin      {2}
-
+                            (*
                        case (Sender as TComponent).GetParentComponent.Tag of
 
                          PLAYERSINFO_POPUP   : str:=  GridCopyColFromSelRow( GetPInfoGrid(NxPageControl2.activePageindex), 1  );
                          ONLINEPLAYERS_POPUP : str:=  GridCopyColFromSelRow(GetGrid(ActGridIndex), 1);
                        end;
 
-                       
+                      //  Form3.PlayerName := str;
+                      //  Form3.Section    := 0;
+                      //  eAddPrefix
 
-
-
-
-                        eAddPrefix(Str);
-                                                                                             {++++Çàìåíèòü íà Èìÿ ãðèäà}
+                      // if Form3.ShowModal = mrOk then
+                      // begin
+                       {++++Çàìåíèòü íà Èìÿ ãðèäà}
                         GridPlayersMatesSilentMIndexUpdate( GetGrid(ActGridIndex), GetPInfoGrid(P_ALLPLAYERS),GetPInfoGrid(P_MATES), GetBF2List(ActGridIndex) );
                         GridSilentUpdateMatesCount(GetGrid(ActGridIndex));
                         GridPOSilentUpdateMates(PROnlinePlayersGrid);
+                      // end;
 
+                           *)
                       end;
 
        DELETEPREFIX : begin  {2}
 
-
+                              (*
                        case (Sender as TComponent).GetParentComponent.Tag of
 
                           PLAYERSINFO_POPUP    : 
@@ -907,11 +984,11 @@ begin
                         sDeletePrefix(Str);
                         GridPlayersMatesSilentMIndexUpdate( GetGrid(ActGridIndex), GetPInfoGrid(P_ALLPLAYERS),GetPInfoGrid(P_MATES), GetBF2List(ActGridIndex) );
                         GridSilentUpdateMatesCount(GetGrid(ActGridIndex));
-                        GridPOSilentUpdateMates(PROnlinePlayersGrid);
+                        GridPOSilentUpdateMates(PROnlinePlayersGrid);   *)
                       end;
 
        ADDNAME :    begin      {2}
-
+                                         (*
                        case (Sender as TComponent).GetParentComponent.Tag of
 
                           PLAYERSINFO_POPUP    : Str:= GetBF2List(ActGridIndex).AnItems[GetGrid(ActGridIndex).Cell[14, GetGrid(ActGridIndex).SelectedRow ].AsInteger].
@@ -925,11 +1002,11 @@ begin
                         eAddPName( (Str) );
                         GridPlayersMatesSilentMIndexUpdate( GetGrid(ActGridIndex), GetPInfoGrid(P_ALLPLAYERS),GetPInfoGrid(P_MATES), GetBF2List(ActGridIndex) );
                         GridSilentUpdateMatesCount(GetGrid(ActGridIndex));
-                        GridPOSilentUpdateMates(PROnlinePlayersGrid);
+                        GridPOSilentUpdateMates(PROnlinePlayersGrid);    *)
                     end ;
 
        DELETENAME : begin   {2}
-
+                               (*
                        case (Sender as TComponent).GetParentComponent.Tag of
 
                         PLAYERSINFO_POPUP    : Str:= GetBF2List(ActGridIndex).AnItems[GetGrid(ActGridIndex).Cell[14, GetGrid(ActGridIndex).SelectedRow ].AsInteger].
@@ -946,12 +1023,14 @@ begin
 
 
                       GridPOSilentUpdateMates(PROnlinePlayersGrid);
-
+                                                                 *)
                     end;
 
        UPDATESELECTED : begin {2}
                          
                           if  (GetGrid(ActGridIndex).RowCount <= 0) or (GetGrid(ActGridIndex).SelectedRow <= -1) or (ActGridIndex > 2) then Exit;
+
+                        // if AppStatus <> [aFree] then Exit;
 
                          ProcButtonsOnOff(False);
                          TerminateProgress := False;
@@ -965,7 +1044,7 @@ begin
        COPYNAME : begin  {2}
 
                      {Àíàêîëóô}
-
+                            (*
                     case (Sender as TComponent).GetParentComponent.Tag of
 
                       PLAYERSINFO_POPUP     : Str:= GetBF2List(ActGridIndex).AnItems[GetGrid(ActGridIndex).Cell[14, GetGrid(ActGridIndex).SelectedRow ].AsInteger].
@@ -977,7 +1056,7 @@ begin
 
                     if Str <> '' then Str:= Trim(Str);
                       SendToClipBrd(str);
-
+                          *)
                   end;
 
        iOPTIONS : begin
@@ -1050,6 +1129,11 @@ begin
                       SendToClipBrd(str);
 
                     end;
+
+
+
+
+
     end;
 
 
@@ -1059,14 +1143,19 @@ end;
 
 {On Popup }
 procedure TForm1.OnPopup(Sender: TObject);
-var inx, P,N : Integer;  M : TMParams;
+var inx : Integer;  M : TMParams;
 begin
-
-
+ {
+  if  AppStatus = [aFree] then
+  begin    }
     TBItem7.Enabled := NxPageControl1.ActivePageIndex <> 2;
     TBItem4.Enabled := NxPageControl1.ActivePageIndex <> 0;
+ // end;
 
    inx:=  Succ(NxPageControl1.ActivePageindex);// + 1;
+
+ //  if  not inx in  [S_GAME_SPY, S_FAVORITES, S_PRPONLINE] then Exit;
+   if inx > 3 then Exit;
 
    {Disable/Enable Joinserver and Refresh, if Grid not selected}
    TBSubmenuItem5.Enabled       := (GetGrid(inx).RowCount > 0) and (GetGrid(inx).SelectedRow > -1 );
@@ -1088,16 +1177,19 @@ begin
                           Rem4Fav2.Enabled   := Rem4Fav.Enabled;
                           TBItem5.Enabled    := Rem4Fav.Enabled;
 
-                          TBItem7.Enabled:= (RowCount > 0) and (SelectedRow > -1 );
+                         
+                          TBItem7.Enabled:= (RowCount > 0) and (SelectedRow > -1 ) and ( AppStatus = [aFree]);
+                          TBItemRefresh.Enabled :=  TBItem7.Enabled;
 
                           {Copy Server note}
-                         CopyServerNote.Enabled   := (RowCount > 0) and (SelectedRow > -1 ) and (Trim(Cells[C_NOTE, SelectedRow]) > '');
-
-
+                         TBItem34.Enabled   := (RowCount > 0) and (SelectedRow > -1 ) and (Trim(Cells[C_NOTE, SelectedRow]) > '');
+                         TBItem33.Enabled           := (RowCount > 0) and (SelectedRow > -1 );
+                         TBItem35.Enabled           := (RowCount > 0) and (SelectedRow > -1 );
+                         TBSubmenuItem7.Enabled     := (RowCount > 0) and (SelectedRow > -1 );
                         end;
                       end;
 
-       S_FAVORITES :  begin
+       S_FAVORITES :  begin         
 
                         With GetGrid(inx) do
                         begin
@@ -1109,36 +1201,50 @@ begin
                          Add2Fav2.Enabled  := False;
                          Add2fav.Enabled   := False;
 
-                         TBItem7.Enabled:= (RowCount > 0) and (SelectedRow > -1 );
+                         TBItem7.Enabled:= (RowCount > 0) and (SelectedRow > -1 )  and ( AppStatus = [aFree]);
+                         TBItemRefresh.Enabled :=  TBItem7.Enabled;
+                         
                          {Copy Server note}
-                         CopyServerNote.Enabled   := (RowCount > 0) and (SelectedRow > -1 ) and (Trim(Cells[C_NOTE, SelectedRow]) > '');
-
+                         TBItem34.Enabled   := (RowCount > 0) and (SelectedRow > -1 ) and (Trim(Cells[C_NOTE, SelectedRow]) > '');
+                         TBItem33.Enabled   := (RowCount > 0) and (SelectedRow > -1 );
+                         TBItem35.Enabled   := (RowCount > 0) and (SelectedRow > -1 );
+                         TBSubmenuItem7.Enabled     := (RowCount > 0) and (SelectedRow > -1 );
                         end;
 
                       end;
 
 
        S_PRPONLINE  : begin
-                         with  GetGrid(inx) do
-                         begin
 
+
+
+
+
+
+
+       
+
+
+                       (*  with  GetGrid(inx) do
+                         begin
+                         
                           {Add Server to favorites}
                            TBItemAddToFav3.Enabled     := (RowCount > 0) and (SelectedRow > -1 ) and (GetEntryValueI(  Cells[C_PO_CMD,  SelectedRow], Entry_FAVINDEX , '/'){Cell[H_HIGHLIGHT, SelectedRow ].AsInteger} <> 1  );//(RowCount > 0) and (SelectedRow > -1 );
 
                            TBItemOPCopyPlayers.Enabled := (RowCount > 0) and (SelectedRow > -1 ) and (Cells[2, SelectedRow] <> '');
-                          (*
-                           P := PrefixInMates( Cells[1, SelectedRow] );
+                          
+                         {  P := PrefixInMates( Cells[1, SelectedRow] );
                            N := NameInMates(  Cells[2, SelectedRow] );
 
-
-                          {Add names}
+                              }
+                          Add names
                           TBItemOPAddname.Enabled   := N = 0;
                           {PRefix}
                           TBItemOPAddPrefix.Enabled := P = 0;
 
                           TBItemOPremPrefix.Enabled := P > 0;
                           TBItemOPRemname.Enabled   := N > 0;
-                           *)
+                          
 
                        //   TBItemOPAddPrefix.Enabled   := (RowCount > 0) and (SelectedRow > -1 ) and (Cells[1, GetGrid(inx).SelectedRow] <> '');
                        //   TBItemOPAddname.Enabled     := TBItemOPCopyPlayers.Enabled;
@@ -1153,7 +1259,7 @@ begin
                              AdvGetMateParameters(bf2_bots, BF2Player[GetEntryValueI( Cells[C_PO_CMD, SelectedRow], Entry_PLAYERINDEX, '/') ], pAll, M);
 
                            end;
-                               
+
                             {Prefix}
                             TBItemOPAddPrefix.Enabled := (Cells[1, SelectedRow] <> '') and not (  Trunc(M.Mate) in [ 3,2,6]);
                             {RemPrefix}
@@ -1181,14 +1287,14 @@ begin
                           TBItem4.Enabled   := TBItemAddToFav3.Enabled;
 
 
-                        end;
-                      end;
+                        end;    
+                      end;    *)
 
 
 
 
-  end;
-
+                     end;
+         end;
 end;
 
 
@@ -1357,11 +1463,11 @@ begin
 end;
 
 procedure TForm1.FormShow(Sender: TObject);
-var Mema: TmemoryStream;
+var Hour, Min, Sec, MSec: Word;
 begin
  // ReadLng('D:\Programing\LAB\LAB4\PR GreenNetwork\Lang\Russian.ini');
 
-
+  FSupported:= False;
    Caption:= CapCap;
 
   CloseAppWhenItsDone := False;
@@ -1373,6 +1479,8 @@ begin
 
   ServerListBuffer   :=   TStringList.Create;
   TempGameSpySrvList :=   TStringList.Create;
+  FracFlagsList      :=   TStringList.Create;
+  CountryCodeList    :=   TStringList.Create;
   ActiveThreading    :=   False;
   MainThreadsDone  := not ActiveThreading;
   PingsThreadsDone := True;
@@ -1380,10 +1488,16 @@ begin
   GeoIP := TGeoIP.Create;
   LoadGeoIPdbFromRes(GeoIP);
 
- NxTabSheet5.PageVisible :=   False;   //{EDBUG}
+  NxTabSheet5.PageVisible :=   False;   {//EDBUG}
 
 
   LoadOptions;
+
+
+  {IMPROVEMENTS}
+  LoadIMPS;
+
+
 
                   FHttpCli                 := THttpCli.Create(nil);
                   FHttpCli.RcvdStream      := TMemoryStream.Create;
@@ -1391,14 +1505,55 @@ begin
                   FHttpCli.FollowRelocation:= True;
                   FHttpCli.URL             := 'http://greennetwork.googlecode.com/svn/trunk/updates.xml';
                   FHttpCli.RequestVer      := '1.0';
+                  FHttpCli.Timeout         := 3;
 
   MapsPaths              := TStringList.Create;
   if OptionsForm.PrPathEdit.text <> '' then
   BuildModMapsWays( ExtractFilePath( OptionsForm.PrPathEdit.text ),   MapsPaths);
   
+  {Set Def Sort order for grids}
+  if GlobalServersGrid.SortedColumn = nil then
+  begin
+   GlobalServersGrid.Columns[8].Sorted   := True;
+   GlobalServersGrid.Columns[8].SortKind := skDescending;
+  end;
 
-  AutoCheckForUPD;
+  if GameSpyGrid.SortedColumn = nil then
+  begin
+   GameSpyGrid.Columns[8].Sorted   := True;
+   GameSpyGrid.Columns[8].SortKind := skDescending;
+  end;
 
+  if PlayersGrid.SortedColumn = nil then
+  begin
+   PlayersGrid.Columns[10].Sorted   := True;
+   PlayersGrid.Columns[10].SortKind := skAscending;
+  end;
+
+  if MatestGrid.SortedColumn = nil then
+  begin
+   MatestGrid.Columns[10].Sorted   := True;
+   MatestGrid.Columns[10].SortKind := skAscending;
+  end;
+
+
+  NxTabSheet1.ImageIndex := 7;
+    {New year}
+    DecodeDate(Now, Hour, Min, Sec);
+    if (Hour > 2009) and (Min in [12,1]) then
+      if (Sec < 7) or (Min = 12) then
+       NxTabSheet1.ImageIndex := 6;
+
+  if FileExists(  ExtractFilePath(ParamStr(0)) + LASTKNOWNASS  ) then
+  KnownServersGrid.LoadFromTextFile(ExtractFilePath(ParamStr(0)) + LASTKNOWNASS, ',', #19);
+  ClearShits;
+
+
+  LoadFlags;
+
+  UseCountrys:= FileExists(ExtractFilePath(  ExcludeTrailingPathDelimiter( ExtractFilePath(OptionsForm.PrPathEdit.text) ) ) + BF2_MENULEVEL);
+   
+  AutoCheckForUPD; {}
 
 end;
 
@@ -1451,6 +1606,7 @@ end;
 
 
 procedure TForm1.StartSingleThreading(IP: string; Port: string; GridIndex: Integer; ItemIndex: Integer);
+var RTR: Integer;
 begin
     ServerNo          := 0;
     GridIndexTag      := GridIndex;
@@ -1464,7 +1620,9 @@ begin
     SpeedEndTime   := 0;
 
     AppStatus :=  [aProcessingSingleServer];
-    CreateQThread(0, IP, PORT);
+
+    if OptionsForm.updRetrySpin.Value >= 2 then RTR:=2 else RTR:= OptionsForm.updRetrySpin.Value;
+    CreateQThread(0, IP, PORT, RTR);
 end;
 
 
@@ -1540,7 +1698,7 @@ end;
 
 procedure TForm1.OnQThreadTerminate(Sender: TObject);
 var A   : TBF2ServerInfoItem;
-    Inx : Integer;
+//    Inx : Integer;
     tmpIP, tmpPort : string;
 
 
@@ -1566,14 +1724,55 @@ begin
               GetBF2List(GridIndexTag).Delete( A.Index );
               CreateQThread(DeadID, tmpIP, tmpPort, Pred(RetryCount));
               Exit;
-            end;   
-
-
-            case GridIndexTag of
-             1,2 :  GridAddServerInfo(    GetGrid(GridIndexTag), A );
-             3   :  GridAddPlayersOnline( GetGrid(GridIndexTag), A );
-
             end;
+
+         {   LiveFavCb
+            liveGSCb
+            LivePoCb }
+            {Live Resort}
+            case GridIndexTag of
+             1 : begin
+                     GridAddServerInfo(    GetGrid(GridIndexTag), A );
+
+
+                      if ProgressBar1.Position in [1..10, 20..30, 40..50, 60..70, 80..90, 90..100 ] then
+                      if OptionsForm.LiveFavCb.checked and (not (GetGrid(GridIndexTag).SortedColumn = nil)) then
+                      begin
+                       asc:= GetGrid(GridIndexTag).SortedColumn.SortKind = skAscending;
+                       GetGrid(GridIndexTag).SortColumn(GetGrid(GridIndexTag).SortedColumn ,  asc );
+                      end;
+
+                 end;
+
+             2 : begin
+                     GridAddServerInfo(    GetGrid(GridIndexTag), A );
+
+                     if ProgressBar1.Position in [10..15, 25..30, 45..50, 65..70, 85..90, 95..100 ] then
+                      if OptionsForm.liveGSCb.checked and (not (GetGrid(GridIndexTag).SortedColumn = nil)) then
+                      begin
+                       asc:= GetGrid(GridIndexTag).SortedColumn.SortKind = skAscending;
+                       GetGrid(GridIndexTag).SortColumn(GetGrid(GridIndexTag).SortedColumn ,  asc );
+                      end;
+
+                   end;
+             3   : begin
+                     GridAddPlayersOnline( GetGrid(GridIndexTag), A );
+                     
+                    if ProgressBar1.Position in [1..10, 20..30, 40..50, 60..70, 80..90, 90..100 ] then
+                      if OptionsForm.LivePoCb.checked and (not (GetGrid(GridIndexTag).SortedColumn = nil)) then
+                      begin
+                       asc:= GetGrid(GridIndexTag).SortedColumn.SortKind = skAscending;
+                       GetGrid(GridIndexTag).SortColumn(GetGrid(GridIndexTag).SortedColumn ,  asc );
+                      end;
+                   end;
+            end;
+
+               {If live resort}
+             {   if (GridIndexTag in [1,2,3]) and (not (GetGrid(GridIndexTag).SortedColumn = nil)) then
+                begin
+                 asc:= GetGrid(GridIndexTag).SortedColumn.SortKind = skAscending;
+                 GetGrid(GridIndexTag).SortColumn(GetGrid(GridIndexTag).SortedColumn ,  asc );
+                end; }
 
              if A.ErrorCode > -1 then
              begin
@@ -1594,13 +1793,13 @@ begin
                 NotifyForEnd(eMultiThScann);
               end;
 
-
+             {
          if GridIndexTag = S_FAVORITES  then
          begin
            if GetGrid(GridIndexTag).SortedColumn = nil then Exit;
            asc:= GetGrid(GridIndexTag).SortedColumn.SortKind = skAscending;
            GetGrid(GridIndexTag).SortColumn(GetGrid(GridIndexTag).SortedColumn ,  asc );
-         end;
+         end;    }
 
      end
      else  {SingleThread}
@@ -1647,7 +1846,7 @@ begin
 end;
 
 procedure TForm1.NotifyForEnd( E : TAfterEvent );
-var  GoodServers, tPlayers : Integer; asc: Boolean;  max, i : Integer;
+var  GoodServers, tPlayers : Integer; asc: Boolean;   
 begin
 
   if E = eMultiThScann then
@@ -1699,6 +1898,8 @@ begin
     end;
   end;
 
+
+  InListServers( GetBF2List(GridIndexTag)  ); {test}
   WaitandSetControlsState;
 end;
 
@@ -1981,7 +2182,7 @@ end;
     end;
 
     procedure TForm1.GridShowHideRows(NG: TNextGrid);
-    var Row : Integer;  item: TBF2ServerInfoItem;
+    var Row : Integer;  
       //  bFull, bUNA, bWOP, bWOM, bPW : Boolean;
     begin
        NG.BeginUpdate;
@@ -2001,7 +2202,7 @@ end;
 }
 
 procedure TForm1.ComOnGridSelectCell(Sender: TObject; ACol, ARow: Integer);
-var Item: TBF2ServerInfoItem;   note: string; asc: Boolean;
+var Item: TBF2ServerInfoItem;   asc: Boolean; mpath: string;
 begin
 
   OnPopup(self);
@@ -2015,9 +2216,10 @@ begin
       {Players and Mates}
       ProcessPlayers(PlayersGrid, MatestGrid, item);
 
-
       {Server Info}
       UpdateDetailedInfo(ServerInfoRich, item, clNavy, clBlack);
+
+
 
      end;
 
@@ -2025,19 +2227,25 @@ begin
 
    if (PlayersGrid.SortedColumn <> nil) and (PlayersGrid.RowCount > 0) then
    begin
-   asc:= PlayersGrid.SortedColumn.SortKind = skAscending;
-   PlayersGrid.SortColumn(PlayersGrid.SortedColumn ,  asc );
+     asc:= PlayersGrid.SortedColumn.SortKind = skAscending;
+     PlayersGrid.SortColumn(PlayersGrid.SortedColumn ,  asc );
    end;
    
    if (MatestGrid.SortedColumn <> nil) and (MatestGrid.RowCount > 0) then
    begin
-    asc:= MatestGrid.SortedColumn.SortKind = skAscending;
-    MatestGrid.SortColumn(MatestGrid.SortedColumn ,  asc );
+     asc:= MatestGrid.SortedColumn.SortKind = skAscending;
+     MatestGrid.SortColumn(MatestGrid.SortedColumn ,  asc );
    end;
 
    {Load Map Review}
   // Edit1.Text :=  GetMapFilePath(Item.mapname, Item.gametype, item.maxplayers);
-   LoadImage( GetMapFilePath(Item.mapname, Item.gametype, item.maxplayers) );
+
+   mpath:= GetMapFilePath(Item.mapname, Item.gametype, item.maxplayers);
+
+   if not FileExists( mpath ) and (Item.mapname <> '') then ShowNotInstalledMap else
+   LoadImage( mpath );
+
+
 
 
 
@@ -2067,10 +2275,12 @@ begin
 
      case Trunc(PlayersGrid.Cell[9, ARow].AsFloat) of
 
-      1,2,3,4,5,6  : if (ACol in [1,2])
-                    then CellColor:= OptionsForm.MatesColorPicker.SelectedColor;
+      1,2,3,4,5,6,7  : if (ACol in [1,2])
+                       then CellColor:= OptionsForm.MatesColorPicker.SelectedColor;
 
      end;
+
+   //   if ( csSelected in CellState) and ( PlayersGrid.SelectedRow = Arow) then CellColor:=  $00DAC8C2;
 
 end;
 
@@ -2084,7 +2294,7 @@ begin
    str := GameSpyGrid.Cell[11, ARow].AsString;
    if (Str <> '0') and (Str <> '') and (ACol = 6) then
    CellColor:= OptionsForm.ServersColorPicker.SelectedColor;
-
+// if ( csSelected in CellState) and ( GameSpyGrid.SelectedRow = Arow) then CellColor:=  $00DAC8C2;
 end;
 
 procedure TForm1.GameSpyGridColumnResize(Sender: TObject; ACol: Integer);
@@ -2099,13 +2309,26 @@ end;
 
 procedure TForm1.GameSpyGridAfterSort(Sender: TObject; ACol: Integer);
 begin
+  if GameSpyGrid.RowCount <= 0 then Exit;
+ // GameSpyGrid.BeginUpdate;
+//  GameSpyGrid.SetFocus;
+ // GameSpyGrid.SelectedRow := 0;
   GameSpyGrid.ScrollToRow(0);
+ // GameSpyGrid.RefreshRow(0);
+ // GameSpyGrid.EndUpdate;
+ 
 end;
 
 procedure TForm1.GlobalServersGridAfterSort(Sender: TObject;
   ACol: Integer);
 begin
+  if GlobalServersGrid.RowCount <= 0 then Exit;
+ //   GlobalServersGrid.BeginUpdate;
+//  GlobalServersGrid.SetFocus;
+ // GlobalServersGrid.SelectedRow := 0;
   GlobalServersGrid.ScrollToRow(0);
+//  GlobalServersGrid.RefreshRow(0);
+//  GlobalServersGrid.EndUpdate;
 end;
 
 procedure TForm1.PROnlinePlayersGridCellColoring(Sender: TObject; ACol,
@@ -2119,6 +2342,7 @@ begin
    // if (PROnlinePlayersGrid.Cells[11, ARow]  <> '')  then
      CellColor:= OptionsForm.MatesColorPicker.SelectedColor;
      (**)
+  //   if ( csSelected in CellState) and ( PROnlinePlayersGrid.SelectedRow = Arow) then CellColor:=  $00DAC8C2;
 end;
 
 procedure TForm1.PROnlinePlayersGridAfterSort(Sender: TObject;
@@ -2133,14 +2357,14 @@ procedure TForm1.PlayersGridCellFormating(Sender: TObject; ACol,
 begin
      if not PlayersGrid.RowExist(AROW) then Exit;
 
-     case Trunc(PlayersGrid.Cell[9, ARow].AsFloat) of
+   {  case Trunc(PlayersGrid.Cell[9, ARow].AsFloat) of
 
       //0          :       ;
-      1,2,3,4,6  : if (Frac(PlayersGrid.Cell[9, ARow].AsFloat) > 0) and (ACol in [1,2])
+      1,2,3,4,6,7  : if (Frac(PlayersGrid.Cell[9, ARow].AsFloat) > 0) and (ACol in [1,2])
                     then FontStyle := FontStyle + [fsBold];
+       
 
-
-     end;
+     end;  }
 
 end;
 
@@ -2174,12 +2398,12 @@ begin
       if not MatestGrid.RowExist(AROW) {or (MatestGrid.SelectedRow = ARow)} then Exit;
      // if (MatestGrid.Cell[9, ARow].AsInteger = 2) and (ACol in [1,2])  then
      // FontStyle := FontStyle + [fsBold];
-
+       {
      case Trunc(PlayersGrid.Cell[9, ARow].AsFloat) of
       1,2,3,4,6  : if (Frac(PlayersGrid.Cell[9, ARow].AsFloat) > 0) and (ACol in [1,2])
                     then FontStyle := FontStyle + [fsBold];
      end;
-
+      }
 
 
 end;
@@ -2195,6 +2419,14 @@ begin
 
     if  (Cell[H_HIGHLIGHT, ARow].AsInteger = 1) and (ACol in [6])
     then FontStyle := FontStyle + [fsBold];
+
+
+    if (Cells[C_PING, ARow] = '2500') then
+    TextColor := clMaroon;
+
+    if Cell[5, ARow].asInteger <> 0 then
+      TextColor := clMaroon;
+
 
   end;
 
@@ -2213,6 +2445,8 @@ procedure TForm1.SearchCollection;
           function SearchNextServer(NG: TNextGrid; Text: string; FromRow, ToRow: Integer): Boolean;
           var  i: Integer;
           begin
+            NG.BeginUpdate;
+            NG.SetFocus;
             Result := False;
                  for i := FromRow to ToRow do
                  begin
@@ -2222,16 +2456,20 @@ procedure TForm1.SearchCollection;
                       begin
                          NG.SelectedRow := I;
                          NG.ScrollToRow(i);
+                         NG.RefreshRow(i);
                          Result:= True;
                          Break;
                       end;
                  end;
+              NG.EndUpdate;
           end;
 
 
           function SearchNextNameType1(NG: TNextGrid; Text: string; StartRow, SearchIn, PlayerNO: Integer):Integer;
           var i, PlayerIndex: Integer;
           begin
+             NG.BeginUpdate;
+             NG.SetFocus;
 
             for i:= StartRow to NG.RowCount-1 do
             begin
@@ -2242,6 +2480,7 @@ procedure TForm1.SearchCollection;
                 begin
                   NG.SelectedRow := I;
                   NG.ScrollToRow(i);
+                  NG.RefreshRow(i);
                   NxPageControl2.ActivePageIndex := 0;
 
                 //OLD ONE  PlayersGrid.SearchNext(2, ExtractName(GetBF2List(NG.Tag).AnItems[NG.Cell[14, i].AsInteger].BF2Player[PlayerIndex].Name), true);
@@ -2249,6 +2488,7 @@ procedure TForm1.SearchCollection;
 
 
                   Result:= PlayerIndex;
+                  NG.EndUpdate;
                   Exit;
                 end
                  else PlayerNO := 0;
@@ -2256,12 +2496,15 @@ procedure TForm1.SearchCollection;
             end;
 
               Result := -1;
+              NG.EndUpdate;
           end;
 
 
           function SearchNextPROnline(Text: string; FromRow, SearchIn: Integer):boolean;
            var  i, v: Integer;
           begin
+             PROnlinePlayersGrid.BeginUpdate;
+             PROnlinePlayersGrid.SetFocus;
             Result := False;
 
               v:= SearchIn;
@@ -2276,11 +2519,13 @@ procedure TForm1.SearchCollection;
                       begin
                          PROnlinePlayersGrid.SelectedRow := I;
                          PROnlinePlayersGrid.ScrollToRow(i);
+                         PROnlinePlayersGrid.RefreshRow(i);
                          Result:= True;
+                         PROnlinePlayersGrid.EndUpdate;
                          Exit;
                       end;
                  end;
-
+             PROnlinePlayersGrid.EndUpdate;
 
           end;
 
@@ -2457,6 +2702,8 @@ begin
     if OptionsForm.jvpnflstrg1.ReadBoolean ( 'FORMAXIMIZED', False) then
         Form1.WindowState := wsMaximized;
 
+
+
     case OptionsForm.jvpnflstrg1.ReadInteger('ONSTARTAPP', 0) of
      0: ; //(Nothing)
      1: TBItem1.Click; //Update Favorites
@@ -2464,6 +2711,8 @@ begin
      3: TBItem3.Click;//Update PlayersOnline
 
     end;
+
+  //  AutoCheckForUPD;
 
 end;
 
@@ -2488,7 +2737,9 @@ end;
 
 procedure TForm1.SkinData1SkinChanged(Sender: TObject);
 begin
-
+  if SkinData1.Active then
+  OptionsForm.FilterInspector.Style:= psOffice2010 else
+   OptionsForm.FilterInspector.Style:=  psDefault;
 end;
 
 {****************************************************************************}
@@ -2503,23 +2754,6 @@ end;
 
 
 
-
-
-
-procedure TForm1.Label8Click(Sender: TObject);
-begin
-    RadioButtonServerName.Checked:= True;
-end;
-
-procedure TForm1.Label9Click(Sender: TObject);
-begin
-   RadioButtonPlayerName.Checked:= True;
-end;
-
-procedure TForm1.Label10Click(Sender: TObject);
-begin
-  RadioButtonPrefix.Checked:= True;
-end;
 
 
 
@@ -2545,7 +2779,7 @@ end;
 {****************************************************************************}
 
 procedure TForm1.AutoCheckForUPD;
-var i: integer; dlink: string;
+var  dlink: string;
 begin
    if not OptionsForm.CheckUpdatescb.Checked then  Exit;
 
@@ -2560,6 +2794,7 @@ begin
          UPDPanel.top := 8;
          UPDPanel.left:= 5;
          UPDPanel.Visible := true;
+         Width    := 536;
 
          DownLink :=  dlink;
          Button4.Enabled := True;
@@ -2584,7 +2819,7 @@ var
 
   FXmlDoc: TNativeXml;
   S : string;
-  i : Integer;
+
 begin
 
       With AboutForm do
@@ -2595,6 +2830,7 @@ begin
         FHttpCli.Abort;
                   try
                     FHttpCli.Get;
+                    Application.ProcessMessages;
                   except
                     LogRichEdit.Lines.Add(GetWORD(162) +{'Error code}': (' + IntToStr(FHttpCli.StatusCode) + ') ' + FHttpCli.ReasonPhrase);
                     Exit;
@@ -2650,7 +2886,7 @@ end;
 
 procedure TForm1.TBItem31Click(Sender: TObject);
 begin
-       NxTabSheet5.PageVisible                            := TRue;
+    {   NxTabSheet5.PageVisible                            := TRue;
        Form1.PROnlinePlayersGrid.Columns.Item[15].Visible := TRue;
        Form1.GameSpyGrid.Columns.Item[15].Visible         := TRue;
        Form1.GlobalServersGrid.Columns.Item[15].Visible   := TRue;
@@ -2661,12 +2897,25 @@ begin
        Form1.PlayersGrid.Columns.Item[9].Visible          := TRue;
        Form1.MatestGrid.Columns.Item[9].Visible           := TRue;
        Form1.MatestGrid.Columns.Item[12].Visible          := TRue;
-       Form1.PlayersGrid.Columns.Item[12].Visible         := TRue;
+       Form1.PlayersGrid.Columns.Item[12].Visible         := TRue;   }
 end;
 
 procedure TForm1.GridAfterSort(Sender: TObject; ACol: Integer);
 begin
-    (Sender as TNextGrid).ScrollToRow(0);
+
+  with (Sender as TNextGrid) do
+  begin
+   if RowCount <= 0 then Exit;
+
+
+  // BeginUpdate;
+  //  SetFocus;
+    ScrollToRow(0);
+  //  SelectedRow := 0;
+ //   RefreshRow(0);
+ //  EndUpdate;
+  end;
+
 end;
 
 
@@ -2694,15 +2943,22 @@ begin
     try
       // Load all subimages in file
     //  T := ImagingUtility.GetTimeMicroseconds;
+
+
+     // Imaging.FindImageFileFormatByName('ja.dds')
       FImage.LoadMultiFromFile(MFile);
+
+    //  FImage.FormatInfo.Format
+
 
       if not FImage.AllImagesValid then
       begin
         SetUnsupported;
         Exit;
       end;
-     {
-      // Store original data formats for later use
+      //FSupported := True;
+     
+     { // Store original data formats for later use   
       SetLength(FOriginalFormats, FImage.ImageCount);
       for I := 0 to FImage.ImageCount - 1 do
       begin
@@ -2712,18 +2968,40 @@ begin
         // by canvas class
         if not (FImage.Format in TImagingCanvas.GetSupportedFormats) then
           FImage.Format := ifA8R8G8B8;
-      end;  }
+      end;
+           }
+     // TImagingCanvas.GetSupportedFormats
 
+
+
+      SetLength(FOriginalFormats, FImage.ImageCount);
+    //  SetLength(FOriginalSizes, FImage.ImageCount);
+
+      for I := 0 to FImage.ImageCount - 1 do
+      begin
+        FImage.ActiveImage := I;
+        FOriginalFormats[I] := FImage.Format;
+      //  FOriginalSizes[I] := FImage.Size;
+        // Convert image to 32bit ARGB format if current format is not supported
+        // by canvas class
+        if not (FImage.Format in TImagingCanvas.GetSupportedFormats) then
+          FImage.Format := ifA8R8G8B8;
+      end;
+
+
+
+                                         {
       FImage.ActiveImage := 1;
-      FImage.Format      := ifDefault;
-             
+      FImage.Format      := ifDefault;    }
+
       // Activate first image and update UI
       FImage.ActiveImage := 0;
     //  SetSupported;
+      FSupported := True;
       PaintBox.Repaint;
     except
       SetUnsupported;
-      raise;
+     // raise;
     end
     else
       SetUnsupported;
@@ -2731,6 +3009,8 @@ begin
     SetUnsupported;
   end;
 end;
+
+
 
 procedure TForm1.SetUnsupported;
 //var
@@ -2742,6 +3022,7 @@ begin
     FImage.CreateFromParams(CheckersDensity, CheckersDensity, ifA8R8G8B8, 1);
     FImageCanvas.Free;
     FImageCanvas := FindBestCanvasForImage(FImage).CreateForImage(FImage);
+    FSupported := False;
       {
     Step := FImage.Width div CheckersDensity;
     for Y := 0 to CheckersDensity - 1 do
@@ -2774,10 +3055,12 @@ begin
     FBackCanvas.FillRect(Rect(0, 0, FBack.Width, FBack.Height));
 
   // Determine which stretching filter to use
-{  if FSupported and CheckFilter.Checked then
+  if FSupported then
     Filter := rfBicubic
-  else        }
-    Filter := rfNearest;
+  else Filter := rfNearest;
+
+
+
   // Scale image to fit the paint box
   R := ImagingUtility.ScaleRectToRect(FImage.BoundsRect, PaintBox.ClientRect);
   // Create canvas for current image frame
@@ -2790,16 +3073,18 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-  FImage := TMultiImage.Create;
-  FImageCanvas := TImagingCanvas.Create;
-  FBack := TSingleImage.CreateFromParams(128, 128, ifA8R8G8B8);
-  FBackCanvas := FindBestCanvasForImage(FBack).CreateForImage(FBack);
+  FImage         := TMultiImage.Create;
+  FImageCanvas   := TImagingCanvas.Create;
+  FBack          := TSingleImage.CreateFromParams(128, 128, ifA8R8G8B8);
+  FBackCanvas    := FindBestCanvasForImage(FBack).CreateForImage(FBack);
   SetUnsupported;
-  AppStatus         := [aFree];
+  AppStatus      := [aFree];
 end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
+  CountryCodeList.Free;
+  FracFlagsList.Free;
   FImage.Free;
   FImageCanvas.Free;
   FBack.Free;
@@ -2809,6 +3094,9 @@ end;
 procedure TForm1.mapPanelResize(Sender: TObject);
 begin
   // Resize background image to fit the paint box
+  if (PaintBox.ClientWidth < 1) or (PaintBox.ClientHeight  < 1 )then
+  Exit;
+
   FBack.Resize(PaintBox.ClientWidth, PaintBox.ClientHeight, rfNearest);
   // Update back canvas state after resizing of associated image
   FBackCanvas.UpdateCanvasState;
@@ -2824,29 +3112,43 @@ end;
 
 procedure TForm1.JvNetscapeSplitter1CanResize(Sender: TObject;
   var NewSize: Integer; var Accept: Boolean);
-begin
+begin                { }
     if JvNetscapeSplitter1.Maximized  then TBItemMapPreview.Checked := True else
     if NewSize = 1 then TBItemMapPreview.Checked := False;
     Accept:= True;
 end;
 
 procedure TForm1.CancelButtonClick(Sender: TObject);
-var max, i : Integer;
-    Tmp : string;
 begin
   AbortProcessing;
 end;
 
 procedure TForm1.ProcButtonsOnOff(B: Boolean );
 begin
-   TBItem1.Enabled := B;
-   TBItem2.Enabled := B;
-   TBItem3.Enabled := B;
-   TBItem11.Enabled := B;
-   TBItem10.Enabled := B;
-   TBItem20.Enabled := B;
+   TBItem1.Enabled      := B and (OptionsForm.NextGridFavServers.RowCount > 0);
+   TBItem11.Enabled     := TBItem1.Enabled;
+
+
+
+
+   TBItem2.Enabled      := B;
+   TBItem3.Enabled      := B;
+   TBItem11.Enabled     := B;
+   TBItem10.Enabled     := B;
+   TBItem20.Enabled     := B;
    CancelButton.Enabled := not B;
-   TBItem28.Enabled := not B;
+   TBItem28.Enabled     := not B;
+   TBItem6.Enabled      := B;
+
+   {UPD BUTTON}
+   TBItem7.Enabled := B;
+   TBItemRefresh.Enabled := B;
+   
+                        {TEMP##}
+   TBItem4.Enabled := B;
+   TBItem5.Enabled := B;
+   if  B then
+   OnPopup(self);
 end;
 
 
@@ -2884,22 +3186,25 @@ begin
 
 
      if AppStatus = [aFree] then Exit;
-  
+     if aAborting in AppStatus then Exit;
+     if aProcessingSingleServer in AppStatus then Exit;
 
      AppStatus := AppStatus + [aAborting];
+     Timer2.Enabled := True;
+
      JvStatusBar1.Panels[2].Text := GetWORD(171);
      CancelButton.Enabled := False;
      TBItem28.Enabled := False;
 
      TerminateProgress := True;
      Application.ProcessMessages;
-
+         {
      if (aRequestingFromGameSpy in AppStatus) then
      begin
-        Timer2.Enabled := True;
+        
 
      end;
-
+          }
 
      if (aProcessingFavorites in AppStatus) or (aProcessingGameSpy in AppStatus) or
        (aProcessingPlayersOnline in AppStatus) 
@@ -2944,14 +3249,897 @@ begin
     Application.Terminate;
   end;
 
-  if AppStatus <> [aFree] then  Exit;
-
-  Timer2.Enabled := False;
-  ProcButtonsOnOff(True);
-  JvStatusBar1.Panels[2].Text := ''; //GameSpy request aborted
+  if AppStatus = [aFree] then
+  begin
+   Timer2.Enabled := False;
+   ProcButtonsOnOff(True);
+   JvStatusBar1.Panels[2].Text := ''; //GameSpy request aborted
+  end;
 
 end;
 
 
+procedure TForm1.ShowNotInstalledMap;
+var
+  z: TVCLUnZip;
+  s: TMemoryStream;
+begin
+
+  if not FileExists(ExtractFilePath(OptionsForm.PrPathEdit.text) + PR_MENULEVEL) then begin SetUnsupported; Exit; end;
+
+  s:= TMemoryStream.Create;
+  z:= TVCLUnZip.Create(Self);
+  z.ZipName := ExtractFilePath(OptionsForm.PrPathEdit.text) + PR_MENULEVEL;
+  try
+   z.UnZipToStream( s, BF2_MOD_PR_MAPNOTINST);
+
+   s.Position := 0;
+   FImage.LoadMultiFromStream(s);
+
+      if not FImage.AllImagesValid then
+      begin
+        SetUnsupported;
+        Exit;
+      end;
+
+      FImage.ActiveImage := 1;
+      FImage.Format      := ifDefault;
+      FImage.ActiveImage := 0;
+      PaintBox.Repaint;
+  except
+  end;
+      s.Free;
+     z.Free;
+end;
+
+
+
+
+procedure TForm1.LoadFlags;
+
+procedure LoadFlagsToList(const ZipFile: string; iList: TPngImageList);
+var
+  z         : TVCLUnZip;
+  s         : TMemoryStream;
+  PNGStrm   : TMemoryStream;
+  i         : integer;
+  FlagImages: TImageData;
+
+  NewWidth,
+  NewHeight : LongInt;
+begin
+  //  FracFlagsList := TStringList.Create;
+    iList.PngImages.BeginUpdate;
+
+    InitImage(FlagImages);
+    s       := TMemoryStream.Create;
+    PNGStrm := TMemoryStream.Create;
+    z:= TVCLUnZip.Create(Self);
+    try
+     z.ZipName := ZipFile;
+     z.ReadZip;
+
+     for i:=0 to z.Count-1 do
+     begin
+       if WideLowerCase(z.Pathname[i]) = MOD_JOINGAME_DIR then
+       begin
+         if PosEx('flag_', WideLowerCase(z.Filename[i]) ) = 1 then
+         begin    (*_*)
+
+           PNGStrm.Clear;
+           s.Clear;
+
+           {Unzip to stream}
+           z.UnZipToStream( s, z.Pathname[i] + z.Filename[i] {'flag_US.png'} );
+           {Load From Stream}
+           S.Position:= 0;
+           Imaging.LoadImageFromStream( s, FlagImages);
+           {Resize}
+           NewWidth  :=  17;
+           NewHeight :=  12;
+           Imaging.ResizeImage(FlagImages, NewWidth, NewHeight, rfBilinear {rfNearest});
+           {Convert to PNG Stream}
+           Imaging.SaveImageToStream('png', PNGStrm, FlagImages );
+
+           {Add PNG Stream to PngImageLIst}
+           PNGStrm.Position:=0;
+           iList.PngImages.Add.PngImage.LoadFromStream(PNGStrm);
+           {  or
+           with iList.PngImages.Add() do
+           begin
+             PngImage.LoadFromStream(PNGStrm);
+           end;
+            }
+           FracFlagsList.Add( LowerCase(z.Filename[i]) );
+
+         end;
+       end;
+     end;
+
+    finally
+      PNGStrm.Free;
+      Imaging.FreeImage(FlagImages);
+      s.Free;
+      z.Free;
+    end;
+
+    iList.PngImages.EndUpdate;
+end;
+
+begin
+    if not FileExists(ExtractFilePath(OptionsForm.PrPathEdit.text) + PR_MENULEVEL) then Exit;
+    if not FileExists(ExtractFilePath(  ExcludeTrailingPathDelimiter( ExtractFilePath(OptionsForm.PrPathEdit.text) ) ) + BF2_MENULEVEL) then Exit;
+
+    FracFlagsList.Clear;
+    FlagsPngList.PngImages.Clear;
+
+    LoadFlagsToList(  ExtractFilePath(OptionsForm.PrPathEdit.text) + PR_MENULEVEL , FlagsPngList );
+    LoadFlagsToList(  ExtractFilePath(  ExcludeTrailingPathDelimiter( ExtractFilePath(OptionsForm.PrPathEdit.text) ) ) + BF2_MENULEVEL, FlagsPngList  );
+end;
+
+
+function TForm1.GetFractionFlagImageIndexByTeamName(TeamName: string):Integer;
+begin
+  if LowerCase(TeamName) = 'us' then TeamName:= 'usa';
+  Result:= FracFlagsList.IndexOf( 'flag_'+LowerCase( TeamName )+'.png' );
+end;
+
+
+
+function TForm1.GetCountryIndex(code: string):Integer;
+
+
+   function AddFlagToImageList(zipfile, code: string; iList: TPngImageList):boolean;
+   var
+    z         : TVCLUnZip;
+    s         : TMemoryStream;
+    PNGStrm   : TMemoryStream;
+    i         : integer;
+    FlagImages: TImageData;
+
+    NewWidth,
+    NewHeight : LongInt;
+   begin
+    iList.PngImages.BeginUpdate;
+
+    Result:=True;
+
+    InitImage(FlagImages);
+    s       := TMemoryStream.Create;
+    PNGStrm := TMemoryStream.Create;
+     z:= TVCLUnZip.Create(Self);
+      z.ZipName := ZipFile;
+      z.ReadZip;
+    try
+
+
+           PNGStrm.Clear;
+           s.Clear;
+           {Unzip to stream}
+           z.UnZipToStream( s, 'external\flashmenu\images\flags\' + code + '.png');
+           if s.Size > 0 then
+           begin
+            {Load From Stream}
+            S.Position:= 0;
+            Imaging.LoadImageFromStream( s, FlagImages);
+            {Resize}
+            NewWidth  :=  15;
+            NewHeight :=  12;
+            Imaging.ResizeImage(FlagImages, NewWidth, NewHeight, rfBilinear{rfNearest});
+            {Convert to PNG Stream}
+            Imaging.SaveImageToStream('png', PNGStrm, FlagImages );
+
+            {Add PNG Stream to PngImageLIst}
+            PNGStrm.Position:=0;
+            iList.PngImages.Add.PngImage.LoadFromStream(PNGStrm);
+
+            CountryCodeList.Add( code );
+           end else Result:=False;
+
+    finally
+      PNGStrm.Free;
+      Imaging.FreeImage(FlagImages);
+      s.Free;
+      z.Free;
+    end;
+
+    iList.PngImages.EndUpdate;
+   end;
+
+
+var i: Integer;
+begin
+
+ 
+ Result:= -1;
+ if not UseCountrys then Exit;
+
+ Result:= CountryCodeList.IndexOf( LowerCase( code )  );
+ if Result > -1 then Exit;
+
+ if AddFlagToImageList(
+   ExtractFilePath(  ExcludeTrailingPathDelimiter( ExtractFilePath(OptionsForm.PrPathEdit.text) ) ) + BF2_MENULEVEL,
+                                                                                                    LowerCase(code),
+                                                                                                    CountryImageList
+                     ) then Result:= CountryCodeList.IndexOf( LowerCase( code ) );
+end;
+
+
+
+
+
+
+procedure TForm1.GlobalServersGridCellFormating(Sender: TObject; ACol,
+  ARow: Integer; var TextColor: TColor; var FontStyle: TFontStyles;
+  CellState: TCellState);
+begin
+   with (Sender as TNextGrid) do
+  begin
+    if not RowExist(AROW) then Exit;
+    
+
+     if (Cells[C_PING, ARow] = '2500') then
+    TextColor := clMaroon;
+
+    if Cell[5, ARow].asInteger <> 0 then
+      TextColor := clMaroon;
+
+  end;
+end;
+
+procedure TForm1.MatestGridCellColoring(Sender: TObject; ACol,
+  ARow: Integer; var CellColor, GridColor: TColor; CellState: TCellState);
+begin
+// if ( csSelected in CellState) and ( MatestGrid.SelectedRow = Arow) then CellColor:=  $00DAC8C2;
+end;
+
+
+
+
+
+{*****************************************************************************}
+
+{*****************************************************************************}
+                                {}
+{*****************************************************************************}
+
+{*****************************************************************************}
+{*****************************************************************************}
+
+{*****************************************************************************}
+                                {}
+{*****************************************************************************}
+
+{*****************************************************************************}
+{*****************************************************************************}
+
+{*****************************************************************************}
+                                {}
+{*****************************************************************************}
+
+{*****************************************************************************}
+{*****************************************************************************}
+
+{*****************************************************************************}
+                                {}
+{*****************************************************************************}
+
+{*****************************************************************************}
+{*****************************************************************************}
+
+{*****************************************************************************}
+                                {}
+{*****************************************************************************}
+
+{*****************************************************************************}
+
+
+
+
+
+
+procedure TForm1.PlayerNamePopupPopup(Sender: TObject);
+var Row : Integer;  MiNdex: Double;
+begin
+
+
+   CopyTextItem.Enabled := False;
+   PrefixesItem.Enabled := False;
+   NamesItem.Enabled    := False;
+   TagsItem.Enabled     := False;
+   TBItemAdToBodyList.Enabled     := False;
+
+   PrefixesItem.Options := [];
+   NamesItem.Options    := [];
+   TagsItem.Options     := [];
+
+
+        With  GetPInfoGrid(NxPageControl2.ActivePageIndex) do
+        begin
+          if not  ((RowCount > 0) and (SelectedRow > -1)) then Exit;
+
+           CopyTextItem.Enabled := True;
+           TBItemAdToBodyList.Enabled     := True;
+
+           TBItemCopyname.Enabled     := True;
+           TBItemPlayerNote.Enabled  := Trim(Cells[11, SelectedRow]) <> '';
+           TBItemCopyCell.Enabled    := Cells[SelectedCell.X  , SelectedCell.Y] <> '';
+
+
+           if Cell[10, SelectedRow].AsInteger = 8 {BOT} then Exit;
+
+           MiNdex := Cell[9, SelectedRow].AsFloat;
+
+           {Prefix}
+           if (Cells[1, SelectedRow] <> '') then
+           begin
+            PrefixesItem.Enabled:= True;
+            TBItemPrfixA.Enabled  := not ( Trunc(MiNdex) in [7,3,2,6] );
+            TBItemPrefixE.Enabled := ( Trunc(MiNdex) in [7,3,2,6] );
+            TBItemPrefixD.Enabled := ( Trunc(MiNdex) in [7,3,2,6] );
+            if TBItemPrefixE.Enabled then
+            PrefixesItem.Options:= [tboDefault];
+           end;
+
+           
+           {name}
+           if (Cells[2, SelectedRow] <> '') then
+           begin
+            NamesItem.Enabled    := True;
+
+            TBItemNameA.Enabled  := not ( Trunc(MiNdex) in [1,3,7] );
+            TBItemNameE.Enabled  := ( Trunc(MiNdex) in [1,3,7] );
+            TBItemNameD.Enabled  := ( Trunc(MiNdex) in [1,3,7] );
+
+            if TBItemNameE.Enabled then
+            NamesItem.Options:= [tboDefault];
+
+           {tag}
+           TagsItem.Enabled     := True;
+           TBItemTagsA.Enabled  := True;
+
+           TBItemTagsD.Enabled  := ( Trunc(MiNdex) in [4,5,7,6] );
+           TBItemTagsE.Enabled  := ( Trunc(MiNdex) in [4,5,7,6] );
+            if TBItemTagsD.Enabled then
+            TagsItem.Options:= [tboDefault];
+
+           end;
+
+        end;
+end;
+
+procedure TForm1.PlayernamePopupActionClick(Sender: TObject);
+var Anum, ActGridIndex: Integer;   Str: string; Minx: Double;
+begin
+
+
+
+  ActGridIndex       :=   Succ(NxPageControl1.ActivePageindex);
+
+  with GetPInfoGrid(NxPageControl2.ActivePageIndex) do
+  begin
+      if not  ((RowCount > 0) and (SelectedRow > -1)) then Exit;
+     Minx := Cell[9, SelectedRow].AsFloat;
+  end;
+
+
+  case (Sender as TComponent).Tag of
+
+
+
+
+   0: ;
+   1:   begin   {
+         Str:= GetBF2List(ActGridIndex).AnItems[GetGrid(ActGridIndex).Cell[14, GetGrid(ActGridIndex).SelectedRow ].AsInteger].
+                                                  BF2Player[GetPInfoGrid(NxPageControl2.activePageindex).Cell[12, GetPInfoGrid(NxPageControl2.activePageindex).SelectedRow].AsInteger].Name;
+           }
+
+                      with  GetPInfoGrid(NxPageControl2.ActivePageIndex) do
+                      begin
+                        Str:= Trim(Trim(Cells[1, SelectedRow]) + ' ' + Trim(Cells[2, SelectedRow]));
+                        Str:= SysUtils.StringReplace(Str,'«b»','',[rfReplaceAll]);
+                        Str:= SysUtils.StringReplace(Str,'«/b»','',[rfReplaceAll]);
+                      end;
+
+           if Str <> '' then Str:= Trim(Str);
+                      SendToClipBrd(str);
+        end;
+
+   2:   with GetPInfoGrid(NxPageControl2.ActivePageIndex)  do
+        begin
+         Str:=  Cells[11, SelectedRow]  ;
+
+          if Str <> '' then Str:= Trim(Str);
+                      SendToClipBrd(str);
+        end;
+
+   3:   with GetPInfoGrid(NxPageControl2.ActivePageIndex)  do
+        begin
+         Str:=  Cells[SelectedCell.X, SelectedCell.Y]  ;
+
+         {REMOVE TAGS «b»%s«/b»}
+         Str:= SysUtils.StringReplace(Str,'«b»','',[rfReplaceAll]);
+         Str:= SysUtils.StringReplace(Str,'«/b»','',[rfReplaceAll]);
+
+          if Str <> '' then Str:= Trim(Str);
+                      SendToClipBrd(str);
+        end;
+
+
+     {Add edit:  Prefix, Name, Tag}
+   4,5,6,7,8,9:  begin
+                      with  GetPInfoGrid(NxPageControl2.ActivePageIndex) do
+                      begin
+                        Str:= Trim(Trim(Cells[1, SelectedRow]) + ' ' + Trim(Cells[2, SelectedRow]));
+                        Str:= SysUtils.StringReplace(Str,'«b»','',[rfReplaceAll]);
+                        Str:= SysUtils.StringReplace(Str,'«/b»','',[rfReplaceAll]);
+                      end;
+
+                       with Form3 do
+                       begin
+                         PlayerName := Str;
+
+                         if (Sender as TComponent).Tag >= 7 then
+                         Mode:= 1 else Mode := 0;
+                       
+
+                         case (Sender as TComponent).Tag of
+                          4,7 : Section := 0;
+                          5,8 : Section := 1;
+                          6,9 : Section := 2;
+                         end;
+                         // 0 - PRefix 1 - Pname - 2 - Tag
+
+                         Mateindex  := Minx;
+                         ClearEdits;
+                         ShowModal;
+                       end;
+
+                        GridPlayersMatesSilentMIndexUpdate( GetGrid(ActGridIndex), GetPInfoGrid(P_ALLPLAYERS),GetPInfoGrid(P_MATES), GetBF2List(ActGridIndex) );
+                        GridSilentUpdateMatesCount(GetGrid(ActGridIndex));
+                        GridPOSilentUpdateMates(PROnlinePlayersGrid);
+       end;
+     11, 10, 12 :
+       {Delete DeleteBuddyzz() }
+                 Begin
+
+                      with  GetPInfoGrid(NxPageControl2.ActivePageIndex) do
+                      begin
+
+                        if (Sender as TComponent).Tag = 10 then
+                        Str:= Trim(Cells[1, SelectedRow]) else
+                         Str:=  Trim(Cells[2, SelectedRow]);
+
+                        Str:= SysUtils.StringReplace(Str,'«b»','',[rfReplaceAll]);
+                        Str:= SysUtils.StringReplace(Str,'«/b»','',[rfReplaceAll]);
+
+                         case (Sender as TComponent).Tag of
+                          10 : OptionsForm.DeleteBuddyzz(1,Str);
+                          11 : OptionsForm.DeleteBuddyzz(2,Str);
+                          12 : OptionsForm.DeleteBuddyzz(3,Str);
+                         end;
+
+                       end;
+
+                        GridPlayersMatesSilentMIndexUpdate( GetGrid(ActGridIndex), GetPInfoGrid(P_ALLPLAYERS),GetPInfoGrid(P_MATES), GetBF2List(ActGridIndex) );
+                        GridSilentUpdateMatesCount(GetGrid(ActGridIndex));
+                        GridPOSilentUpdateMates(PROnlinePlayersGrid);
+                 end;
+
+  end;
+
+
+
+  
+
+end;
+
+procedure TForm1.RadioButtonServerNameClick(Sender: TObject);
+var i: Integer;
+begin
+    TBSubmenuItem8.Caption := GetWORD(115);
+    for i:=0 to TBSubmenuItem8.Count-1 do
+    if TBSubmenuItem8.Items[i].Checked then
+    TBSubmenuItem8.Caption :=  TBSubmenuItem8.Caption + ': ' + TBSubmenuItem8.Items[i].Caption;
+
+end;
+
+procedure TForm1.OnlinePlayersPopupMenuActClick(Sender: TObject);
+var Anum, ActGridIndex: Integer;   Str: string; Minx: Double;
+begin
+
+
+
+
+  ActGridIndex       :=   Succ(NxPageControl1.ActivePageindex);
+     {
+  with GetPInfoGrid(NxPageControl2.ActivePageIndex) do
+  begin
+      if not  ((RowCount > 0) and (SelectedRow > -1)) then Exit;
+     Minx := Cell[9, SelectedRow].AsFloat;
+  end;
+    }
+
+  case (Sender as TComponent).Tag of
+
+
+
+
+   0: ;
+   1:   begin  {
+         Str:= GetBF2List(ActGridIndex).AnItems[GetGrid(ActGridIndex).Cell[14, GetGrid(ActGridIndex).SelectedRow ].AsInteger].
+                                                  BF2Player[GetPInfoGrid(NxPageControl2.activePageindex).Cell[12, GetPInfoGrid(NxPageControl2.activePageindex).SelectedRow].AsInteger].Name;
+            }
+
+                      with  GetGrid(ActGridIndex) do
+                      begin
+                        Str:= Trim(Trim(Cells[1, SelectedRow]) + ' ' + Trim(Cells[2, SelectedRow]));
+                        Str:= SysUtils.StringReplace(Str,'«b»','',[rfReplaceAll]);
+                        Str:= SysUtils.StringReplace(Str,'«/b»','',[rfReplaceAll]);
+                      end;
+
+           if Str <> '' then Str:= Trim(Str);
+                      SendToClipBrd(str);
+        end;
+
+   2:   with GetGrid(ActGridIndex)  do
+        begin
+         Str:=  Cells[16, SelectedRow]  ;
+
+          if Str <> '' then Str:= Trim(Str);
+                      SendToClipBrd(str);
+        end;
+
+   3:   with GetGrid(ActGridIndex)  do
+        begin
+         Str:=  Cells[SelectedCell.X, SelectedCell.Y]  ;
+
+         {REMOVE TAGS «b»%s«/b»}
+         Str:= SysUtils.StringReplace(Str,'«b»','',[rfReplaceAll]);
+         Str:= SysUtils.StringReplace(Str,'«/b»','',[rfReplaceAll]);
+
+          if Str <> '' then Str:= Trim(Str);
+                      SendToClipBrd(str);
+        end;
+
+
+     {Add edit:  Prefix, Name, Tag}
+   4,5,6,7,8,9:  begin
+                      with  GetGrid(ActGridIndex) do
+                      begin
+                        Str:= Trim(Trim(Cells[1, SelectedRow]) + ' ' + Trim(Cells[2, SelectedRow]));
+                        Str:= SysUtils.StringReplace(Str,'«b»','',[rfReplaceAll]);
+                        Str:= SysUtils.StringReplace(Str,'«/b»','',[rfReplaceAll]);
+                      end;
+
+                       with Form3 do
+                       begin
+                         PlayerName := Str;
+
+                         if (Sender as TComponent).Tag >= 7 then
+                         Mode:= 1 else Mode := 0;
+                       
+
+                         case (Sender as TComponent).Tag of
+                          4,7 : Section := 0;
+                          5,8 : Section := 1;
+                          6,9 : Section := 2;
+                         end;
+                         // 0 - PRefix 1 - Pname - 2 - Tag
+
+                         Mateindex  := Minx;
+                         ClearEdits;
+                         ShowModal;
+                       end;
+
+                        GridPlayersMatesSilentMIndexUpdate( GetGrid(ActGridIndex), GetPInfoGrid(P_ALLPLAYERS),GetPInfoGrid(P_MATES), GetBF2List(ActGridIndex) );
+                        GridSilentUpdateMatesCount(GetGrid(ActGridIndex));
+                        GridPOSilentUpdateMates(PROnlinePlayersGrid);
+       end;
+     11, 10, 12 :
+       {Delete DeleteBuddyzz() }
+                 Begin
+
+                      with  GetGrid(ActGridIndex) do
+                      begin
+
+                        if (Sender as TComponent).Tag = 10 then
+                        Str:= Trim(Cells[1, SelectedRow]) else
+                         Str:=  Trim(Cells[2, SelectedRow]);
+
+                        Str:= SysUtils.StringReplace(Str,'«b»','',[rfReplaceAll]);
+                        Str:= SysUtils.StringReplace(Str,'«/b»','',[rfReplaceAll]);
+
+                         case (Sender as TComponent).Tag of
+                          10 : OptionsForm.DeleteBuddyzz(1,Str);
+                          11 : OptionsForm.DeleteBuddyzz(2,Str);
+                          12 : OptionsForm.DeleteBuddyzz(3,Str);
+                         end;
+
+                       end;
+
+                        GridPlayersMatesSilentMIndexUpdate( GetGrid(ActGridIndex), GetPInfoGrid(P_ALLPLAYERS),GetPInfoGrid(P_MATES), GetBF2List(ActGridIndex) );
+                        GridSilentUpdateMatesCount(GetGrid(ActGridIndex));
+                        GridPOSilentUpdateMates(PROnlinePlayersGrid);
+                 end;
+
+  end;
+
+
+
+  
+
+end;
+
+procedure TForm1.OnlinePlayersPopupMenuPopup(Sender: TObject);
+var Row, ActGridIndex : Integer;  MiNdex: Integer;
+begin
+
+   TBSubmenuItem1.Enabled := False;
+   CopyTextItemPO.Enabled := False;
+   PrefixesItemPO.Enabled := False;
+   NamesItemPO.Enabled    := False;
+   TagsItemPO.Enabled     := False;
+   TBItemAdToBodyListPO.Enabled     := False;
+
+   PrefixesItemPO.Options := [];
+   NamesItemPO.Options    := [];
+   TagsItemPO.Options     := [];
+
+   ActGridIndex       :=   Succ(NxPageControl1.ActivePageindex);
+
+        With  GetGrid(ActGridIndex) do
+        begin
+          if not  ((RowCount > 0) and (SelectedRow > -1)) then Exit;
+
+           TBSubmenuItem1.Enabled := True;
+           CopyTextItemPO.Enabled := True;
+           TBItemAdToBodyListPO.Enabled     := True;
+
+           TBItemCopynamePO.Enabled     := True;
+           TBItemPlayerNotePO.Enabled  := Trim(Cells[16, SelectedRow]) <> '';
+           TBItemCopyCellPO.Enabled    := Cells[SelectedCell.X  , SelectedCell.Y] <> '';
+
+
+          // if Cell[5, SelectedRow].AsInteger = 8 {BOT} then Exit;
+          //  yyyyyyyyyyyyyyy
+            
+          // MiNdex := Cell[9, SelectedRow].AsFloat;
+
+           MiNdex :=  GetEntryValueI( PROnlinePlayersGrid.Cells[C_PO_CMD, SelectedRow], Entry_MATEINDEX, '/');
+
+           {Prefix}
+           if (Cells[1, SelectedRow] <> '') then
+           begin
+            PrefixesItemPO.Enabled:= True;
+            TBItemPrfixAPO.Enabled  := not ( MiNdex in [7,3,2,6] );
+            TBItemPrefixEPO.Enabled := ( MiNdex in [7,3,2,6] );
+            TBItemPrefixDPO.Enabled := ( MiNdex in [7,3,2,6] );
+            if TBItemPrefixEPO.Enabled then
+            PrefixesItemPO.Options:= [tboDefault];
+           end;
+
+
+           {name}
+           if (Cells[2, SelectedRow] <> '') then
+           begin
+            NamesItemPO.Enabled    := True;
+
+            TBItemNameAPO.Enabled  := not ( MiNdex in [1,3,7] );
+            TBItemNameEPO.Enabled  := ( MiNdex in [1,3,7] );
+            TBItemNameDPO.Enabled  := ( MiNdex in [1,3,7] );
+
+            if TBItemNameEPO.Enabled then
+            NamesItemPO.Options:= [tboDefault];
+
+           {tag}
+           TagsItemPO.Enabled     := True;
+           TBItemTagsAPO.Enabled  := True;
+
+           TBItemTagsDPO.Enabled  := ( MiNdex in [4,5,7,6] );
+           TBItemTagsEPO.Enabled  := ( MiNdex in [4,5,7,6] );
+            if TBItemTagsDPO.Enabled then
+            TagsItemPO.Options:= [tboDefault];
+
+           end;
+           (**)
+
+        end;
+end;
+
+procedure TForm1.SettingsGotoClick(Sender: TObject);
+begin
+  OptionsForm.JvPageList1.ActivePageIndex := 3;
+  OptionsForm.JvPageListTreeView1.Items.Item[8].Selected:=True;
+  OptionsForm.ShowModal;
+end;
+
+
+
+{*****************************************************************************}
+
+{*****************************************************************************}
+                                {}
+{*****************************************************************************}
+
+{*****************************************************************************}
+
+
+procedure TForm1.InListServers( SList: TBF2ServerSList);
+
+function GetLastknownIndex(ipqport:string):Integer;
+var Str: string;
+begin
+  Result:= -1;
+  
+  if KnownServersGrid.RowCount <= 0 then Exit;
+  for Result:= KnownServersGrid.RowCount -1 downto 0 do
+  begin
+    Str:= KnownServersGrid.Cells[0, Result];
+    if StrCompare(Str, ipqport) = 0 then
+    Exit;
+  end;
+  Result:= -1;
+end;
+
+
+var i, AROW: Integer;
+begin
+  //GetBF2List( i: Integer): TBF2ServerSList;
+  Application.ProcessMessages;
+  KnownServersGrid.BeginUpdate;
+  for i:=Slist.Count-1 downto 0  do
+  begin
+
+    if SList.AnItems[i].ErrorCode <= -1 then
+    begin  {Bad}  {Áåç Qport}
+
+        if SList.AnItems[i].ServerQueryPort <> '' then
+         AROW:=GetLastknownIndex(SList.AnItems[i].ServerIP+':'+SList.AnItems[i].ServerQueryPort);
+
+        if AROW > -1 then
+        begin
+           if KnownServersGrid.Cell[3 ,AROW].AsInteger > 16 then
+           begin
+            KnownServersGrid.DeleteRow(AROW);
+            Continue;
+           end;
+
+
+           if cDateTime.DiffDays(Now, KnownServersGrid.Cell[2,AROW].AsDateTime) <>  0 then
+            KnownServersGrid.Cell[3 ,AROW].AsInteger := Succ(KnownServersGrid.Cell[3 ,AROW].AsInteger);
+
+
+        end;
+
+    end else
+    begin
+
+         AROW:=GetLastknownIndex(SList.AnItems[i].ServerIP+':'+SList.AnItems[i].ServerQueryPort);
+         if  AROW <= -1 then
+         AROW:=KnownServersGrid.AddRow;
+
+
+         KnownServersGrid.Cells[0, AROW]           := SList.AnItems[i].ServerIP+':'+SList.AnItems[i].ServerQueryPort;
+         KnownServersGrid.Cells[1 ,AROW]           := SList.AnItems[i].hostname;
+         KnownServersGrid.Cell[2, AROW].AsDateTime := Now;
+         KnownServersGrid.Cell[3 ,AROW].AsInteger  := 0;
+
+    end;
+
+
+  end;
+  KnownServersGrid.EndUpdate;
+  KnownServersGrid.SaveToTextFile(LASTKNOWNASS, ',', #19);
+
+end;
+
+
+procedure TForm1.ClearShits;
+var Str: string; i: Integer;
+begin
+   if KnownServersGrid.RowCount <= 0 then Exit;
+
+  for i:= KnownServersGrid.RowCount -1 downto 0 do
+  begin
+    if (Trim(KnownServersGrid.Cells[0, i])= '') or  (Trim(KnownServersGrid.Cells[1, i]) = '')
+    or  ((KnownServersGrid.RowCount > 200) and (cDateTime.DiffMonths(Now, KnownServersGrid.Cell[2, i].AsDateTime) >= 2)) then
+      KnownServersGrid.DeleteRow(i);
+  end;
+
+end;
+
+
+function TForm1.GetLastknown(ipqport:string):string;
+var Str: string;  i: Integer;
+begin
+  Result:='';
+  if KnownServersGrid.RowCount <= 0 then Exit;
+  for i:=0 to KnownServersGrid.RowCount -1 do
+  begin
+    Str:= KnownServersGrid.Cells[0, i];
+      if StrCompare(Str, ipqport) = 0 then
+      begin
+       Result:= KnownServersGrid.Cells[1, i];
+       Exit;
+      end;
+  end;
+  Str:='';
+end;
+
+
+
+
+
+
+
+
+
+
+
+
+procedure TForm1.UpdateFavBtnEn;
+begin
+   TBItem1.Enabled      := (OptionsForm.NextGridFavServers.RowCount > 0);
+   TBItem11.Enabled     := TBItem1.Enabled;
+end;
+
+{Âðåìåííîå ðåøåíèå}
+procedure TForm1.TBItem33Click(Sender: TObject);
+var Str : string;
+begin
+         with  GetGrid(Succ(NxPageControl1.ActivePageindex)) do
+         begin
+         Str:=  Cells[SelectedCell.X, SelectedCell.Y]  ;
+
+         {REMOVE TAGS «b»%s«/b»}
+         Str:= SysUtils.StringReplace(Str,'«b»','',[rfReplaceAll]);
+         Str:= SysUtils.StringReplace(Str,'«/b»','',[rfReplaceAll]);
+
+          if Str <> '' then Str:= Trim(Str);
+                      SendToClipBrd(str);
+         end;
+
+end;
+
+procedure TForm1.TBItem35Click(Sender: TObject);
+var Str : string;
+begin
+         with  GetGrid(Succ(NxPageControl1.ActivePageindex)) do
+         begin
+         Str:=  Cells[6, SelectedCell.Y]  ;
+
+         {REMOVE TAGS «b»%s«/b»}
+         Str:= SysUtils.StringReplace(Str,'«b»','',[rfReplaceAll]);
+         Str:= SysUtils.StringReplace(Str,'«/b»','',[rfReplaceAll]);
+
+          if Str <> '' then Str:= Trim(Str);
+                      SendToClipBrd(str);
+         end;
+
+end;
+
+procedure TForm1.TBItem34Click(Sender: TObject);
+var Str : string;
+begin
+         with  GetGrid(Succ(NxPageControl1.ActivePageindex)) do
+         begin
+         Str:=  Cells[16, SelectedCell.Y]  ;
+
+         {REMOVE TAGS «b»%s«/b»}
+         Str:= SysUtils.StringReplace(Str,'«b»','',[rfReplaceAll]);
+         Str:= SysUtils.StringReplace(Str,'«/b»','',[rfReplaceAll]);
+
+          if Str <> '' then Str:= Trim(Str);
+                      SendToClipBrd(str);
+         end;
+
+
+end;
+
+procedure TForm1.TBItem12Click(Sender: TObject);
+begin
+ Close;
+end;
 
 end.

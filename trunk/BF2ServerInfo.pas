@@ -39,6 +39,7 @@ interface
 
   ByteArray = Array of Byte;
 
+
   TPlayerInfo = record
     Name: string[26];
     Team: string[1];
@@ -778,7 +779,7 @@ end;
       begin
           ////battlefield2.ms14.gamespy.com
           Port  := '28910';
-          Addr  := '207.38.11.181';
+          Addr  := 'battlefield2.ms14.gamespy.com';//'207.38.11.181';
 
           OnDataAvailable      :=  GameSpyWSocketDataAvailable;
           OnSessionConnected   :=  GameSpyWSocketSessionConnected;
@@ -830,7 +831,7 @@ end;
  function TGameSpy.GetValidateStr : string;
  var  x, r : Integer;
  begin
-   Randomize;
+   Randomize;  
    for x:= 1 to 8 do
    begin
     {For Exclude xdec bug}
@@ -1172,6 +1173,9 @@ End;
 
 Function TBF2ServerSList.UpdateServerInfo(const RcvdBytes: array of byte; IP, Qport: string; Index: Integer; StartQTime, EndQTime, LastError : integer): TBF2ServerInfoItem ;
 var BF2SInf : TBF2ServerInfo;   i: Integer;
+
+    LAST_ERC : Integer;
+
 begin
 
 
@@ -1181,13 +1185,22 @@ begin
 
 
       Result  := Self.AnItems[index];//TBF2ServerInfoItem(Self.GetListItem(Index));
-      Result.FErrorCode :=  BF2SInf.FErrCode;
+  //    Result.FErrorCode
+      LAST_ERC :=  Result.FErrorCode;
 
     if BF2SInf.FErrCode  = 1  then
     begin
+      Result.FErrorCode := BF2SInf.FErrCode;
 
       with Result, BF2SInf do
       begin
+        
+
+        
+
+
+
+
 
         Fhostname              :=GValue(0);
         Fgamename              :=GValue(1);
@@ -1261,7 +1274,26 @@ begin
     end else
     begin
 
-      Result.FErrorCode             := -1;
+      if LAST_ERC = -1 then
+      begin
+       Result.FErrorCode  :=  -1; //то через раз будет писаться недоступен
+       //Result.FPing       := 2500;
+      end else
+      begin
+       Result.FPing                  := 2500;
+       Result.FErrorCode             := -2;
+
+      end;
+
+
+
+
+
+
+
+
+
+
       Result.FServerIP              := IP;
       Result.FServerQueryPort       := QPort;
       Result.FLastWSockError        := LastError;

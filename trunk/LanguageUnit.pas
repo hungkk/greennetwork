@@ -3,7 +3,7 @@ unit LanguageUnit;
 interface
 
 uses
-  Unit1, Options, About, ServerPassUnit, TntIniFiles, SysUtils;
+  Unit1, Options, AdvaddBListFrmUnit, About, ServerPassUnit, TntIniFiles, SysUtils, FavAddFrm;
 
 
 procedure ReadLng(LFile: String);
@@ -18,7 +18,7 @@ uses MUnit;
 //   WordsCount = 133;
 
 var
-  WORDS : array [0..171] of string;
+  WORDS : array [0..195] of string;
 
 function GetWORD(Index: Integer) : AnsiString;
 begin
@@ -45,6 +45,7 @@ end;
 
 
 procedure SetLanguage();
+var i: Integer;
 begin
  with Form1 do
  begin
@@ -71,14 +72,14 @@ begin
   {Add server to favorites}
   Add2Fav2.Caption        := WORDS[7];
   Add2fav.Caption         := WORDS[7];
-  TBItemAddToFav3.Caption := WORDS[7];
+//  TBItemAddToFav3.Caption := WORDS[7];
   TBItem4.Hint            := WORDS[7];
 
   {Remove server from favorites}
   TBItem5.Hint            :=  WORDS[8];
   Rem4Fav2.Caption        :=  WORDS[8];
   Rem4Fav.Caption         :=  WORDS[8];
-  TBItem29.Caption        :=  WORDS[8];
+ // TBItem29.Caption        :=  WORDS[8];
 
   //Export to HTML
   TBSubmenuItem4.Caption  := WORDS[9];
@@ -108,7 +109,7 @@ begin
   NxTextColumn2.Header.Caption  :=  WORDS[16];
   NxTextColumn13.Header.Caption :=  WORDS[16];
   NxTextColumn19.Header.Caption :=  WORDS[16];
-  Label7.Caption                :=  WORDS[16];
+  Label7.Caption                :=  WORDS[35];
   TBItem13.Caption              :=  WORDS[16];
 
   // Mates
@@ -151,6 +152,8 @@ begin
    NxTextColumn1.Header.Caption  :=  WORDS[33];
    NxTextColumn12.Header.Caption :=  WORDS[33];
    NxTextColumn18.Header.Caption :=  WORDS[33];
+   //Copy Server name - PopMenu
+   TBItem35.Caption :=  WORDS[33];
 
    //Ping
    NxNumberColumn1.Header.Caption  :=  WORDS[34];
@@ -158,7 +161,7 @@ begin
    NxNumberColumn17.Header.Caption :=  WORDS[34];
    NxNumberColumn4.Header.Caption :=  WORDS[34];
    NxNumberColumn11.Header.Caption :=  WORDS[34];
-   Label4.Caption :=  WORDS[34];
+   Label4.Caption :=  WORDS[34] + ' <=';
    //[35 - OUT]
 
    //MApname
@@ -229,19 +232,19 @@ begin
 
   //53=Copy player
    CopyPlayer.Caption := WORDS[53];
-   TBItemOPCopyPlayers.Caption := WORDS[53];
+ //  TBItemOPCopyPlayers.Caption := WORDS[53];
 
   //54=Add prefix to buddy list
    Addprefix2buddy.Caption   := WORDS[54];
-   TBItemOPAddPrefix.Caption := WORDS[54];
+ //  TBItemOPAddPrefix.Caption := WORDS[54];
   //55=Add name to buddy list
      addname2buddy.Caption   := WORDS[55];
-     TBItemOPAddname.Caption := WORDS[55];
+ //    TBItemOPAddname.Caption := WORDS[55];
   //56=Remove prefix from buddy list
-  TBItemOPremPrefix.Caption  := WORDS[56];
+ // TBItemOPremPrefix.Caption  := WORDS[56];
   remprefix.Caption          := WORDS[56];
   //57=Remove name from buddy list
-  TBItemOPRemname.Caption    := WORDS[57];
+ // TBItemOPRemname.Caption    := WORDS[57];
   remname.Caption            := WORDS[57];
 
 
@@ -249,9 +252,9 @@ begin
 
   //150=Copy player note
   CopyPlayerNote.Caption     := WORDS[150];
-  OPCopyPlayerNote.Caption   := WORDS[150];
+//  OPCopyPlayerNote.Caption   := WORDS[150];
   //151=Copy server note
-  CopyServerNote.Caption     := WORDS[151];
+  TBItem34.Caption     := WORDS[151];
 
   //148=Player note
   NxTextColumn30.Header.Caption := WORDS[148];
@@ -278,16 +281,37 @@ begin
   Label5.Caption := WORDS[113];
   //114=Text
   Label1.Caption := WORDS[114];
-  //115=Search
-  TBItem21.Caption := WORDS[115];
+
   //116=look in:
-  Label2.Caption := WORDS[116];
-  //118=server name
-  Label8.Caption := WORDS[118];
+ // Label2.Caption := WORDS[116];
+  (*
+  //118=server name       {
+         // Label8.Caption := WORDS[118];
+  RadioButtonServerName.Caption := WORDS[118];
   //119=player name
-  Label9.Caption := WORDS[119];
+        // Label9.Caption := WORDS[119];
+  RadioButtonPlayerName.Caption := WORDS[119];
   //120=prefix
-  Label10.Caption := WORDS[120];
+        //Label10.Caption := WORDS[120];
+  RadioButtonPrefix(.Caption := WORDS[120];
+                   *)
+   RadioButtonServerName.Caption := WORDS[118];
+   RadioButtonPlayerName.Caption := WORDS[119];
+   RadioButtonPrefix.Caption := WORDS[120];
+
+    //115=Search
+ // TBItem21.Caption := WORDS[115];
+  TBSubmenuItem8.Caption := WORDS[115];
+
+   for i:=0 to TBSubmenuItem8.Count-1 do
+    if TBSubmenuItem8.Items[i].Checked then
+    TBSubmenuItem8.Caption :=  TBSubmenuItem8.Caption + ': ' + TBSubmenuItem8.Items[i].Caption;
+  {}
+
+
+
+
+
   //165=Click-update
   TBClickUpdate.Hint := WORDS[165];
 
@@ -297,10 +321,122 @@ begin
   //
    CancelButton.Caption := WORDS[169];
 
+
+
+   {TBItemAdToBodyList \ Add to buddy list \ Добавить в список друзей
+CopyTextItem \ Copy text \ Копировать \
+ TBItemCopyCell \ Selected cell \ Текст выбранной ячейки
+ TBItemCopyname \ Player name \ Имя игрока
+ TBItemPlayerNote \ Note \ Текст заметки
+PrefixesItem \ Prefixes \ Префиксы
+ TBItemPrfixA \ Add selected ... \ Добавить из выделенного
+ TBItemPrfixE \ Edit selectd ... \ Редактировать выделенный
+ TBItemPrfixD \ Delete \ Удалить
+NamesItem \ Names \ Имена
+ TBItemNameA \ Add selected ... \ Добавить из выделенного
+ TBItemNameE \ Edit selectd ... \ Редактировать выделенный
+ TBItemNameD
+TagsItem \ Tags \ Тэги
+ TBItemTagsA \ Add selected ... \ Добавить из выделенного
+ TBItemTagsE \ Edit selectd ... \ Редактировать выделенный
+ TBItemTagsD \ Delete \ Удалить}
+
+
+   //Copy Cell text
+   TBItem33.Caption       := WORDS[175];
+   TBSubmenuItem7.Caption := WORDS[174];
+
+   TBItemAdToBodyList.Caption:= WORDS[173];//\ Add to buddy list \ Добавить в список друзей
+   CopyTextItem.Caption      := WORDS[174]; //\ Copy text \ Копировать \
+   TBItemCopyCell.Caption    := WORDS[175]; //\ Selected cell \ Текст выбранной ячейки
+   TBItemCopyname.Caption    := WORDS[176]; //\ Player name \ Имя игрока
+   TBItemPlayerNote.Caption  := WORDS[177]; //\ Note \ Текст заметки
+
+   PrefixesItem.Caption      := WORDS[178]; //\ Prefixes \ Префиксы
+   TBItemPrfixA.Caption      := WORDS[179]; //\ Add selected ... \ Добавить из выделенного
+   TBItemPrefixE.Caption     := WORDS[180]; //\ Edit selectd ... \ Редактировать выделенный
+   TBItemPrefixD.Caption     := WORDS[181]; //\ Delete \ Удалить
+
+   NamesItem.Caption         := WORDS[182]; //\ Names \ Имена
+   TBItemNameA.Caption       := WORDS[179]; //\ Add selected ... \ Добавить из выделенного
+   TBItemNameE.Caption       := WORDS[180]; //\ Edit selectd ... \ Редактировать выделенный
+   TBItemNameD.Caption       := WORDS[181];  //
+
+   TagsItem.Caption          := WORDS[183]; //\ Tags \ Тэги
+   TBItemTagsA.Caption       := WORDS[179]; //\ Add selected ... \ Добавить из выделенного
+   TBItemTagsE.Caption       := WORDS[180]; //\ Edit selectd ... \ Редактировать выделенный
+   TBItemTagsD.Caption       := WORDS[181]; // \ Delete \ Удалить
+
+   {PO}
+   TBItemAdToBodyListPO.Caption:= WORDS[173];//\ Add to buddy list \ Добавить в список друзей
+   CopyTextItemPO.Caption      := WORDS[174]; //\ Copy text \ Копировать \
+   TBItemCopyCellPO.Caption    := WORDS[175]; //\ Selected cell \ Текст выбранной ячейки
+   TBItemCopynamePO.Caption    := WORDS[176]; //\ Player name \ Имя игрока
+   TBItemPlayerNotePO.Caption  := WORDS[177]; //\ Note \ Текст заметки
+
+   PrefixesItemPO.Caption      := WORDS[178]; //\ Prefixes \ Префиксы
+   TBItemPrfixAPO.Caption      := WORDS[179]; //\ Add selected ... \ Добавить из выделенного
+   TBItemPrefixEPO.Caption     := WORDS[180]; //\ Edit selectd ... \ Редактировать выделенный
+   TBItemPrefixDPO.Caption     := WORDS[181]; //\ Delete \ Удалить
+
+   NamesItemPO.Caption         := WORDS[182]; //\ Names \ Имена
+   TBItemNameAPO.Caption       := WORDS[179]; //\ Add selected ... \ Добавить из выделенного
+   TBItemNameEPO.Caption       := WORDS[180]; //\ Edit selectd ... \ Редактировать выделенный
+   TBItemNameDPO.Caption       := WORDS[181];  //
+
+   TagsItemPO.Caption          := WORDS[183]; //\ Tags \ Тэги
+   TBItemTagsAPO.Caption       := WORDS[179]; //\ Add selected ... \ Добавить из выделенного
+   TBItemTagsEPO.Caption       := WORDS[180]; //\ Edit selectd ... \ Редактировать выделенный
+   TBItemTagsDPO.Caption       := WORDS[181]; // \ Delete \ Удалить
+
+
+
+
+
+
+
+
+
+
+
+
+ end;
+
+
+ with Form3 do
+ begin
+  Caption:= WORDS[172];
+  RadioButton1.Caption:= WORDS[44];   //Prefix
+  RadioButton2.Caption:= WORDS[45];   //Name
+  RadioButton3.Caption:= WORDS[74];   //Tag
+  Label3.Caption:=WORDS[76];          //Tag pos
+  Label1.Caption := WORDS[75];//tag case sens
+  Label13.Caption:= WORDS[139];// custom note
+  Label12.Caption:= WORDS[140]; //star
+  CheckBox1.Caption:=  WORDS[138];  //bold
+  Button3.Caption:= WORDS[66];
  end;
 
  With  OptionsForm do
  begin
+
+   //Live Sort
+  GroupBox3.Caption := WORDS[194];
+  //  130=Favorites
+  LiveFavCb.Caption := WORDS[130];
+  //131=GameSpy
+  liveGSCb.Caption := WORDS[131];
+  //132=PlayersOnline
+  LivePoCb.Caption := WORDS[132];
+
+
+
+
+   //Import mode rewrite
+  CheckBox2.Caption:= WORDS[188];
+  CheckBox1.Caption:= WORDS[188];
+
+
  //Copy
   Copy3.Caption:= WORDS[58];
   Button19.Caption:= WORDS[58];
@@ -360,7 +496,9 @@ begin
   //*************************************************************
 
 
-
+  //Import
+   ImportprefixButton.Caption := WORDS[184];
+   ImportNameButton.Caption   := WORDS[185];
 
 
   //65=Save
@@ -418,7 +556,7 @@ begin
   //83=Servers
   Label6.Caption := WORDS[83];
   //84=Delete    OUT
-
+  DelBtnFavServ.Caption := WORDS[181];
 
   //85=Engine
   EngineNxTabSheet.Caption := WORDS[85];
@@ -555,6 +693,15 @@ begin
   Button4.Caption :=  WORDS[164];
 
   
+ end;
+
+ with AddToFavForm do
+ begin
+        Caption        := WORDS[7];
+        Label13.Caption:= WORDS[139];
+        Button2.Caption:= WORDS[72];
+        Button3.Caption:= WORDS[66];
+
  end;
 
 

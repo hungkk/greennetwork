@@ -3,16 +3,13 @@ unit About;
 interface
 
 uses
-  Windows, SysUtils, Classes, Graphics, Controls, Forms, 
-  CnWaterImage, StdCtrls, ShellAPI, ExtCtrls, ComCtrls, pngimage;
-
+  Windows, SysUtils, Classes, Graphics, Controls, Forms,
+  StdCtrls, ShellAPI, ExtCtrls, ComCtrls;
+                  //536
 type
   TAboutForm = class(TForm)
     Button1: TButton;
-    Bevel1: TBevel;
-    CnWaterImage1: TCnWaterImage;
     Bevel2: TBevel;
-    Timer1: TTimer;
     Label3: TLabel;
     Label4: TLabel;
     Label5: TLabel;
@@ -27,6 +24,9 @@ type
     Button4: TButton;
     Button5: TButton;
     Button2: TButton;
+    Label7: TLabel;
+    Label1: TLabel;
+    Memo1: TMemo;
     procedure Button1Click(Sender: TObject);
     procedure CnWaterImage1BeforeRender(Sender: TObject; ABitmap: TBitmap);
     procedure Timer1Timer(Sender: TObject);
@@ -35,8 +35,10 @@ type
     procedure Button2Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure Label7Click(Sender: TObject);
   private
-     FY: Integer;
+    // FY: Integer;
     { Private declarations }
   public
     { Public declarations }
@@ -70,7 +72,7 @@ procedure TAboutForm.CnWaterImage1BeforeRender(Sender: TObject;
 
 
 begin
-
+     (*
   CnWaterImage1.Radius:= Random(50);
 
 
@@ -117,14 +119,14 @@ begin
     Font.Style  := Font.Style - [fsUnderline];
     TextOut(10, iL(FY,14),'prgnetwork.blogspot.com');
 
-  end;
+  end;    *)
 end;
 
 procedure TAboutForm.Timer1Timer(Sender: TObject);
 begin
-  Dec(FY);
+ { Dec(FY);
    if FY < -10 then
-   Timer1.Enabled:= False;
+   Timer1.Enabled:= False; }
  //   FY := CnWaterImage1.Height;
 end;
 
@@ -133,14 +135,17 @@ begin
  // UPDPanel.Visible := False;
  // UPDPanel.top := 500;
   VersionLabel.Caption := Format('ver: %s Build %s',[VerNo, BuildDate]);
-  Randomize;
+ { Randomize;
   FY:=273;
-  Timer1.Enabled:= True;
+  Timer1.Enabled:= True;  }
 end;
 
 procedure TAboutForm.Button5Click(Sender: TObject);
 begin
+  AboutForm.Width := 536;
+
   UPDPanel.Visible := true;
+  Memo1.Visible :=      False;
   UPDPanel.top := 8;
   UPDPanel.left:= 5;
   Form1.GetUpdates(DownLink);
@@ -153,10 +158,11 @@ procedure TAboutForm.Button2Click(Sender: TObject);
 begin
      if not Button4.Enabled then
         FHttpCli.Abort;
-        
 
+     AboutForm.Width := 291;
      //FHttpCli.a
      UPDPanel.Visible := False;
+     Memo1.Visible :=  true;
      UPDPanel.top := 500;
      Close;
      //UPDPanel.left:= 5;
@@ -169,7 +175,17 @@ end;
 
 procedure TAboutForm.Button3Click(Sender: TObject);
 begin
-ShellExecute(0,'OPEN', pChar('http://prgnetwork.blogspot.com'),  NIL, NIL, SW_SHOWNORMAL);
+ShellExecute(0,'OPEN', pChar('http://code.google.com/p/greennetwork/'),  NIL, NIL, SW_SHOWNORMAL);
+end;
+
+procedure TAboutForm.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+   Width := 291;
+end;
+
+procedure TAboutForm.Label7Click(Sender: TObject);
+begin
+  Button3Click(nil);
 end;
 
 end.

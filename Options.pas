@@ -6,7 +6,7 @@ uses
   Windows,
   
   SysUtils,
-//  Variants,
+ // Variants,
   Classes,
   Graphics,
   Controls,
@@ -49,7 +49,23 @@ uses
   NxCustomGrid,
   NxGrid, JvListComb, NxAutoCompletion, Dialogs, JvComponentBase,
   JvExStdCtrls, JvCombobox, NxColumns, NxScrollControl, JvExControls,
-  JvExComCtrls;
+  JvExComCtrls,
+  AdvaddBListFrmUnit, NxPropertyItems,
+  NxPropertyItemClasses, NxInspector, NxThemesSupport, ImgList,
+  PngImageList;
+
+ 
+             {
+   TBF2AccountManager = array of TBF2Acount;
+
+   TBF2Acount = record
+    UserName : string[30];
+    Password : string[20];
+    Prefix   : string[6];
+  end;
+           }
+  
+
 
 
 type
@@ -57,7 +73,6 @@ type
     JvPageList1: TJvPageList;
     JvPageListTreeView1: TJvPageListTreeView;
     Panel1: TPanel;
-    Splitter1: TSplitter;
     JvMatesPage: TJvStandardPage;
     JvServersPage: TJvStandardPage;
     SaveOptionsButton: TButton;
@@ -106,7 +121,6 @@ type
     JvGradientHeaderPanel5: TJvGradientHeaderPanel;
     NxPageControl1: TNxPageControl;
     customfiltercb: TCheckBox;
-    FilterListBox: TCheckListBox;
     TntOpenDialog1: TTntOpenDialog;
     NxTabSheet4: TNxTabSheet;
     NextGridPrefix: TNextGrid;
@@ -191,6 +205,38 @@ type
     NxTextColumn7: TNxTextColumn;
     ServerNoteEdit: TEdit;
     AppEditFavServBtn: TButton;
+    ImportprefixButton: TButton;
+    ImportNameButton: TButton;
+    TntImportDialog: TTntOpenDialog;
+    NxTabSheet1: TNxTabSheet;
+    TempGrid: TNextGrid;
+    NxIncrementColumn5: TNxIncrementColumn;
+    NxCheckBoxColumn5: TNxCheckBoxColumn;
+    NxTextColumn9: TNxTextColumn;
+    NxTextColumn10: TNxTextColumn;
+    NxImageColumn1: TNxImageColumn;
+    CheckBox1: TCheckBox;
+    CheckBox2: TCheckBox;
+    FilterInspector: TNextInspector;
+    NxCheckBoxItem1: TNxCheckBoxItem;
+    NxCheckBoxItem2: TNxCheckBoxItem;
+    NxCheckBoxItem3: TNxCheckBoxItem;
+    NxTextItem2: TNxTextItem;
+    NxCheckBoxItem6: TNxCheckBoxItem;
+    NxCheckBoxItem7: TNxCheckBoxItem;
+    NxCheckBoxItem15: TNxCheckBoxItem;
+    NxCheckBoxItem13: TNxCheckBoxItem;
+    NxCheckBoxItem14: TNxCheckBoxItem;
+    NxTextItem3: TNxTextItem;
+    NxTrackBarItem1: TNxTrackBarItem;
+    NxComboBoxItem1: TNxComboBoxItem;
+    NxColorScheme1: TNxColorScheme;
+    NxTextItem1: TNxTextItem;
+    PngImageList1: TPngImageList;
+    LiveFavCb: TCheckBox;
+    liveGSCb: TCheckBox;
+    LivePoCb: TCheckBox;
+    GroupBox3: TGroupBox;
     procedure SaveOptionsButtonClick(Sender: TObject);
     procedure PopUpAction(Sender:  TObject);
     procedure Button3Click(Sender: TObject);
@@ -215,10 +261,17 @@ type
     procedure ResedUnFinishedEdits(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure customfiltercbClick(Sender: TObject);
+    procedure ImportprefixButtonClick(Sender: TObject);
+    procedure NextGrid1InputAccept(Sender: TObject; var Accept: Boolean);
   private
+    
     { Private declarations }
   public
+
     procedure AddEditNote;
+    procedure AddToGridFromMain;
+    procedure ImportBuddyzz(Cat: Integer; iFile: string; RWmode: Boolean);
+    procedure DeleteBuddyzz(Cat: Integer; NamePrefix: string);
     { Public declarations }
   end;
 
@@ -258,6 +311,11 @@ implementation
 uses MUnit, Unit1, UnitGrid, LanguageUnit, MatesUnit;
 
 {$R *.dfm}
+
+
+
+
+
 
 procedure TOptionsForm.PopUpAction(Sender:  TObject);
 begin
@@ -376,8 +434,17 @@ begin
 
             if TmpInt > -1 then
             begin
+             NextGridFavServers.BeginUpdate;
+              NextGridFavServers.SetFocus;
+
               NextGridFavServers.ScrollToRow(TmpInt);
               NextGridFavServers.SelectedRow:= TmpInt;
+
+              NextGridFavServers.RefreshRow(TmpInt);
+              NextGridFavServers.EndUpdate;
+
+
+
               ServerEdit.Text     := '';
               ServerNoteEdit.Text := '';
               Exit;
@@ -415,11 +482,12 @@ end;
 
 
 procedure TOptionsForm.Button3Click(Sender: TObject);
+var AR: Integer;
 begin
 
             if HasInvalidChars(PlayerPrefixEdit.Text) or HasInvalidChars(PlayerNameEdit.Text) then
             begin
-              MessageBox(0, 'Chars (  \ " ~ ,  ) and spaces inside name or prefix are not allowed!', 'Error: invalid character found', (16*1) or  MB_OK or MB_TOPMOST );
+              MessageBox(0, PChar(GetWord(128)), PChar(GetWord(129)), (16*1) or  MB_OK or MB_TOPMOST );
               Exit;
             end;
 
@@ -429,6 +497,13 @@ begin
    Strings.Add(Trim(PlayerNameEdit.text));
    Strings.Add(Trim(PasswordEdit.text));
  end;
+          {
+    AR:=LoginsGrid.AddRow;
+    LoginsGrid.Cells[0, AR]:=
+    LoginsGrid.Cells[1, AR]:=
+    LoginsGrid.Cells[2, AR]:=
+        }
+
  PlayerPrefixEdit.text  := '';
  PlayerNameEdit.text    := '';
  PasswordEdit.text      := '';
@@ -437,6 +512,8 @@ end;
 
 procedure TOptionsForm.Button4Click(Sender: TObject);
 begin
+ // if (LoginsGrid.RowCount <= 0)  or (LoginsGrid.SelectedRow <= -1) then
+ // LoginsGrid.DeleteRow(LoginsGrid.SelectedRow);
   ColumnListBox1.DeleteSelected;
 end;
 
@@ -539,8 +616,14 @@ begin
               end
               else
               begin
+                NextGridPrefix.BeginUpdate;
+                NextGridPrefix.SetFocus;
+
                 NextGridPrefix.ScrollToRow(i);
                 NextGridPrefix.SelectedRow:= i;
+                NextGridPrefix.RefreshRow(i);
+
+                NextGridPrefix.EndUpdate;
                 Exit;
               end;
 
@@ -666,8 +749,17 @@ begin
               end
               else
               begin
-               NextGridPname.ScrollToRow(i);
-               NextGridPname.SelectedRow:= i;
+                 NextGridPname.BeginUpdate;
+              // NextGridPname.ScrollToRow(i);
+              // NextGridPname.SelectedRow:= i;
+
+               
+                NextGridPname.SetFocus;
+                NextGridPname.SelectedRow := I;
+                NextGridPname.ScrollToRow(i);
+                NextGridPname.RefreshRow(i);
+                NextGridPname.EndUpdate;
+
                Exit;
               end;
 
@@ -766,8 +858,18 @@ begin
               end
               else
               begin
-               NextGridClantag.ScrollToRow(i);
-               NextGridClantag.SelectedRow:= i;
+               NextGridClantag.BeginUpdate;
+              // NextGridClantag.ScrollToRow(i);
+              // NextGridClantag.SelectedRow:= i;
+
+               
+                NextGridClantag.SetFocus;
+                NextGridClantag.SelectedRow := I;
+                NextGridClantag.ScrollToRow(i);
+                NextGridClantag.RefreshRow(i);
+                NextGridClantag.EndUpdate;
+
+
                Exit;
               end;
 
@@ -848,10 +950,12 @@ end;
 procedure TOptionsForm.JvPageListTreeView1Change(Sender: TObject;
   Node: TTreeNode);
 begin
+
      case Node.Parent.Index of
       0: NxPageControl1.ActivePageIndex:= Node.Index;
       2: NxPageControl2.ActivePageIndex:= Node.Index;
      end;
+   
 end;
 
 
@@ -899,8 +1003,229 @@ end;
 
 
 procedure TOptionsForm.customfiltercbClick(Sender: TObject);
+var i: Integer;
 begin
- FilterListBox.Enabled :=   customfiltercb.Checked;
+ for i:=0 to FilterInspector.ItemCount-1 do
+ FilterInspector.Items.Item[i].Enabled := customfiltercb.Checked;
+
+end;
+
+procedure TOptionsForm.DeleteBuddyzz(Cat: Integer; NamePrefix: string);
+var o: Integer; NG: TnextGrid;
+begin
+        o:=-1;
+          case Cat of
+           1:// fpPrefix:
+             begin
+              NG  := NextGridPrefix;
+              o   := GetMateIndex( NamePrefix + ' ', fpPrefix);
+             end;
+           2: //fpName:
+             begin
+                  NG  := NextGridPname;
+                  o   := GetMateIndex( NamePrefix  , fpName);
+             end;
+
+           3: // fpClantag     Временно не сделанно
+             begin
+               NG:= NextGridClantag;
+               o:= GetMateIndex(  NamePrefix, fpClantag );
+               
+             end;
+          end;
+
+          if o > -1 then NG.DeleteRow(o);
+
+    SaveOptions;
+end;
+
+procedure  TOptionsForm.ImportBuddyzz(Cat: Integer; iFile: string; RWmode: Boolean);
+var NG : TNextGrid; i, o: Integer;
+
+  NamePrefix: string;
+  Bolded: Boolean;
+  Star: Integer;
+  Note: string;
+
+  news, modded: Integer;
+
+begin
+  TempGrid.ClearRows;
+
+  Try
+     TempGrid.LoadFromTextFile(iFile, ',', #19);
+  except
+    TempGrid.ClearRows;
+  end;
+        
+  if TempGrid.RowCount = 0 then
+  begin
+    MessageBox(0, PChar(GetWORD(186) +#13#10+ iFile) , PChar(GetWORD(187)), MB_ICONERROR or  MB_OK or MB_TOPMOST );
+    Exit;
+  end;
+
+
+  news   :=0;
+  modded :=0;
+
+         case Cat of
+           1:   NG  := NextGridPrefix;  // fpPrefix:
+           2:   NG  := NextGridPname;//fpName:
+         end;
+
+
+  NG.BeginUpdate;
+    for i:=0 to TempGrid.RowCount -1 do
+    begin
+        NamePrefix:=  TempGrid.cells[2,i];
+
+        if Trim(NamePrefix) = '' then Continue;
+
+        Bolded    :=  TempGrid.cell[1,i].asBoolean;
+        Star      :=  TempGrid.cell[4,i].asinteger;
+        Note      :=  TempGrid.cells[3,i];
+
+
+
+          case Cat of
+           1:// fpPrefix:
+             begin
+             // NG  := NextGridPrefix;
+              o   := GetMateIndex( NamePrefix + ' ', fpPrefix);
+             end;
+           2: //fpName:
+             begin
+              //    NG  := NextGridPname;
+                  o   := GetMateIndex( NamePrefix  , fpName);
+             end;
+
+
+          end;
+
+           if not (o > -1) then
+           begin
+             o:= NG.AddRow();
+             Inc(news);
+           end
+              else
+           if (o > -1) and (not RWmode) then Continue else inc(modded);
+
+
+          if Cat < 3 then
+          begin
+            NG.Cell[1,  o].AsBoolean := Bolded;
+            NG.Cells[2, o]           := NamePrefix;
+            NG.Cells[3, o]           := Note;
+            NG.Cell[4,  o].asInteger := Star;
+
+          end;
+
+    end;
+    TempGrid.ClearRows;
+    NG.EndUpdate;
+    {MSG IMPORT DONE}
+
+   MessageBox(0, PChar(
+   Format( GetWORD(190), [news, modded]) + #13#10 +
+   Format( GetWORD(191) , [news])        + #13#10 +
+   Format( GetWORD(192) , [modded])
+    ) , PChar(Format( GetWORD(189), [news, modded]) ), MB_ICONINFORMATION or  MB_OK );
+
+end;
+
+
+
+
+
+
+
+procedure TOptionsForm.AddToGridFromMain;
+var AROW,i: Integer; NG: TNextGrid; Str: string;
+begin
+    {добавить предпроверку на дубли}
+   i:= -1;
+   with Form3 do
+   begin
+
+    if RadioButton1.Checked then
+    begin
+     NG  := NextGridPrefix;
+     Str :=  Edit1.Text;
+     i   := GetMateIndex(  Str + ' ', fpPrefix);
+    end;
+
+    if RadioButton2.Checked then
+    begin
+         NG  := NextGridPname;
+         Str :=  Edit2.Text;
+         i   := GetMateIndex(  Str , fpName);
+    end;
+
+    if RadioButton3.Checked  then
+    begin
+        NG:= NextGridClantag;
+        Str :=  Trim(Edit4.Text);
+        i:= GetMateIndex(  Str, fpClantag, Succ(ComboBox3.ItemIndex) );  //fpName fpClantag
+    end;
+
+
+      
+            if i>-1 then AROW:= i else
+            AROW:=NG.AddRow();
+
+            NG.Cell[1,  AROW].AsBoolean := CheckBox1.Checked;
+            NG.Cells[2, AROW] := Str;
+            NoteComboBox.Text := ComboBox1.text;
+
+
+           if RadioButton1.Checked or RadioButton2.Checked then
+           begin
+            NG.Cells[3, AROW]           := ComboBox1.Text;
+            NG.Cell[4,  AROW].asInteger := StarCb.ItemIndex;
+           end else
+           begin
+
+            NextGridClantag.Cells[2, AROW]           := Trim(Edit4.Text);
+            NextGridClantag.Cell[3,  AROW].AsInteger  := Succ(ComboBox3.ItemIndex);
+            NextGridClantag.Cell[4,  AROW].AsBoolean := CheckBox2.Checked;
+            NextGridClantag.Cell[5,  AROW].asInteger := StarCb.ItemIndex;
+            NextGridClantag.Cells[6, AROW]           := ComboBox1.Text;
+
+           end;
+
+            
+   end;
+
+
+
+   AddEditNote;
+   NoteComboBox.Text:= '';
+
+   SaveOptions;
+
+end;
+
+
+
+
+
+
+procedure TOptionsForm.ImportprefixButtonClick(Sender: TObject);
+var  b: Boolean;
+begin
+   if (Sender as TComponent).tag = 1 then
+    b:= CheckBox2.Checked else CheckBox1.Checked;
+
+   if TntImportDialog.Execute then
+      ImportBuddyzz( (Sender as TComponent).tag, TntImportDialog.FileName, b);
+
+
+end;
+
+procedure TOptionsForm.NextGrid1InputAccept(Sender: TObject;
+  var Accept: Boolean);
+begin
+   // NxTextColumn11.InputValue
 end;
 
 end.

@@ -1,9 +1,9 @@
 object Form1: TForm1
-  Left = 348
-  Top = 250
-  Width = 894
-  Height = 618
-  Caption = ' PR - Green Network (Build# 0037)'
+  Left = 375
+  Top = 326
+  Width = 845
+  Height = 747
+  Caption = ' PR - Green Network (Build# 0044)'
   Color = clBtnFace
   DefaultMonitor = dmMainForm
   Font.Charset = DEFAULT_CHARSET
@@ -22,29 +22,37 @@ object Form1: TForm1
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object Splitter1: TSplitter
+  object JvNetscapeSplitter2: TJvNetscapeSplitter
     Left = 0
-    Top = 364
-    Width = 886
-    Height = 8
+    Top = 502
+    Width = 837
+    Height = 10
     Cursor = crVSplit
     Align = alBottom
-    AutoSnap = False
-    Beveled = True
+    Color = 13750737
+    MinSize = 1
+    ParentColor = False
     ResizeStyle = rsUpdate
+    Maximized = False
+    Minimized = False
+    ButtonCursor = crDefault
+    WindowsButtons = []
+    ButtonColor = clWindow
+    ButtonHighlightColor = clSilver
+    TextureColor1 = clSilver
   end
   object BottomPanel: TPanel
     Left = 0
-    Top = 372
-    Width = 886
-    Height = 196
+    Top = 512
+    Width = 837
+    Height = 185
     Align = alBottom
     TabOrder = 0
     object JvNetscapeSplitter1: TJvNetscapeSplitter
-      Left = 704
+      Left = 655
       Top = 1
       Width = 16
-      Height = 194
+      Height = 183
       Align = alRight
       Beveled = True
       Color = clWhite
@@ -62,8 +70,8 @@ object Form1: TForm1
     object NxPageControl2: TNxPageControl
       Left = 1
       Top = 1
-      Width = 703
-      Height = 194
+      Width = 654
+      Height = 183
       ActivePage = NxTabSheet3
       ActivePageIndex = 0
       Align = alClient
@@ -72,6 +80,7 @@ object Form1: TForm1
       TabOrder = 0
       BackgroundColor = 14540253
       BackgroundKind = bkVertGradient
+      Images = Png16ImgList
       Margin = 0
       Options = [pgBoldActiveTab, pgTopBorder]
       Spacing = 0
@@ -88,14 +97,14 @@ object Form1: TForm1
         object PlayersGrid: TNextGrid
           Left = 0
           Top = 0
-          Width = 703
-          Height = 173
+          Width = 654
+          Height = 162
           Align = alClient
           AppearanceOptions = [aoAlphaBlendedSelection, aoHighlightSlideCells]
           HeaderStyle = hsVista
           HighlightedTextColor = clHighlight
           Options = [goGrid, goHeader, goSelectFullRow]
-          PopupMenu = TBPopupPlayers
+          PopupMenu = PlayerNamePopup
           TabOrder = 0
           TabStop = True
           OnAfterSort = GridAfterSort
@@ -295,7 +304,7 @@ object Form1: TForm1
             Font.Name = 'MS Sans Serif'
             Font.Style = []
             Header.Caption = 'Note'
-            Position = 11
+            Position = 12
             SortType = stAlphabetic
           end
           object NxNumberColumn23: TNxNumberColumn
@@ -306,16 +315,31 @@ object Form1: TForm1
             Font.Name = 'MS Sans Serif'
             Font.Style = []
             Header.Caption = 'ID'
-            Position = 12
+            Position = 13
             SortType = stNumeric
             Visible = False
             Increment = 1.000000000000000000
             Precision = 0
           end
+          object NxImageColumn15: TNxImageColumn
+            Alignment = taCenter
+            DefaultValue = '0'
+            DefaultWidth = 26
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'MS Sans Serif'
+            Font.Style = []
+            Position = 11
+            SortType = stNumeric
+            Width = 26
+            Images = FlagsPngList
+          end
         end
       end
       object NxTabSheet1: TNxTabSheet
         Caption = ' Mates'
+        DisplayMode = tdImageIndex
         Glyph.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
           2000000000000004000000000000000000000000000000000000000000000000
@@ -351,6 +375,7 @@ object Form1: TForm1
           D0F020C8D0B010B8C020D0FFFF00000000000000000000000000000000000000
           000000000000000000000000000090F8FF00A0F8FF00A0F0FF0080F0FF00E0F8
           FF0060F8FF0000000000E0E8FF00000000000000000000000000}
+        ImageIndex = 6
         PageIndex = 1
         TabFont.Charset = DEFAULT_CHARSET
         TabFont.Color = clWindowText
@@ -361,17 +386,18 @@ object Form1: TForm1
           Tag = 1
           Left = 0
           Top = 0
-          Width = 703
-          Height = 173
+          Width = 654
+          Height = 162
           Align = alClient
           AppearanceOptions = [aoAlphaBlendedSelection, aoHighlightSlideCells]
           HeaderStyle = hsVista
           HighlightedTextColor = clHighlight
           Options = [goGrid, goHeader, goSelectFullRow]
-          PopupMenu = TBPopupPlayers
+          PopupMenu = PlayerNamePopup
           TabOrder = 0
           TabStop = True
           OnAfterSort = GridAfterSort
+          OnCellColoring = MatestGridCellColoring
           OnCellFormating = MatestGridCellFormating
           object NxIncrementColumn3: TNxIncrementColumn
             DefaultWidth = 20
@@ -565,7 +591,7 @@ object Form1: TForm1
             Font.Name = 'MS Sans Serif'
             Font.Style = []
             Header.Caption = 'Note'
-            Position = 11
+            Position = 12
             SortType = stAlphabetic
           end
           object NxNumberColumn24: TNxNumberColumn
@@ -575,11 +601,25 @@ object Form1: TForm1
             Font.Height = -11
             Font.Name = 'MS Sans Serif'
             Font.Style = []
-            Position = 12
+            Position = 13
             SortType = stNumeric
             Visible = False
             Increment = 1.000000000000000000
             Precision = 0
+          end
+          object NxImageColumn16: TNxImageColumn
+            Alignment = taCenter
+            DefaultValue = '0'
+            DefaultWidth = 26
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'MS Sans Serif'
+            Font.Style = []
+            Position = 11
+            SortType = stNumeric
+            Width = 26
+            Images = FlagsPngList
           end
         end
       end
@@ -594,8 +634,8 @@ object Form1: TForm1
         object ServerInfoRich: TRichEdit
           Left = 0
           Top = 0
-          Width = 703
-          Height = 173
+          Width = 654
+          Height = 162
           Align = alClient
           PopupMenu = TBPopupMenuDetailedInfo
           ScrollBars = ssBoth
@@ -612,13 +652,13 @@ object Form1: TForm1
         TabFont.Name = 'MS Sans Serif'
         TabFont.Style = []
         DesignSize = (
-          703
-          173)
+          654
+          162)
         object Memo1: TMemo
           Left = 0
           Top = 0
-          Width = 577
-          Height = 173
+          Width = 641
+          Height = 129
           Anchors = [akLeft, akTop, akRight, akBottom]
           ScrollBars = ssBoth
           TabOrder = 0
@@ -626,10 +666,10 @@ object Form1: TForm1
       end
     end
     object mapPanel: TPanel
-      Left = 720
+      Left = 671
       Top = 1
       Width = 165
-      Height = 194
+      Height = 183
       Align = alRight
       BevelOuter = bvNone
       Color = clWhite
@@ -639,7 +679,7 @@ object Form1: TForm1
         Left = 0
         Top = 0
         Width = 165
-        Height = 194
+        Height = 183
         Align = alClient
         Color = clWhite
         ParentColor = False
@@ -650,8 +690,8 @@ object Form1: TForm1
   object NxPageControl1: TNxPageControl
     Left = 0
     Top = 113
-    Width = 886
-    Height = 251
+    Width = 837
+    Height = 389
     ActivePage = NxTabSheet2
     ActivePageIndex = 0
     Align = alClient
@@ -668,6 +708,8 @@ object Form1: TForm1
     TabStyle = tsClassic
     object NxTabSheet2: TNxTabSheet
       Caption = 'Favorites (0)'
+      DisplayMode = tdImageIndex
+      ImageIndex = 0
       PageIndex = 0
       TabFont.Charset = DEFAULT_CHARSET
       TabFont.Color = clWindowText
@@ -679,14 +721,15 @@ object Form1: TForm1
         Tag = 1
         Left = 0
         Top = 0
-        Width = 886
-        Height = 230
+        Width = 837
+        Height = 368
         Align = alClient
         AppearanceOptions = [aoAlphaBlendedSelection, aoHighlightSlideCells]
         Caption = 
           'List empty. If you have favorites servers in the list, press Alt' +
           '+F to update information about them.'
         GridLinesStyle = lsHorizontalOnly
+        HeaderSize = 21
         HeaderStyle = hsVista
         HighlightedTextColor = clHighlight
         Options = [goGrid, goHeader, goIndicator, goSelectFullRow]
@@ -699,6 +742,7 @@ object Form1: TForm1
         OnClick = ClickUpdate
         OnColumnResize = GridColumnResize
         OnSelectCell = ComOnGridSelectCell
+        OnCellFormating = GlobalServersGridCellFormating
         OnCompare = GlobalServersGridCompare
         object NxIncrementColumn1: TNxIncrementColumn
           DefaultWidth = 25
@@ -916,7 +960,7 @@ object Form1: TForm1
           Font.Name = 'MS Sans Serif'
           Font.Style = []
           Header.Caption = 'Server name'
-          Position = 6
+          Position = 7
           SortType = stAlphabetic
           Width = 186
         end
@@ -931,7 +975,7 @@ object Form1: TForm1
           Font.Style = []
           Header.Caption = 'Ping'
           Options = [coCanClick, coCanInput, coCanSort, coPublicUsing]
-          Position = 7
+          Position = 8
           SortType = stCustom
           Width = 48
         end
@@ -944,7 +988,7 @@ object Form1: TForm1
           Font.Name = 'MS Sans Serif'
           Font.Style = []
           Header.Caption = 'Players'
-          Position = 8
+          Position = 9
           SortKind = skDescending
           SortType = stCustom
           Width = 55
@@ -958,7 +1002,7 @@ object Form1: TForm1
           Font.Name = 'MS Sans Serif'
           Font.Style = []
           Header.Caption = 'Map name'
-          Position = 9
+          Position = 10
           SortType = stAlphabetic
           Width = 109
         end
@@ -971,7 +1015,7 @@ object Form1: TForm1
           Font.Name = 'MS Sans Serif'
           Font.Style = []
           Header.Caption = 'Type'
-          Position = 10
+          Position = 11
           SortType = stAlphabetic
           Width = 97
         end
@@ -1020,7 +1064,7 @@ object Form1: TForm1
             D0F020C8D0B010B8C020D0FFFF00000000000000000000000000000000000000
             000000000000000000000000000090F8FF00A0F8FF00A0F0FF0080F0FF00E0F8
             FF0060F8FF0000000000E0E8FF00000000000000000000000000}
-          Position = 11
+          Position = 12
           SortType = stAlphabetic
         end
         object NxImageColumn6: TNxTextColumn
@@ -1032,7 +1076,7 @@ object Form1: TForm1
           Font.Style = []
           Header.Caption = 'Country'
           Options = [coCanClick, coCanInput, coCanSort, coPublicUsing]
-          Position = 12
+          Position = 13
           SortType = stAlphabetic
         end
         object NxTextColumn11: TNxTextColumn
@@ -1042,8 +1086,8 @@ object Form1: TForm1
           Font.Name = 'MS Sans Serif'
           Font.Style = []
           Header.Caption = 'IP:GPort:QPort'
-          Position = 13
-          SortType = stAlphabetic
+          Position = 14
+          SortType = stIP
         end
         object NxNumberColumn8: TNxNumberColumn
           DefaultValue = '-1'
@@ -1053,7 +1097,7 @@ object Form1: TForm1
           Font.Name = 'MS Sans Serif'
           Font.Style = []
           Header.Caption = 'itemid'
-          Position = 14
+          Position = 15
           SortType = stNumeric
           Visible = False
           Increment = 1.000000000000000000
@@ -1066,7 +1110,7 @@ object Form1: TForm1
           Font.Height = -11
           Font.Name = 'MS Sans Serif'
           Font.Style = []
-          Position = 15
+          Position = 16
           SortType = stNumeric
           Visible = False
           Increment = 1.000000000000000000
@@ -1079,8 +1123,37 @@ object Form1: TForm1
           Font.Name = 'MS Sans Serif'
           Font.Style = []
           Header.Caption = 'Server note'
-          Position = 16
+          Position = 17
           SortType = stAlphabetic
+        end
+        object NxGraphicColumn1: TNxImageColumn
+          Alignment = taCenter
+          DefaultValue = '0'
+          DefaultWidth = 17
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
+          Header.DisplayMode = dmImageOnly
+          Header.Glyph.Data = {
+            76010000424D760100000000000036000000280000000A0000000A0000000100
+            1800000000004001000000000000000000000000000000000000FF00FFFF00FF
+            FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF0000FF00FFFF00FF
+            386B9F9EABB8FF00FFFF00FFFF00FFFF00FFFF00FFFF00FF0000FF00FFFF00FF
+            BBCDDF4175A8BDCAD8FF00FFFF00FFFF00FFFF00FFFF00FF0000FF00FFFF00FF
+            FF00FFBFD1E34C7FB2C0D2E4FF00FFFF00FFFF00FFFF00FF0000FF00FFFF00FF
+            FF00FFFF00FFC2D4E64B73B6B8BDE1FF00FFFF00FFFF00FF0000FF00FFFF00FF
+            FF00FF7F7FD63232B76666FF3232ABB7B7E1FF00FFFF00FF0000FF00FF3232CB
+            3B3BCC5E5EE44E4EE34747E16666FF3535AEB7B7E1FF00FF0000FF00FFFF00FF
+            9494F45858EE6868F45D5DE74646E16666FF3838B9FF00FF0000FF00FFFF00FF
+            FF00FFFF00FF9393F34242DC7F7FDEFF00FFFF00FFFF00FF0000FF00FFFF00FF
+            FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF0000}
+          Options = [coCanClick, coCanInput, coCanSort, coFixedSize, coPublicUsing]
+          Position = 6
+          SortType = stNumeric
+          Width = 17
+          Images = CountryImageList
         end
       end
     end
@@ -1096,12 +1169,13 @@ object Form1: TForm1
         Tag = 2
         Left = 0
         Top = 0
-        Width = 886
-        Height = 230
+        Width = 837
+        Height = 368
         Align = alClient
         AppearanceOptions = [aoAlphaBlendedSelection, aoHighlightSlideCells]
         Caption = 'List empty. Update gamespy server list by pressing Alt+G'
         GridLinesStyle = lsHorizontalOnly
+        HeaderSize = 21
         HeaderStyle = hsVista
         HighlightedTextColor = clHighlight
         Options = [goGrid, goHeader, goIndicator, goSelectFullRow]
@@ -1457,7 +1531,7 @@ object Form1: TForm1
           Font.Style = []
           Header.Caption = 'IP:GPort:QPort'
           Position = 13
-          SortType = stAlphabetic
+          SortType = stIP
         end
         object NxNumberColumn16: TNxNumberColumn
           DefaultValue = '-1'
@@ -1496,6 +1570,35 @@ object Form1: TForm1
           Position = 16
           SortType = stAlphabetic
         end
+        object NxImageColumn18: TNxImageColumn
+          Alignment = taCenter
+          DefaultValue = '0'
+          DefaultWidth = 17
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
+          Header.DisplayMode = dmImageOnly
+          Header.Glyph.Data = {
+            76010000424D760100000000000036000000280000000A0000000A0000000100
+            1800000000004001000000000000000000000000000000000000FF00FFFF00FF
+            FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF0000FF00FFFF00FF
+            386B9F9EABB8FF00FFFF00FFFF00FFFF00FFFF00FFFF00FF0000FF00FFFF00FF
+            BBCDDF4175A8BDCAD8FF00FFFF00FFFF00FFFF00FFFF00FF0000FF00FFFF00FF
+            FF00FFBFD1E34C7FB2C0D2E4FF00FFFF00FFFF00FFFF00FF0000FF00FFFF00FF
+            FF00FFFF00FFC2D4E64B73B6B8BDE1FF00FFFF00FFFF00FF0000FF00FFFF00FF
+            FF00FF7F7FD63232B76666FF3232ABB7B7E1FF00FFFF00FF0000FF00FF3232CB
+            3B3BCC5E5EE44E4EE34747E16666FF3535AEB7B7E1FF00FF0000FF00FFFF00FF
+            9494F45858EE6868F45D5DE74646E16666FF3838B9FF00FF0000FF00FFFF00FF
+            FF00FFFF00FF9393F34242DC7F7FDEFF00FFFF00FFFF00FF0000FF00FFFF00FF
+            FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF0000}
+          Options = [coCanClick, coCanInput, coCanSort, coFixedSize, coPublicUsing]
+          Position = 17
+          SortType = stNumeric
+          Width = 17
+          Images = CountryImageList
+        end
       end
     end
     object NxTabSheet7: TNxTabSheet
@@ -1510,14 +1613,15 @@ object Form1: TForm1
         Tag = 3
         Left = 0
         Top = 0
-        Width = 886
-        Height = 230
+        Width = 837
+        Height = 368
         Align = alClient
         AppearanceOptions = [aoAlphaBlendedSelection, aoHighlightSlideCells]
         Caption = 
           'List empty. Update the list of online playing players by pressin' +
           'g Alt+P'
         GridLinesStyle = lsHorizontalOnly
+        HeaderSize = 21
         HeaderStyle = hsVista
         HighlightedTextColor = clHighlight
         Options = [goGrid, goHeader, goIndicator, goSelectFullRow]
@@ -1835,7 +1939,7 @@ object Form1: TForm1
           Font.Style = []
           Header.Caption = 'IP:GPort:QPort'
           Position = 13
-          SortType = stAlphabetic
+          SortType = stIP
         end
         object NxNumberColumn19: TNxNumberColumn
           DefaultValue = '-1'
@@ -1877,7 +1981,7 @@ object Form1: TForm1
       end
     end
     object NxTabSheet8: TNxTabSheet
-      Caption = 'Public PR Irc chanel (1000)'
+      Caption = 'NxTabSheet8'
       PageIndex = 3
       TabFont.Charset = DEFAULT_CHARSET
       TabFont.Color = clWindowText
@@ -1885,22 +1989,68 @@ object Form1: TForm1
       TabFont.Name = 'MS Sans Serif'
       TabFont.Style = []
       TabVisible = False
-    end
-    object NxTabSheet9: TNxTabSheet
-      Caption = 'News'
-      PageIndex = 4
-      TabFont.Charset = DEFAULT_CHARSET
-      TabFont.Color = clWindowText
-      TabFont.Height = -11
-      TabFont.Name = 'MS Sans Serif'
-      TabFont.Style = []
-      TabVisible = False
+      object KnownServersGrid: TNextGrid
+        Left = 0
+        Top = 0
+        Width = 837
+        Height = 368
+        Align = alClient
+        TabOrder = 0
+        TabStop = True
+        Visible = False
+        object NxTextColumn31: TNxTextColumn
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
+          Header.Caption = 'IP:QPORT'
+          Position = 0
+          SortType = stAlphabetic
+        end
+        object NxTextColumn32: TNxTextColumn
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
+          Header.Caption = 'HOSTNAME'
+          Position = 1
+          SortType = stAlphabetic
+        end
+        object NxDateColumn1: TNxDateColumn
+          DefaultValue = '27.10.2010'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
+          Header.Caption = 'Last update'
+          Position = 2
+          SortType = stDate
+          NoneCaption = 'None'
+          TodayCaption = 'Today'
+        end
+        object NxNumberColumn25: TNxNumberColumn
+          DefaultValue = '0'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
+          Header.Caption = 'bad days count'
+          Position = 3
+          SortType = stNumeric
+          Increment = 1.000000000000000000
+          Precision = 0
+        end
+      end
     end
   end
   object JvStatusBar1: TJvStatusBar
     Left = 0
-    Top = 568
-    Width = 886
+    Top = 697
+    Width = 837
     Height = 23
     Panels = <
       item
@@ -1935,7 +2085,7 @@ object Form1: TForm1
     object CancelButton: TButton
       Left = 153
       Top = 3
-      Width = 72
+      Width = 71
       Height = 19
       Caption = 'Cancel'
       Enabled = False
@@ -1946,7 +2096,7 @@ object Form1: TForm1
   object TBDock1: TTBDock
     Left = 0
     Top = 23
-    Width = 886
+    Width = 837
     Height = 39
     object TBToolbar1: TTBToolbar
       Left = 0
@@ -2046,12 +2196,16 @@ object Form1: TForm1
         ImageIndex = 10
         OnClick = TBClickUpdateClick
       end
+      object TBItem32: TTBItem
+        ImageIndex = 11
+        Visible = False
+      end
     end
   end
   object TBDock2: TTBDock
     Left = 0
     Top = 0
-    Width = 886
+    Width = 837
     Height = 23
     AllowDrag = False
     object TBToolbar2: TTBToolbar
@@ -2063,6 +2217,7 @@ object Form1: TForm1
       CloseButton = False
       DockableTo = []
       DockMode = dmCannotFloatOrChangeDocks
+      DockPos = 64
       DragHandleStyle = dhNone
       FullSize = True
       ProcessShortCuts = True
@@ -2151,6 +2306,7 @@ object Form1: TForm1
         end
         object TBItem12: TTBItem
           Caption = 'Exit'
+          OnClick = TBItem12Click
         end
         object TBItem31: TTBItem
           Caption = 'Debug'
@@ -2295,14 +2451,14 @@ object Form1: TForm1
   object TBDock3: TTBDock
     Left = 0
     Top = 62
-    Width = 886
+    Width = 837
     Height = 51
     object TBsearchToolbar: TTBToolbar
       Left = 0
       Top = 26
       BorderStyle = bsNone
       Caption = 'Search'
-      DockPos = 0
+      DockPos = 136
       DockRow = 1
       FullSize = True
       MenuBar = True
@@ -2322,45 +2478,31 @@ object Form1: TForm1
       object TBSeparatorItem17: TTBSeparatorItem
         Blank = True
       end
-      object TBItem21: TTBItem
+      object TBSubmenuItem8: TTBSubmenuItem
         Tag = 16
-        Caption = 'Search'
+        Caption = 'Search:'
+        DropdownCombo = True
+        Options = [tboDefault]
         OnClick = PopupActionsEnt
-      end
-      object TBSeparatorItem18: TTBSeparatorItem
-      end
-      object TBControlItem19: TTBControlItem
-        Control = Panel1
-      end
-      object TBControlItem7: TTBControlItem
-        Control = Label2
-      end
-      object TBSeparatorItem19: TTBSeparatorItem
-        Blank = True
-      end
-      object TBControlItem1: TTBControlItem
-        Control = RadioButtonServerName
-      end
-      object TBControlItem16: TTBControlItem
-        Control = Label8
-      end
-      object TBSeparatorItem33: TTBSeparatorItem
-        Blank = True
-      end
-      object TBControlItem4: TTBControlItem
-        Control = RadioButtonPlayerName
-      end
-      object TBControlItem17: TTBControlItem
-        Control = Label9
-      end
-      object TBSeparatorItem34: TTBSeparatorItem
-        Blank = True
-      end
-      object TBControlItem5: TTBControlItem
-        Control = RadioButtonPrefix
-      end
-      object TBControlItem18: TTBControlItem
-        Control = Label10
+        object RadioButtonServerName: TTBItem
+          AutoCheck = True
+          Caption = '1'
+          Checked = True
+          GroupIndex = 1
+          OnClick = RadioButtonServerNameClick
+        end
+        object RadioButtonPlayerName: TTBItem
+          AutoCheck = True
+          Caption = '2'
+          GroupIndex = 1
+          OnClick = RadioButtonServerNameClick
+        end
+        object RadioButtonPrefix: TTBItem
+          AutoCheck = True
+          Caption = '3'
+          GroupIndex = 1
+          OnClick = RadioButtonServerNameClick
+        end
       end
       object Label1: TLabel
         Left = 0
@@ -2368,37 +2510,6 @@ object Form1: TForm1
         Width = 21
         Height = 13
         Caption = 'Text'
-      end
-      object Label2: TLabel
-        Left = 236
-        Top = 4
-        Width = 37
-        Height = 13
-        Caption = ' look in:'
-      end
-      object Label8: TLabel
-        Left = 298
-        Top = 4
-        Width = 58
-        Height = 13
-        Caption = 'server name'
-        OnClick = Label8Click
-      end
-      object Label9: TLabel
-        Left = 381
-        Top = 4
-        Width = 57
-        Height = 13
-        Caption = 'player name'
-        OnClick = Label9Click
-      end
-      object Label10: TLabel
-        Left = 463
-        Top = 4
-        Width = 25
-        Height = 13
-        Caption = 'prefix'
-        OnClick = Label10Click
       end
       object SearchComboBox: TComboBox
         Tag = 16
@@ -2409,38 +2520,6 @@ object Form1: TForm1
         ItemHeight = 13
         TabOrder = 0
         OnKeyDown = SearchComboBoxKeyDown
-      end
-      object RadioButtonServerName: TRadioButton
-        Left = 279
-        Top = 2
-        Width = 19
-        Height = 17
-        Caption = '  '
-        Checked = True
-        TabOrder = 1
-        TabStop = True
-      end
-      object RadioButtonPlayerName: TRadioButton
-        Left = 362
-        Top = 2
-        Width = 19
-        Height = 17
-        TabOrder = 2
-      end
-      object RadioButtonPrefix: TRadioButton
-        Left = 444
-        Top = 2
-        Width = 19
-        Height = 17
-        TabOrder = 3
-      end
-      object Panel1: TPanel
-        Left = 229
-        Top = 4
-        Width = 7
-        Height = 13
-        BevelOuter = bvNone
-        TabOrder = 4
       end
     end
     object TBFilterlbar: TTBToolbar
@@ -2534,16 +2613,16 @@ object Form1: TForm1
       object Label4: TLabel
         Left = 442
         Top = 4
-        Width = 21
+        Width = 36
         Height = 13
-        Caption = 'Ping'
+        Caption = 'Ping <='
       end
       object Label7: TLabel
-        Left = 528
+        Left = 543
         Top = 4
-        Width = 34
+        Width = 49
         Height = 13
-        Caption = 'Players'
+        Caption = 'Players >='
       end
       object FilterServerNameEdit: TEdit
         Tag = 14
@@ -2565,7 +2644,7 @@ object Form1: TForm1
       end
       object FilterPingEdit: TSpinEdit
         Tag = 14
-        Left = 469
+        Left = 484
         Top = 0
         Width = 53
         Height = 22
@@ -2578,7 +2657,7 @@ object Form1: TForm1
       end
       object FilterPlayersEdit: TSpinEdit
         Tag = 14
-        Left = 568
+        Left = 598
         Top = 0
         Width = 48
         Height = 22
@@ -2595,8 +2674,8 @@ object Form1: TForm1
     Top = 224
   end
   object ImageList2: TImageList
-    Left = 24
-    Top = 200
+    Left = 48
+    Top = 240
     Bitmap = {
       494C010102000400040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
@@ -2743,7 +2822,7 @@ object Form1: TForm1
     PopupMenu = TrayPopupMenu1
     Visibility = [tvVisibleTaskBar, tvVisibleTaskList, tvAutoHide, tvAutoHideIcon, tvRestoreClick, tvMinimizeClick]
     Left = 328
-    Top = 384
+    Top = 352
   end
   object SkinData1: TSkinData
     Active = False
@@ -2858,7 +2937,7 @@ object Form1: TForm1
     MenuUpdate = False
     MenuMerge = False
     OnSkinChanged = SkinData1SkinChanged
-    Left = 88
+    Left = 120
     Top = 256
     SkinStream = {
       CA5A0000FC790300FE6771B8CFCE3B0AFE7DDBA97F4F1803FE0024801EE0100B
@@ -3592,10 +3671,15 @@ object Form1: TForm1
   object TBPopupMenu1: TTBPopupMenu
     Tag = 98
     OnPopup = OnPopup
-    Left = 224
+    Left = 256
     Top = 256
     object TBSubmenuItem6: TTBSubmenuItem
       Caption = 'Join server as'
+      object TBSeparatorItem18: TTBSeparatorItem
+      end
+      object TBItem29: TTBItem
+        Caption = '(......)'
+      end
     end
     object TBSeparatorItem12: TTBSeparatorItem
     end
@@ -3619,17 +3703,28 @@ object Form1: TForm1
     end
     object TBSeparatorItem37: TTBSeparatorItem
     end
-    object CopyServerNote: TTBItem
-      Tag = 23
-      Caption = 'Copy server note'
-      OnClick = PopupActionsEnt
+    object TBSubmenuItem7: TTBSubmenuItem
+      Caption = 'Copy text'
+      object TBItem33: TTBItem
+        Caption = 'Selected cell'
+        OnClick = TBItem33Click
+      end
+      object TBSeparatorItem21: TTBSeparatorItem
+      end
+      object TBItem35: TTBItem
+        Caption = 'Server name'
+        OnClick = TBItem35Click
+      end
+      object TBItem34: TTBItem
+        Caption = 'Note'
+      end
     end
   end
   object TBPopupPlayers: TTBPopupMenu
     Tag = 44
     OnPopup = TBPopupPlayersPopup
-    Left = 65
-    Top = 352
+    Left = 769
+    Top = 624
     object CopyPlayer: TTBItem
       Tag = 11
       Caption = 'Copy player'
@@ -3669,69 +3764,115 @@ object Form1: TForm1
     Associate = SearchComboBox
     Enabled = True
     Sources = [asList]
-    Left = 360
-    Top = 383
+    Left = 328
+    Top = 351
   end
   object OnlinePlayersPopupMenu: TTBPopupMenu
     Tag = 99
-    OnPopup = OnPopup
-    Left = 256
+    OnPopup = OnlinePlayersPopupMenuPopup
+    Left = 304
     Top = 256
     object TBSubmenuItem1: TTBSubmenuItem
       Caption = 'Join server as'
+      object TBSeparatorItem20: TTBSeparatorItem
+      end
+      object TBItem21: TTBItem
+        Caption = '(Set up join server option ...)'
+      end
     end
     object TBSeparatorItem23: TTBSeparatorItem
     end
-    object TBItemOPCopyPlayers: TTBItem
-      Tag = 11
-      Caption = 'Copy player'
-      OnClick = PopupActionsEnt
-    end
-    object OPCopyPlayerNote: TTBItem
-      Tag = 23
-      Caption = 'Copy player note'
-      OnClick = PopupActionsEnt
-    end
-    object TBSeparatorItem21: TTBSeparatorItem
-    end
-    object TBItemOPAddPrefix: TTBItem
-      Tag = 6
-      Caption = 'Add prefix'
-      OnClick = PopupActionsEnt
-    end
-    object TBItemOPAddname: TTBItem
-      Tag = 8
-      Caption = 'Add name'
-      OnClick = PopupActionsEnt
-    end
-    object TBSeparatorItem20: TTBSeparatorItem
-    end
-    object TBItemAddToFav3: TTBItem
-      Tag = 4
-      Caption = 'Add server to favorites'
-      OnClick = PopupActionsEnt
-    end
-    object TBItem29: TTBItem
+    object TBItemAdToBodyListPO: TTBItem
       Tag = 5
-      Caption = 'Remove server from favorites'
-      OnClick = PopupActionsEnt
+      Caption = 'Add to buddy list'
+      OnClick = OnlinePlayersPopupMenuActClick
     end
-    object TBSeparatorItem22: TTBSeparatorItem
+    object CopyTextItemPO: TTBSubmenuItem
+      Caption = 'Copy text'
+      object TBItemCopyCellPO: TTBItem
+        Tag = 3
+        Caption = 'Selected cell'
+        OnClick = OnlinePlayersPopupMenuActClick
+      end
+      object TBSeparatorItem19: TTBSeparatorItem
+      end
+      object TBItemCopynamePO: TTBItem
+        Tag = 1
+        Caption = 'Player name'
+        OnClick = OnlinePlayersPopupMenuActClick
+      end
+      object TBItemPlayerNotePO: TTBItem
+        Tag = 2
+        Caption = 'Note'
+        OnClick = OnlinePlayersPopupMenuActClick
+      end
     end
-    object TBItemOPremPrefix: TTBItem
-      Tag = 7
-      Caption = 'Remove prefix'
-      OnClick = PopupActionsEnt
+    object TBSeparatorItem33: TTBSeparatorItem
     end
-    object TBItemOPRemname: TTBItem
-      Tag = 9
-      Caption = 'Remove name'
-      OnClick = PopupActionsEnt
+    object PrefixesItemPO: TTBSubmenuItem
+      Caption = 'Prefixes'
+      object TBItemPrfixAPO: TTBItem
+        Tag = 4
+        Caption = 'Add selected ...'
+        OnClick = OnlinePlayersPopupMenuActClick
+      end
+      object TBItemPrefixEPO: TTBItem
+        Tag = 7
+        Caption = 'Edit selectd ...'
+        OnClick = OnlinePlayersPopupMenuActClick
+      end
+      object TBSeparatorItem34: TTBSeparatorItem
+      end
+      object TBItemPrefixDPO: TTBItem
+        Tag = 10
+        Caption = 'Delete'
+        OnClick = OnlinePlayersPopupMenuActClick
+      end
+    end
+    object NamesItemPO: TTBSubmenuItem
+      Caption = 'Names'
+      object TBItemNameAPO: TTBItem
+        Tag = 5
+        Caption = 'Add selected ...'
+        OnClick = OnlinePlayersPopupMenuActClick
+      end
+      object TBItemNameEPO: TTBItem
+        Tag = 8
+        Caption = 'Edit selectd ...'
+        OnClick = OnlinePlayersPopupMenuActClick
+      end
+      object TBSeparatorItem39: TTBSeparatorItem
+      end
+      object TBItemNameDPO: TTBItem
+        Tag = 11
+        Caption = 'Delete'
+        OnClick = OnlinePlayersPopupMenuActClick
+      end
+    end
+    object TagsItemPO: TTBSubmenuItem
+      Caption = 'Tags'
+      object TBItemTagsAPO: TTBItem
+        Tag = 6
+        Caption = 'Add new tag'
+        OnClick = OnlinePlayersPopupMenuActClick
+      end
+      object TBItemTagsEPO: TTBItem
+        Tag = 9
+        Caption = 'Edit selected'
+        OnClick = OnlinePlayersPopupMenuActClick
+      end
+      object TBSeparatorItem40: TTBSeparatorItem
+      end
+      object TBItemTagsDPO: TTBItem
+        Tag = 12
+        Caption = 'Delete'
+        OnClick = OnlinePlayersPopupMenuActClick
+      end
     end
   end
   object TrayPopupMenu1: TPopupMenu
-    Left = 385
-    Top = 384
+    Left = 337
+    Top = 352
     object Showapplication1: TMenuItem
       Caption = 'Show application'
       OnClick = Showapplication1Click
@@ -3746,8 +3887,8 @@ object Form1: TForm1
   end
   object TBPopupMenuDetailedInfo: TTBPopupMenu
     OnPopup = TBPopupMenuDetailedInfoPopup
-    Left = 161
-    Top = 353
+    Left = 137
+    Top = 545
     object TBDTinfoCopy: TTBItem
       Caption = 'Copy'
       ShortCut = 16451
@@ -3764,12 +3905,14 @@ object Form1: TForm1
   object ExportDialog: TSaveDialog
     DefaultExt = '.htm'
     Filter = '*.htm|*.htm'
-    Left = 120
-    Top = 254
+    Left = 152
+    Top = 262
   end
   object PngImageList1: TPngImageList
     PngImages = <
       item
+        Background = clWindow
+        Name = 'PngImage0'
         PngImage.Data = {
           89504E470D0A1A0A0000000D49484452000000100000001008060000001FF3FF
           610000000473424954080808087C086488000000097048597300000AF000000A
@@ -3781,10 +3924,10 @@ object Form1: TForm1
           810624E0F5021E435034E30D03A0210FA0CE87818740CD0A440722D0000C09A0
           018C441900D40C0AC403403C018841DE0139BB00881D80865C20C60001A88D1F
           F089E1F502B160E00D0000E0C562E124B3F5180000000049454E44AE426082}
-        Name = 'PngImage0'
-        Background = clWindow
       end
       item
+        Background = clWindow
+        Name = 'PngImage1'
         PngImage.Data = {
           89504E470D0A1A0A0000000D49484452000000100000001008060000001FF3FF
           610000000473424954080808087C086488000000097048597300000B1200000B
@@ -3796,10 +3939,10 @@ object Form1: TForm1
           7D106880035E2F000D5900A4E2B1685E08D49C405418000DC190006A66242A10
           A1E1701E8BB986C8FEC7674000902A00E209400D1BD0F944798158300C0C0000
           AB7B5EE1E7DE07290000000049454E44AE426082}
-        Name = 'PngImage1'
-        Background = clWindow
       end
       item
+        Background = clWindow
+        Name = 'PngImage2'
         PngImage.Data = {
           89504E470D0A1A0A0000000D49484452000000100000001008060000001FF3FF
           610000000473424954080808087C086488000000097048597300000AF000000A
@@ -3811,10 +3954,10 @@ object Form1: TForm1
           810624E0F5021E435034E30D03A0210FA0CE87818740CD0A440722D0000C09A0
           018C441900D40C0AC403403C018841DE0139BB00881D80865C20C60001A88D1F
           F089E1F502B160E00D0000D76562E15ACB8DD40000000049454E44AE426082}
-        Name = 'PngImage2'
-        Background = clWindow
       end
       item
+        Background = clWindow
+        Name = 'PngImage3'
         PngImage.Data = {
           89504E470D0A1A0A0000000D49484452000000100000001008060000001FF3FF
           610000000473424954080808087C086488000000097048597300000B1200000B
@@ -3826,10 +3969,10 @@ object Form1: TForm1
           7D106880035E2F000D5900A4E2B1685E08D49C405418000DC190006A66242A10
           A1E1701E8BB986C8FEC7674000902A00E209400D1BD0F944798158300C0C0000
           12E65EE15942CB620000000049454E44AE426082}
-        Name = 'PngImage3'
-        Background = clWindow
       end
       item
+        Background = clWindow
+        Name = 'PngImage4'
         PngImage.Data = {
           89504E470D0A1A0A0000000D49484452000000100000001008060000001FF3FF
           610000000473424954080808087C086488000000097048597300000B1200000B
@@ -3841,10 +3984,10 @@ object Form1: TForm1
           7D106880035E2F000D5900A4E2B1685E08D49C405418000DC190006A66242A10
           A1E1701E8BB986C8FEC7674000902A00E209400D1BD0F944798158300C0C0000
           CEB35EE1CDFF6DDA0000000049454E44AE426082}
-        Name = 'PngImage4'
-        Background = clWindow
       end
       item
+        Background = clWindow
+        Name = 'PngImage5'
         PngImage.Data = {
           89504E470D0A1A0A0000000D49484452000000100000001008060000001FF3FF
           610000000473424954080808087C086488000000097048597300000B1200000B
@@ -3856,22 +3999,10 @@ object Form1: TForm1
           7D106880035E2F000D5900A4E2B1685E08D49C405418000DC190006A66242A10
           A1E1701E8BB986C8FEC7674000902A00E209400D1BD0F944798158300C0C0000
           1CDA5EE1ED45E7570000000049454E44AE426082}
-        Name = 'PngImage5'
-        Background = clWindow
       end
       item
-        PngImage.Data = {
-          89504E470D0A1A0A0000000D49484452000000100000001008060000001FF3FF
-          610000000473424954080808087C086488000000097048597300000B1200000B
-          1201D2DD7EFC00000016744558744372656174696F6E2054696D650030332F31
-          342F3130842C725B0000001C74455874536F6674776172650041646F62652046
-          697265776F726B732043533406B2D3A00000001A4944415478DA63FCFFFF3F03
-          258071D4805103460D182E060000FD5A2FE19704E8CE0000000049454E44AE42
-          6082}
+        Background = clWindow
         Name = 'PngImage6'
-        Background = clWindow
-      end
-      item
         PngImage.Data = {
           89504E470D0A1A0A0000000D49484452000000100000001008060000001FF3FF
           610000000473424954080808087C086488000000097048597300000B1200000B
@@ -3880,10 +4011,22 @@ object Form1: TForm1
           697265776F726B732043533406B2D3A00000001A4944415478DA63FCFFFF3F03
           258071D4805103460D182E060000FD5A2FE19704E8CE0000000049454E44AE42
           6082}
-        Name = 'PngImage8'
-        Background = clWindow
       end
       item
+        Background = clWindow
+        Name = 'PngImage8'
+        PngImage.Data = {
+          89504E470D0A1A0A0000000D49484452000000100000001008060000001FF3FF
+          610000000473424954080808087C086488000000097048597300000B1200000B
+          1201D2DD7EFC00000016744558744372656174696F6E2054696D650030332F31
+          342F3130842C725B0000001C74455874536F6674776172650041646F62652046
+          697265776F726B732043533406B2D3A00000001A4944415478DA63FCFFFF3F03
+          258071D4805103460D182E060000FD5A2FE19704E8CE0000000049454E44AE42
+          6082}
+      end
+      item
+        Background = clWindow
+        Name = 'PngImage7'
         PngImage.Data = {
           89504E470D0A1A0A0000000D49484452000000100000001008060000001FF3FF
           610000000473424954080808087C086488000000097048597300000AF000000A
@@ -3893,10 +4036,8 @@ object Form1: TForm1
           258071E00D38C3C0806282F1FFFF8C30F65946C6FFC8E2C87C1403D035C11463
           1347670F220360FEC3A6688878812203884D07D80C1B044979C00D00007213B6
           AF9E29C8EE0000000049454E44AE426082}
-        Name = 'PngImage7'
-        Background = clWindow
       end>
-    Left = 304
+    Left = 232
     Top = 198
     Bitmap = {}
   end
@@ -3905,6 +4046,8 @@ object Form1: TForm1
     Width = 29
     PngImages = <
       item
+        Background = clWindow
+        Name = 'PngImage0'
         PngImage.Data = {
           89504E470D0A1A0A0000000D494844520000001D0000001D0806000000569367
           0F0000000473424954080808087C086488000000097048597300000AF000000A
@@ -3929,10 +4072,10 @@ object Form1: TForm1
           00CC19D6518C4A89E11129ACBC9EAAA0D4C10B9635962636D6C086713BDA6AB4
           165E55ED54501A961F56B7B20394DA06587542754B74F5B7E258FB038AA64B8E
           6E8B295B0000000049454E44AE426082}
-        Name = 'PngImage0'
-        Background = clWindow
       end
       item
+        Background = clWindow
+        Name = 'PngImage1'
         PngImage.Data = {
           89504E470D0A1A0A0000000D494844520000001D0000001D0806000000569367
           0F0000000473424954080808087C086488000000097048597300000AF000000A
@@ -3960,10 +4103,10 @@ object Form1: TForm1
           59DB897ED968742BE3334B78B916091E286983F5A0223CC938CE1A237AAA5CE8
           28A39D3551412B680555820A9164DD277AA19CA8D08E129D2BF5FADFFFBC73D6
           626F8D7D0000000049454E44AE426082}
-        Name = 'PngImage1'
-        Background = clWindow
       end
       item
+        Background = clWindow
+        Name = 'PngImage2'
         PngImage.Data = {
           89504E470D0A1A0A0000000D494844520000001D0000001D0806000000569367
           0F0000000473424954080808087C086488000000097048597300000B1200000B
@@ -4012,10 +4155,10 @@ object Form1: TForm1
           6A9005A6A66E06AB66A2705A015030D59C46390D38BA9E5EFA97486E1EFA7588
           FACEBA64F775EF26B814FF5785EF00FE447FCBFC07AD613557E1FDD956000000
           0049454E44AE426082}
-        Name = 'PngImage2'
-        Background = clWindow
       end
       item
+        Background = clWindow
+        Name = 'PngImage3'
         PngImage.Data = {
           89504E470D0A1A0A0000000D494844520000001D0000001D0806000000569367
           0F0000000473424954080808087C086488000000097048597300000AF000000A
@@ -4040,10 +4183,10 @@ object Form1: TForm1
           00CC19D6518C4A89E11129ACBC9EAAA0D4C10B9635962636D6C086713BDA6AB4
           165E55ED54501A961F56B7B20394DA06587542754B74F5B7E258FB038AA64B8E
           6E8B295B0000000049454E44AE426082}
-        Name = 'PngImage3'
-        Background = clWindow
       end
       item
+        Background = clWindow
+        Name = 'PngImage4'
         PngImage.Data = {
           89504E470D0A1A0A0000000D494844520000001D0000001D0806000000569367
           0F0000000473424954080808087C086488000000097048597300000B1200000B
@@ -4086,10 +4229,10 @@ object Form1: TForm1
           B607CA683EBD80F68641E3051EE85514F5B4FAF8191A97606A4968960294FFC4
           BCF117C47A4B0015098D528106C03A14066829CAED76409DC942FF03BE8C2ACD
           87ADEC770000000049454E44AE426082}
-        Name = 'PngImage4'
-        Background = clWindow
       end
       item
+        Background = clWindow
+        Name = 'PngImage5'
         PngImage.Data = {
           89504E470D0A1A0A0000000D494844520000001D0000001D0806000000569367
           0F0000000473424954080808087C086488000000097048597300000B1200000B
@@ -4130,10 +4273,10 @@ object Form1: TForm1
           6C46FF3EF4E7EC14443FD996C1AE59F25C833FE2A8EC3F759653521371F6853F
           F85DFFF7BE752735C48E3E6DAB19FF02192D713D7AFA53210000000049454E44
           AE426082}
-        Name = 'PngImage5'
-        Background = clWindow
       end
       item
+        Background = clWindow
+        Name = 'PngImage6'
         PngImage.Data = {
           89504E470D0A1A0A0000000D494844520000001D0000001D0806000000569367
           0F0000000473424954080808087C086488000000097048597300000AF000000A
@@ -4159,10 +4302,10 @@ object Form1: TForm1
           D4CC8A25E17BB6B0F67AAA83A283537A3998CF7106520093EDB0D5B016CE74ED
           74504CCBAD54F71804686B1B97AA0F752BD8E8B7E2A3F60C007854CF6020A057
           0000000049454E44AE426082}
-        Name = 'PngImage6'
-        Background = clWindow
       end
       item
+        Background = clWindow
+        Name = 'PngImage7'
         PngImage.Data = {
           89504E470D0A1A0A0000000D494844520000001D0000001D0806000000569367
           0F0000000473424954080808087C086488000000097048597300000B1200000B
@@ -4217,10 +4360,10 @@ object Form1: TForm1
           703D40FD882A7DA7D0511E7346796CDEE341D455D491770EB5106A018A945472
           7BD5A20EBE17A8096C3E5C61A8A528475415EAF27B838EF2987C3493324ABEA9
           3B50EDFF0289ACB062224B1FA00000000049454E44AE426082}
-        Name = 'PngImage7'
-        Background = clWindow
       end
       item
+        Background = clWindow
+        Name = 'PngImage8'
         PngImage.Data = {
           89504E470D0A1A0A0000000D494844520000001D0000001D0806000000569367
           0F0000000473424954080808087C086488000000097048597300000B1200000B
@@ -4262,10 +4405,10 @@ object Form1: TForm1
           B737DCDDDD717575052A0832694162BF89CBC9AB7CAE48005FFFC3EC7FF90415
           819367AFF3B16D4FBEF9DF8A6F25FF01D9F9460B35E3031A0000000049454E44
           AE426082}
-        Name = 'PngImage8'
-        Background = clWindow
       end
       item
+        Background = clWindow
+        Name = 'PngImage9'
         PngImage.Data = {
           89504E470D0A1A0A0000000D494844520000001D0000001D0806000000569367
           0F0000000473424954080808087C086488000000097048597300000AF000000A
@@ -4303,10 +4446,10 @@ object Form1: TForm1
           FB009891B0BB5A01647B8627A8AAFD5E4FB5A01CC04CBE407E5B39030399FC8E
           971AE7C2557FDF69417958C6A53A473040D5B7B152758ABF7BD3A6FF56FC0BFB
           03B22302925CA85ADB0000000049454E44AE426082}
-        Name = 'PngImage9'
-        Background = clWindow
       end
       item
+        Background = clWindow
+        Name = 'PngImage10'
         PngImage.Data = {
           89504E470D0A1A0A0000000D494844520000001D0000001D0806000000569367
           0F0000000473424954080808087C086488000000097048597300000B1200000B
@@ -4371,16 +4514,47 @@ object Form1: TForm1
           1FC7F706E4F0E5BBEC0EFB6F45ECA6186E027CAC2861942F471331F9E2C41B3B
           301BF17B39807478EF01580F0D33FE05BF21D2730CFC7E100000000049454E44
           AE426082}
-        Name = 'PngImage10'
+      end
+      item
         Background = clWindow
+        Name = 'Live'
+        PngImage.Data = {
+          89504E470D0A1A0A0000000D494844520000001D0000001D0806000000569367
+          0F0000000473424954080808087C086488000000097048597300000B1200000B
+          1201D2DD7EFC0000001C74455874536F6674776172650041646F626520466972
+          65776F726B732043533571B5E33600000016744558744372656174696F6E2054
+          696D650031312F33302F31302ABBA7DB000002814944415478DABD963B50DB40
+          108657BD6792D63440E3364A0C69514819F148C7A3000A1BA812707ACB69C10E
+          A96243413293400B58B4A0B4C1724C89684C835A67ECDED93D74CA49F638B2B0
+          FCCFACEF74A7B9EF76BDA75BA9DD6E4350BD9C9854B051BA4C35D06ABF2A5746
+          9075A4FF411DD07BB4B900EBFD413B41D37003F5BEA10E4C439B0A1C0AAF3E3B
+          F046202802F7B079171226EA1A4DF1833D50843D75C213D6BB6EBA439345B01F
+          6A0C18E87A8C50B9038A400D9B6C0440AE1C823506A59FC9E404EDE277844012
+          65B67C6556EA1C6A403461EDF016A19A34242FB9EE103A46D0411D8FA07A4ED0
+          1A769EF191442201DB1F3250D8CD836559EE9BDB990C6B2DEB06D49919CF7C71
+          BF0466C504DBBE6773A2F472194D1787D608EAF93A249349F8522AC2E6FA0698
+          A6E98ED3C224827D3FFA019F0A05383E3A862945819DDD1DF898CB413C3E02A9
+          740AAAD56A2F68AE6FE8467A1D4ECB67D06AB66079698945606171015EBF9AC6
+          769141F1F8F50A6F382807CDCDCE42B154C2B0DA6C3C954E33A828FF3AA1A1FC
+          9D735D8737AAEA869A430FF60FFE85572F837D6F3F1E4ABA302E21168BB13E79
+          4C0B736890F07AB297436FAD5B68B69A6E32F0ACE4D0AC96655ED27BF4DF9238
+          544C24EBC682423E2F42DF769CD3F8481C54D59BF655F498C61F36F0908974B4
+          2873698E478436FC024D141D235FF68E1354C1CE250C47D7F84592F9B7B78ECD
+          E810A05B08DDE3D0556C0E2306D22D3386D086C4478670D3AC21F02B75442895
+          2A75B42711004F1138CF1F2471C6B9E68C01835971466175A1FE6A100F3681A9
+          381B4462FD449BEF590D0A600AB5068FBB67DD9AC8AF9E15BE5370AFA2ADF401
+          FB06612BFC2E9E5322C88EF95573ECA45B45EFD75F6FD96108FB9174BE000000
+          0049454E44AE426082}
       end>
-    Left = 272
-    Top = 198
+    Left = 256
+    Top = 222
     Bitmap = {}
   end
   object Png16ImgList: TPngImageList
     PngImages = <
       item
+        Background = clWindow
+        Name = 'PngImage2'
         PngImage.Data = {
           89504E470D0A1A0A0000000D49484452000000100000001008060000001FF3FF
           610000000473424954080808087C086488000000097048597300000B1200000B
@@ -4392,10 +4566,10 @@ object Form1: TForm1
           B265182EC13060DBB66DFF8B8B8BE19A610064486F6F2F839797D7603600A499
           98A8433604C380DE9A16BC9A8B5B6A081B0052840DC0E4465D404B179003000F
           50A7E183AFA88F0000000049454E44AE426082}
-        Name = 'PngImage2'
-        Background = clWindow
       end
       item
+        Background = clWindow
+        Name = 'PngImage3'
         PngImage.Data = {
           89504E470D0A1A0A0000000D49484452000000100000001008060000001FF3FF
           610000000473424954080808087C086488000000097048597300000B1200000B
@@ -4404,10 +4578,10 @@ object Form1: TForm1
           697265776F726B732043533406B2D3A00000001A4944415478DA63FCFFFF3F03
           258071D4805103460D182E060000FD5A2FE19704E8CE0000000049454E44AE42
           6082}
-        Name = 'PngImage3'
-        Background = clWindow
       end
       item
+        Background = clWindow
+        Name = 'PngImage0'
         PngImage.Data = {
           89504E470D0A1A0A0000000D49484452000000100000001008060000001FF3FF
           610000000473424954080808087C086488000000097048597300000B1200000B
@@ -4431,10 +4605,10 @@ object Form1: TForm1
           6BD501580985CC2FFC49EDA32EF71337B9536CFC1E85B9F3313764AF73108A29
           0CB447D0D4DC05B3EB3DDA3AFACB25DC47FF00AA9306F0C1603E5F0000000049
           454E44AE426082}
-        Name = 'PngImage0'
-        Background = clWindow
       end
       item
+        Background = clWindow
+        Name = 'PngImage4'
         PngImage.Data = {
           89504E470D0A1A0A0000000D49484452000000100000001008060000001FF3FF
           610000000473424954080808087C086488000000097048597300000B1200000B
@@ -4458,10 +4632,10 @@ object Form1: TForm1
           2035CB49B4B65F876AD2274FB798772800372BC0D9B9540E6C5613CF6ED04CD0
           23034EBB1A16AB418ECFFD3886439DAF2A03A59A0C5C21DDB6A47C5ECA1971A0
           DD5BF65F54042AD52F84F922F05E22FBF30000000049454E44AE426082}
-        Name = 'PngImage4'
-        Background = clWindow
       end
       item
+        Background = clWindow
+        Name = 'PngImage1'
         PngImage.Data = {
           89504E470D0A1A0A0000000D49484452000000100000001008060000001FF3FF
           610000000473424954080808087C086488000000097048597300000B1200000B
@@ -4483,10 +4657,10 @@ object Form1: TForm1
           CF228E4E826C85E2698CC562E1B7979F04A076E55B25D791436444CFF1180D60
           F3A20BC5A5B5EFE33D44217F89A0B1D08DDCBC0A540EF97EBF83FFDA2B9856E9
           E1260B9A020000000049454E44AE426082}
-        Name = 'PngImage1'
-        Background = clWindow
       end
       item
+        Background = clWindow
+        Name = 'PngImage5'
         PngImage.Data = {
           89504E470D0A1A0A0000000D49484452000000100000001008060000001FF3FF
           610000000473424954080808087C086488000000097048597300000B1200000B
@@ -4495,18 +4669,101 @@ object Form1: TForm1
           697265776F726B732043533406B2D3A00000001A4944415478DA63FCFFFF3F03
           258071D4805103460D182E060000FD5A2FE19704E8CE0000000049454E44AE42
           6082}
-        Name = 'PngImage5'
+      end
+      item
         Background = clWindow
+        Name = 'snowman-hat'
+        PngImage.Data = {
+          89504E470D0A1A0A0000000D49484452000000100000001008060000001FF3FF
+          610000001974455874536F6674776172650041646F626520496D616765526561
+          647971C9653C000002DD4944415478DAA5536D489351143EF7DD86DADCB2294E
+          D377CB94727E214D13224334D6ACA0E930652E6484F8AF0205C5E8CFC49811F9
+          63340AB22452E652CAA930D3A0FE288448142E1453EC4319FB707E4D37E7D679
+          5F4C44847E74E0E19E73EEB9CF39F7DC7349381C86FF11A26A6EDE3338140514
+          87C3EAD36363F07574747F6C3C428B0915B8DA1126C4ECBF08D2503D8D382111
+          0ACBCE151464095352E2D6502C16CB5C3018AC3E8C206A2718CC9CE8EF57FCB2
+          DB73A351CE666464D6D1B4E4AA48048F5756E0F5FC3CD034EDEFEDEDED3B4810
+          4328AAF4A24CA62A96CB2F49A55201BAA9C5C545B0D96C30393808F55B5BF032
+          1402AF4C1636994CDFF61344518494196A6ABA70031EB5B743080399168777D7
+          377D7D606C6C04B35C0E8D3EDF46B7CD6622BF0981BA86062084E45F2F2EBE6D
+          361AAB19B6B7562BE01DE1E7C2023084F70D06F06F6FC3C3B636489F9E86BB23
+          23733FBCDE0B2CC10C4DC303B55AFBB4A9C9102310241124D80A048079629D56
+          CB96F7CA6C06CFEA2A781C0EA8ADAA5AF93C336344F73DF29D902C545AB87C3E
+          4FA8565F61824398D95B5E0E81BC3C382610B0440E8F0742B846F178909B9E6E
+          F7FBFDAD18DA4DA6B0827580847189445F2012D526A6A6823829093E0D0F4304
+          DE99ED011E64C1348AC70BE7C9641368EBD09C22ADD9D9D09F93C324BEA9AFAC
+          6C59EFEC4C5C1D188084D65688562A811C983CD7D2D2669546F30C9B768B9DC4
+          DC8A0A760319CF971616DEB95C54A40EA1CDC599E0E250F97C3E788713A956A9
+          8042DF938E8E11F3D0501B12BC67094E9596FE25E763D775751A8DEE244D9F71
+          BBDDE0743AC1E57281B2A404E8E464F8383EFEA55EAFEFC264CC18AFB304FBCB
+          134AA5711162F18D32A5B2E49A42919F101F2FC24A88CBE3715BACD6C9173D3D
+          1F76DCEEE73B1E8F73EF33ED3BCF4588399191C7B9B1B16984CF97E0558EE210
+          11C46A78636321B4BC3C1B0E041C18B784081C24A010D18823BBFA61C23CC426
+          620DB1C338FE0026EA344FC84DBCBF0000000049454E44AE426082}
+      end
+      item
+        Background = clWindow
+        Name = 'smile3'
+        PngImage.Data = {
+          89504E470D0A1A0A0000000D49484452000000100000001008060000001FF3FF
+          610000000473424954080808087C086488000000097048597300000B1200000B
+          1201D2DD7EFC0000001C74455874536F6674776172650041646F626520466972
+          65776F726B732043533571B5E33600000016744558744372656174696F6E2054
+          696D650031302F32362F313094C7DA03000001EC4944415478DA9D93BF6FD340
+          14C7BFDD32D54F4245961870B70C483DBA34DDACF41FF0D68C5E905840E95624
+          964AFD0350272654B6B059EC956ECCC6213164C36C51592E9B99D2EFBBB35D53
+          60E1A4E73B3B799FF77D3F6E67BBDDE2E2CD3E06EB31ED196D0F7FAE9FB46FB4
+          DBEEC3CE03C02EAD2867F8E81B9E4602E80EDF13AA0AAFB97DEA2043803AE793
+          093E8C8D7924F44D600801364D05BFF6F0E4783EAC951E32041C1E1FE3F3D191
+          799248CE57D3C6D4E80E1B5F514D8438E7E15611D20134EF1765692E9FA6744C
+          CAE8FBCBB6809ACE964A828400A9ACEED949079896A5DCC8284392CE71765EC1
+          2E2DBED8A2079CCD05D659D8051DD7AA8256CBAC039C12B0903447322AF07C52
+          869CBFD7650BF0D837361CDD5282827AC55AB801A098C9E260AC11055F572E64
+          7030961EF06355C333852C4550A001AAE5434036289CB6505713019BA68EE746
+          EE014305EC3D53104A648E4D863C17A6C3162ACC6B7483EB6B8BA220781DEB60
+          0735981605584426C0DFE7E74096E9500824D57CB5680E359DE62F33F2DA76AE
+          EF01DAC65784BC55880ECFBBF73A3074E69FF34904961A3D76122EEC72321CA4
+          A931FE4615041B4998BA30CAAD85F1E6B79A75A8FDEF83D45DA25333F657DDDC
+          4B5FC40850471F0C7F1DE51E42B957DEC76E84A88A0AA080FCE765FAAFEB7C07
+          FB0E325A90B952820000000049454E44AE426082}
+      end
+      item
+        Background = clWindow
+        Name = 'question-button'
+        PngImage.Data = {
+          89504E470D0A1A0A0000000D49484452000000100000001008060000001FF3FF
+          610000001974455874536F6674776172650041646F626520496D616765526561
+          647971C9653C000002774944415478DAA593FD4B536114C7CF73EFDE571B8EC6
+          B0A874358A520C822D9B9BD35ED02005A52C8A8C2828F64B11FE01FD01A1108B
+          402A2442C82C9C1952385FA6320D6915F94BD612CB711DA9DB75DBDDEBED79AE
+          6BF3F68B440F1CCEF739F79CCF739E7BEE453CCFC3FF2C44570C12A706845AB1
+          A8C556B449CD0A360FF07C17001FCD01C079A86CFB75AB79F75E855CAA10E7F3
+          F0A749E2E35C8A9B7C373FF77136F800875C882E1F20CF7A6F5CB19E6223F17C
+          71381C1661B45A6D5ECBE412EED1D3E9D7583623BACC4D62C3CEAB3607C3AC0A
+          092CCBC2C0BD7211A0ADFD0B2C84A482D6689480012358D620FAC04B0170ED72
+          A5637171594848A55250679108DA545204F5B66278F8621EDCDE580EA082EEE7
+          EFD701D4BE1E121BB974C1521D0CFECA9F4820D1680CEC1514B41C5741CFD02A
+          F40E858196D0A0D7EB60D2C78CE23407A24CDD247FF4FC39B39D6156209DCE40
+          38B206B1380787F72BA0EDE236980DC4E04E67080F8B12E05BD44AF0FB97C6B0
+          AC46D49E2702E0CC598BFD07BE4298E5209BCD624B41FF5DA350D0703B806B25
+          F9EEE432297C98F99E03943C26B1B1FAC64ADBCF2516367E57C9F8FA2464CAC2
+          04C8A26904FE894F5E2CED88DAD549625E47C3B12A762D5978078928785CA582
+          AE7506402A578B20331EEF38763644EDB84FF6E38EE6262B97C8144EE722F0A6
+          DD20E893B7189029342280EF55DF047655883274907DFFD1A69613944C25DF98
+          C486BE097EABDE282A4EC6A28969F7B3B7589E464882DB54B5DE2C361D741ACD
+          353B656A8D08F2F74A442389AF53C30BCCDC6717C4BA3A108EE900E94A81AE6B
+          0464388267B5C9CFC4AF00CFF82033D807FC72800094A44B6C12F8B79526B7FC
+          0DB838E307161F864C0000000049454E44AE426082}
       end>
-    Left = 240
-    Top = 198
+    Left = 224
+    Top = 222
     Bitmap = {}
   end
   object Timer1: TTimer
     Enabled = False
     Interval = 10
     OnTimer = Timer1Timer
-    Left = 320
+    Left = 360
     Top = 246
   end
   object Timer2: TTimer
@@ -4515,5 +4772,116 @@ object Form1: TForm1
     OnTimer = Timer2Timer
     Left = 360
     Top = 246
+  end
+  object FlagsPngList: TPngImageList
+    DrawingStyle = dsTransparent
+    Height = 12
+    ShareImages = True
+    Width = 17
+    PngImages = <>
+    Left = 544
+    Top = 414
+  end
+  object CountryImageList: TPngImageList
+    DrawingStyle = dsTransparent
+    Height = 12
+    ShareImages = True
+    Width = 15
+    PngImages = <>
+    Left = 544
+    Top = 414
+  end
+  object PlayerNamePopup: TTBPopupMenu
+    Tag = 44
+    OnPopup = PlayerNamePopupPopup
+    Left = 48
+    Top = 549
+    object TBItemAdToBodyList: TTBItem
+      Tag = 5
+      Caption = 'Add to buddy list'
+      OnClick = PlayernamePopupActionClick
+    end
+    object CopyTextItem: TTBSubmenuItem
+      Caption = 'Copy text'
+      object TBItemCopyCell: TTBItem
+        Tag = 3
+        Caption = 'Selected cell'
+        OnClick = PlayernamePopupActionClick
+      end
+      object TBSeparatorItem38: TTBSeparatorItem
+      end
+      object TBItemCopyname: TTBItem
+        Tag = 1
+        Caption = 'Player name'
+        OnClick = PlayernamePopupActionClick
+      end
+      object TBItemPlayerNote: TTBItem
+        Tag = 2
+        Caption = 'Note'
+        OnClick = PlayernamePopupActionClick
+      end
+    end
+    object TBSeparatorItem35: TTBSeparatorItem
+    end
+    object PrefixesItem: TTBSubmenuItem
+      Caption = 'Prefixes'
+      object TBItemPrfixA: TTBItem
+        Tag = 4
+        Caption = 'Add selected ...'
+        OnClick = PlayernamePopupActionClick
+      end
+      object TBItemPrefixE: TTBItem
+        Tag = 7
+        Caption = 'Edit selectd ...'
+        OnClick = PlayernamePopupActionClick
+      end
+      object TBSeparatorItem43: TTBSeparatorItem
+      end
+      object TBItemPrefixD: TTBItem
+        Tag = 10
+        Caption = 'Delete'
+        OnClick = PlayernamePopupActionClick
+      end
+    end
+    object NamesItem: TTBSubmenuItem
+      Caption = 'Names'
+      object TBItemNameA: TTBItem
+        Tag = 5
+        Caption = 'Add selected ...'
+        OnClick = PlayernamePopupActionClick
+      end
+      object TBItemNameE: TTBItem
+        Tag = 8
+        Caption = 'Edit selectd ...'
+        OnClick = PlayernamePopupActionClick
+      end
+      object TBSeparatorItem42: TTBSeparatorItem
+      end
+      object TBItemNameD: TTBItem
+        Tag = 11
+        Caption = 'Delete'
+        OnClick = PlayernamePopupActionClick
+      end
+    end
+    object TagsItem: TTBSubmenuItem
+      Caption = 'Tags'
+      object TBItemTagsA: TTBItem
+        Tag = 6
+        Caption = 'Add new tag'
+        OnClick = PlayernamePopupActionClick
+      end
+      object TBItemTagsE: TTBItem
+        Tag = 9
+        Caption = 'Edit selected'
+        OnClick = PlayernamePopupActionClick
+      end
+      object TBSeparatorItem41: TTBSeparatorItem
+      end
+      object TBItemTagsD: TTBItem
+        Tag = 12
+        Caption = 'Delete'
+        OnClick = PlayernamePopupActionClick
+      end
+    end
   end
 end

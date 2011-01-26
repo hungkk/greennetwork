@@ -106,6 +106,10 @@ procedure Save32BitBitmap(ABitmap: TBitmap; FileName: string);
 procedure DrawBitmapFromRes(Canvas: TCanvas; X, Y: Integer;
   ResStr: string; TransparentColor: TColor);
 
+procedure DrawFocusRect(Canvas: TCanvas; ARect: TRect);
+
+function NormalizeRect(ARect: TRect): TRect;
+
 var
   IsUnicodeSupported: Boolean;
 
@@ -1230,15 +1234,16 @@ begin
   Bitmap := TBitmap.Create;
   Bitmap.Width := ABitmap.Width;
   Bitmap.Height := ABitmap.Height;
+  Bitmap.PixelFormat := ABitmap.PixelFormat;
   for i := 0 to ABitmap.Height - 1 do
   begin
+    Pa := ABitmap.ScanLine[i];
+    Pb := Bitmap.ScanLine[i];
     for j := 0 to ABitmap.Width - 1 do
     begin
-      Pa := ABitmap.ScanLine[j];
       SetColorValues32(Pa, r, g, b, alpha);
-        ShowMessage(IntToStr(alpha));
-      Pb := Bitmap.ScanLine[j];
-      SetColorValues32(Pb, r, g, b, alpha);
+      //ShowMessage(IntToStr(r) + ',' + IntToStr(g) + ',' + IntToStr(b) + ' ' + IntToStr(alpha));
+      PutColorValues(Pb, r, g, b, alpha);
     end;
   end;
   Bitmap.SaveToFile(FileName);
@@ -1324,6 +1329,38 @@ begin
   with ClipRect do CLPRGN := CreateRectRgn(Left, Top, Right, Bottom);
   SelectClipRgn(Canvas.Handle, CLPRGN);
   DeleteObject(CLPRGN);
+end;
+
+procedure DrawFocusRect(Canvas: TCanvas; ARect: TRect);
+var
+  PrevBkColor, PrevTextColor: TColorRef;
+  DC: HDC;
+begin
+  DC := Canvas.Handle;
+  PrevBkColor := SetBkColor(DC, clBlack);
+  PrevTextColor := SetTextColor(DC, clWhite);
+  Windows.DrawFocusRect(DC, ARect);
+  SetBkColor(DC, PrevBkColor);
+  SetTextColor(DC, PrevTextColor);
+end;
+
+function NormalizeRect(ARect: TRect): TRect;
+var
+  Tmp: Integer;
+begin
+  if (ARect.Left > ARect.Right) then
+  begin
+    Tmp := ARect.Left;
+    ARect.Left := ARect.Right;
+    ARect.Right := Tmp;
+  end;
+  if (ARect.Top > ARect.Bottom) then
+  begin
+    Tmp := ARect.Top;
+    ARect.Top := ARect.Bottom;
+    ARect.Bottom := Tmp;
+  end;
+  Result := ARect;
 end;
 
 initialization
